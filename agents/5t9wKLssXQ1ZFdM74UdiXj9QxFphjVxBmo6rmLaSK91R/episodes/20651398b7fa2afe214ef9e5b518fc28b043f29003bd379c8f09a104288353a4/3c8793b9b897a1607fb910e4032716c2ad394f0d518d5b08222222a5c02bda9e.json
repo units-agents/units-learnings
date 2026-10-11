@@ -1,0 +1,468 @@
+{
+  "schema": "lineage-episode/1",
+  "episode_id": "3c8793b9b897a1607fb910e4032716c2ad394f0d518d5b08222222a5c02bda9e",
+  "seq": 2819,
+  "network": "devnet",
+  "session_id": "190942853684f3d742015c22d4a5c7cd9529a152a3dbb30f215de280f196a9d9",
+  "agent": {
+    "id": "5t9wKLssXQ1ZFdM74UdiXj9QxFphjVxBmo6rmLaSK91R",
+    "name": null,
+    "hidden": false,
+    "hosted": true,
+    "identity_mode": "app",
+    "soul": null
+  },
+  "model": {
+    "provider": "anthropic",
+    "models": [
+      "claude-opus-5-5"
+    ],
+    "route": {
+      "model": {
+        "id": "claude-opus-5-5",
+        "provider": "anthropic"
+      },
+      "upstream": [],
+      "via": "direct"
+    },
+    "harness": {
+      "name": "anthropic",
+      "version": "anthropic/1",
+      "digest": "397a4a3b083a1923ef12e2d35acf8f4dd01c59298cdccab593c73cf528d72aa6"
+    },
+    "source": "provenance:hosted"
+  },
+  "task": {
+    "recipe": {
+      "recipe_id": "46a0d78dd189aa96c32d8f87402f2288b375c0934af32d036350034feb51f648",
+      "name": "minbpe",
+      "class": "python",
+      "repo": "https://github.com/karpathy/minbpe",
+      "commit": "1acefe89412b20245db5a22d2a02001e547dc602"
+    },
+    "lineage_id": "20651398b7fa2afe214ef9e5b518fc28b043f29003bd379c8f09a104288353a4",
+    "parent_gen_id": "2a34acc7f3feaaf84f0e327123418dc848a39573b2b6b0d658717d98d0865022",
+    "parent_height": 24,
+    "metrics": [
+      {
+        "name": "train_ir",
+        "kind": "perf",
+        "direction": "lower",
+        "deterministic": true,
+        "min_effect": 0.01
+      },
+      {
+        "name": "encode_ir",
+        "kind": "perf",
+        "direction": "lower",
+        "deterministic": true,
+        "min_effect": 0.01
+      }
+    ],
+    "target": {
+      "kind": "perf",
+      "target": "encode_ir",
+      "source": "candidate"
+    },
+    "baseline": null
+  },
+  "plan": {
+    "planned": null,
+    "opening_note": "I have no notes from earlier sessions, so I'm going on the rules above. I'll read the hot code first, make one clear algorithmic change and run evaluate before submitting, and I'll give up instead of submitting anything evaluate doesn't accept.",
+    "source": "worker_report + session notes"
+  },
+  "hypotheses": [
+    "I have no notes from earlier sessions, so I'm going on the rules above. I'll read the hot code first, make one clear algorithmic change and run evaluate before submitting, and I'll give up instead of submitting anything evaluate doesn't accept.",
+    "Next, `_encode_ordinary` in regex.py:"
+  ],
+  "actions": [
+    {
+      "seq": 1,
+      "kind": "note",
+      "at": 1791674621174,
+      "text": "I have no notes from earlier sessions, so I'm going on the rules above. I'll read the hot code first, make one clear algorithmic change and run evaluate before submitting, and I'll give up instead of submitting anything evaluate doesn't accept."
+    },
+    {
+      "seq": 2,
+      "kind": "list",
+      "path": "minbpe",
+      "count": 5,
+      "at": 1791674621174
+    },
+    {
+      "seq": 3,
+      "kind": "read",
+      "path": "lineage_bench.py",
+      "start_line": 1,
+      "end_line": 107,
+      "content_sha256": "0e575e458ce50ddadd5137d4ad35bdf3dde443e46e4c7a6be1d8011a16d274ca",
+      "at": 1791674621179
+    },
+    {
+      "seq": 4,
+      "kind": "read",
+      "path": "minbpe/base.py",
+      "start_line": 1,
+      "end_line": 427,
+      "content_sha256": "e3e6172ef23b4b3ba59014a07c89c77745e4fc5b672827d8ee4f30b9121cf477",
+      "at": 1791674623688
+    },
+    {
+      "seq": 5,
+      "kind": "read",
+      "path": "minbpe/regex.py",
+      "start_line": 1,
+      "end_line": 342,
+      "content_sha256": "c6b2261ddebabd149ea0da58f13748b1c9c4069e7f9a9afc51f67fba07a28a3d",
+      "at": 1791674623692
+    },
+    {
+      "seq": 6,
+      "kind": "read",
+      "path": "minbpe/basic.py",
+      "start_line": 1,
+      "end_line": 239,
+      "content_sha256": "8c35dd5724c22e5ee4fb54be4553e40f2a15bac06a3f261d9d7322091f856438",
+      "at": 1791674623693
+    },
+    {
+      "seq": 7,
+      "kind": "read",
+      "path": "minbpe/gpt4.py",
+      "start_line": 1,
+      "end_line": 133,
+      "content_sha256": "ec8e5229cc991ee23634e235cf53ef98b8e06774edb71f68cba39e253a5c5a9b",
+      "at": 1791674665536
+    },
+    {
+      "seq": 8,
+      "kind": "edit",
+      "path": "minbpe/base.py",
+      "start_line": 168,
+      "end_line": 174,
+      "lines_before": 7,
+      "lines_after": 44,
+      "at": 1791674674329,
+      "diff": "--- a/minbpe/base.py\n+++ b/minbpe/base.py\n@@ -168,7 +168,44 @@\n-    # the plan (needle, replacement) in rank order is cached for the last\n-    # merges seen; a snapshot copy is compared so any change rebuilds it\n-    cached = _STR_PLAN[0]\n-    if cached is not None and cached == merges:\n-        plan = _STR_PLAN[1]\n-    else:\n-        order = []\n+    plan = _get_str_plan(merges)\n+    if plan is None or not set(map(type, ids)) <= _INT_TYPE:\n+        return None\n+    try:\n+        s = \"\".join(map(chr, ids))\n+    except ValueError: # negative or above 0x10FFFF\n+        return None\n+    for needle, repl in plan:\n+        s = s.replace(needle, repl)\n+    return list(map(ord, s))\n+\n+def apply_merges_many(texts, merges):\n+    \"\"\"\n+    Same result as [apply_merges(list(map(ord, t)), merges) for t in texts]\n+    for strs t of code points < 256, under the conditions of _apply_merges_str\n+    (returns None otherwise). All texts are joined with a separator code point\n+    above every token id, which no merge pair contains, so no merge spans two\n+    texts and str.replace over the joined str merges each text independently.\n+    Merges whose tokens are both absent are skipped (no occurrence possible).\n+    \"\"\"\n+    plan = _get_str_plan(merges)\n+    if plan is None:\n+        return None\n+    sep = _STR_PLAN[2]\n+    if sep is None:\n+        return None\n+    s = sep.join(texts)\n+    present = set(s)\n+    for needle, repl in plan:\n+        if needle[0] in present and needle[1] in present:\n+            n = len(s)\n+            s = s.replace(needle, repl)\n+            if len(s) != n:\n+                present.add(repl)\n+    return [list(map(ord, t)) for t in s.split(sep)]\n+\n+def _get_str_plan(merges):\n+    # the plan (needle, replacement) in rank order is cached for the last\n+    # merges seen; a snapshot copy is compared so any change rebuilds it\n+    cached = _STR_PLAN[0]\n+    if cached is not None and cached == merges:\n+        plan = _STR_PLAN[1]\n+    else:\n+        order = []"
+    },
+    {
+      "seq": 9,
+      "kind": "edit",
+      "path": "minbpe/base.py",
+      "start_line": 223,
+      "end_line": 237,
+      "lines_before": 15,
+      "lines_after": 10,
+      "at": 1791674681146,
+      "diff": "--- a/minbpe/base.py\n+++ b/minbpe/base.py\n@@ -223,15 +223,10 @@\n-                    plan = None # duplicate rank\n-                    break\n-        _STR_PLAN[0] = dict(merges)\n-        _STR_PLAN[1] = plan\n-    if plan is None or not set(map(type, ids)) <= _INT_TYPE:\n-        return None\n-    try:\n-        s = \"\".join(map(chr, ids))\n-    except ValueError: # negative or above 0x10FFFF\n-        return None\n-    for needle, repl in plan:\n-        s = s.replace(needle, repl)\n-    return list(map(ord, s))\n-\n-_STR_PLAN = [None, None] # [merges snapshot, plan or None]\n+                    plan = None # duplicate rank\n+                    break\n+        # separator for apply_merges_many: above every token id (and byte)\n+        top = max(order[-1][0] if order else 0, 255) + 1\n+        _STR_PLAN[0] = dict(merges)\n+        _STR_PLAN[1] = plan\n+        _STR_PLAN[2] = chr(top) if plan is not None and top <= 0x10FFFF else None\n+    return plan\n+\n+_STR_PLAN = [None, None, None] # [merges snapshot, plan or None, separator]"
+    },
+    {
+      "seq": 10,
+      "kind": "note",
+      "at": 1791674687329,
+      "text": "Next, `_encode_ordinary` in regex.py:"
+    },
+    {
+      "seq": 11,
+      "kind": "edit",
+      "path": "minbpe/regex.py",
+      "start_line": 288,
+      "end_line": 290,
+      "lines_before": 3,
+      "lines_after": 13,
+      "at": 1791674687332,
+      "diff": "--- a/minbpe/regex.py\n+++ b/minbpe/regex.py\n@@ -288,3 +288,13 @@\n-        cache_get = cache.get\n-        encode_chunk = self._encode_chunk\n-        for chunk in text_chunks:\n+        cache_get = cache.get\n+        encode_chunk = self._encode_chunk\n+        if type(self)._encode_chunk is RegexTokenizer._encode_chunk:\n+            # encode all distinct uncached chunks at once (each merge is one\n+            # C-level str.replace over all of them); same ids as encode_chunk\n+            missing = [ch for ch in dict.fromkeys(text_chunks) if ch not in cache]\n+            if len(missing) >= 32:\n+                out = apply_merges_many(\n+                    [ch.encode(\"utf-8\").decode(\"latin-1\") for ch in missing],\n+                    self.merges)\n+                if out is not None:\n+                    cache.update(zip(missing, out))\n+        for chunk in text_chunks:"
+    },
+    {
+      "seq": 12,
+      "kind": "edit",
+      "path": "minbpe/regex.py",
+      "start_line": 16,
+      "end_line": 16,
+      "lines_before": 1,
+      "lines_after": 1,
+      "at": 1791674687339,
+      "diff": "--- a/minbpe/regex.py\n+++ b/minbpe/regex.py\n@@ -16,1 +16,1 @@\n-from .base import Tokenizer, merge, apply_merges, _count_elements\n+from .base import Tokenizer, merge, apply_merges, apply_merges_many, _count_elements"
+    },
+    {
+      "seq": 13,
+      "kind": "evaluate",
+      "target": "encode_ir",
+      "eval_kind": "perf",
+      "at": 1791674689981,
+      "phases": [
+        {
+          "phase": "prepare",
+          "at": 1791674689983
+        },
+        {
+          "phase": "build",
+          "at": 1791674692274
+        },
+        {
+          "phase": "build",
+          "at": 1791674692284
+        },
+        {
+          "phase": "test",
+          "at": 1791674695049
+        },
+        {
+          "phase": "test",
+          "at": 1791674782862
+        },
+        {
+          "phase": "equivalence",
+          "at": 1791674853328
+        },
+        {
+          "phase": "equivalence",
+          "at": 1791674853333
+        },
+        {
+          "phase": "metrics",
+          "at": 1791674856265
+        },
+        {
+          "phase": "metrics",
+          "at": 1791674872938
+        },
+        {
+          "phase": "metrics",
+          "at": 1791674888059
+        },
+        {
+          "phase": "metrics",
+          "at": 1791674905861
+        }
+      ]
+    },
+    {
+      "seq": 25,
+      "kind": "result",
+      "at": 1791674921380,
+      "output": "outcome: accepted\nguard: ok, 2 files, 64 lines\nbuild: base ok, candidate ok\nequivalence: identical outputs\nmetric train_ir: parent 371607129, candidate 373796828, ratio 1.0059\nmetric encode_ir: parent 432399528, candidate 425281849, ratio 0.9835",
+      "outcome": "accepted",
+      "steps": [
+        {
+          "step": "build",
+          "side": "base",
+          "exit": 0,
+          "duration_ms": 2672,
+          "timed_out": false,
+          "tail": "3.12.15\n"
+        },
+        {
+          "step": "build",
+          "side": "cand",
+          "exit": 0,
+          "duration_ms": 2662,
+          "timed_out": false,
+          "tail": "3.12.15\n"
+        },
+        {
+          "step": "test",
+          "side": "base",
+          "exit": 0,
+          "duration_ms": 87641,
+          "timed_out": false,
+          "tail": ".....................                                                    [100%]\n---------------------- generated xml file: /out/junit.xml ----------------------\n21 passed in 85.20s (0:01:25)\n"
+        },
+        {
+          "step": "test",
+          "side": "cand",
+          "exit": 0,
+          "duration_ms": 70439,
+          "timed_out": false,
+          "tail": ".....................                                                    [100%]\n---------------------- generated xml file: /out/junit.xml ----------------------\n21 passed in 67.72s (0:01:07)\n"
+        },
+        {
+          "step": "equivalence",
+          "side": "base",
+          "exit": 0,
+          "duration_ms": 2852,
+          "timed_out": false,
+          "tail": "9, 97, 115, 32, 103, 101, 110, 101, 114, 97, 108, 108, 121, 32, 112, 111, 114, 116, 114, 97, 121, 101, 100, 32, 34, 109, 111, 114, 101, 267, 115, 267, 32, 115, 107, 105, 108, 108, 101, 100, 32, 279, 99, 104, 110, 105, 99, 105, 97, 110, 32, 116, 104, 97, 110, 267, 115, 267, 32, 68, 121, 108, 97, 110, 101, 115, 113, 117, 101, 32, 118, 105, 115, 271, 110, 97, 114, 121, 34, 46, 91, 49, 50, 93, 32, 84, 277, 108, 282, 100, 32, 109, 101, 100, 105, 97, 32, 111, 102, 279, 110, 32, 115, 112, 101, 99, 117, 108, 97, 279, 100, 267, 110, 100, 32, 108, 105, 110, 107, 101, 100, 32, 116, 104, 101, 32, 115, 117, 98, 106, 101, 99, 116, 115, 32, 111, 102, 32, 104, 101, 114, 32, 115, 111, 110, 103, 115, 32, 119, 105, 116, 104, 32, 104, 101, 114, 284, 120, 45, 108, 111, 118, 101, 114, 115, 44, 267, 32, 112, 114, 97, 99, 116, 105, 99, 101, 32, 114, 101, 118, 105, 101, 119, 101, 114, 115, 267, 110, 100, 32, 83, 119, 105, 102, 116, 32, 104, 101, 114, 115, 101, 108, 102, 32, 99, 114, 105, 116, 105, 99, 105, 122, 101, 100, 267, 115, 32, 115, 101, 120, 105, 115, 116, 46, 91, 51, 56, 48, 93, 91, 51, 56, 49, 93, 91, 51, 56, 50, 93, 32, 65, 115, 105, 100, 101, 32, 102, 114, 111, 109, 32, 99, 108, 117, 101, 115]\n"
+        },
+        {
+          "step": "equivalence",
+          "side": "cand",
+          "exit": 0,
+          "duration_ms": 2910,
+          "timed_out": false,
+          "tail": "9, 97, 115, 32, 103, 101, 110, 101, 114, 97, 108, 108, 121, 32, 112, 111, 114, 116, 114, 97, 121, 101, 100, 32, 34, 109, 111, 114, 101, 267, 115, 267, 32, 115, 107, 105, 108, 108, 101, 100, 32, 279, 99, 104, 110, 105, 99, 105, 97, 110, 32, 116, 104, 97, 110, 267, 115, 267, 32, 68, 121, 108, 97, 110, 101, 115, 113, 117, 101, 32, 118, 105, 115, 271, 110, 97, 114, 121, 34, 46, 91, 49, 50, 93, 32, 84, 277, 108, 282, 100, 32, 109, 101, 100, 105, 97, 32, 111, 102, 279, 110, 32, 115, 112, 101, 99, 117, 108, 97, 279, 100, 267, 110, 100, 32, 108, 105, 110, 107, 101, 100, 32, 116, 104, 101, 32, 115, 117, 98, 106, 101, 99, 116, 115, 32, 111, 102, 32, 104, 101, 114, 32, 115, 111, 110, 103, 115, 32, 119, 105, 116, 104, 32, 104, 101, 114, 284, 120, 45, 108, 111, 118, 101, 114, 115, 44, 267, 32, 112, 114, 97, 99, 116, 105, 99, 101, 32, 114, 101, 118, 105, 101, 119, 101, 114, 115, 267, 110, 100, 32, 83, 119, 105, 102, 116, 32, 104, 101, 114, 115, 101, 108, 102, 32, 99, 114, 105, 116, 105, 99, 105, 122, 101, 100, 267, 115, 32, 115, 101, 120, 105, 115, 116, 46, 91, 51, 56, 48, 93, 91, 51, 56, 49, 93, 91, 51, 56, 50, 93, 32, 65, 115, 105, 100, 101, 32, 102, 114, 111, 109, 32, 99, 108, 117, 101, 115]\n"
+        },
+        {
+          "step": "metrics",
+          "side": "base",
+          "exit": 0,
+          "duration_ms": 16673,
+          "timed_out": false,
+          "tail": "==7== Cachegrind, a cache and branch-prediction profiler\n==7== Copyright (C) 2002-2017, and GNU GPL'd, by Nicholas Nethercote et al.\n==7== Using Valgrind-3.19.0 and LibVEX; rerun with -h for copyright info\n==7== Command: python lineage_bench.py train c8b8489eb54ac31a\n==7== \n==7== \n==7== I   refs:      371,607,129\n"
+        },
+        {
+          "step": "metrics",
+          "side": "cand",
+          "exit": 0,
+          "duration_ms": 15119,
+          "timed_out": false,
+          "tail": "==7== Cachegrind, a cache and branch-prediction profiler\n==7== Copyright (C) 2002-2017, and GNU GPL'd, by Nicholas Nethercote et al.\n==7== Using Valgrind-3.19.0 and LibVEX; rerun with -h for copyright info\n==7== Command: python lineage_bench.py train c8b8489eb54ac31a\n==7== \n==7== \n==7== I   refs:      373,796,828\n"
+        },
+        {
+          "step": "metrics",
+          "side": "base",
+          "exit": 0,
+          "duration_ms": 17801,
+          "timed_out": false,
+          "tail": "==7== Cachegrind, a cache and branch-prediction profiler\n==7== Copyright (C) 2002-2017, and GNU GPL'd, by Nicholas Nethercote et al.\n==7== Using Valgrind-3.19.0 and LibVEX; rerun with -h for copyright info\n==7== Command: python lineage_bench.py encode c8b8489eb54ac31a\n==7== \n==7== \n==7== I   refs:      432,399,528\n"
+        },
+        {
+          "step": "metrics",
+          "side": "cand",
+          "exit": 0,
+          "duration_ms": 15463,
+          "timed_out": false,
+          "tail": "==6== Cachegrind, a cache and branch-prediction profiler\n==6== Copyright (C) 2002-2017, and GNU GPL'd, by Nicholas Nethercote et al.\n==6== Using Valgrind-3.19.0 and LibVEX; rerun with -h for copyright info\n==6== Command: python lineage_bench.py encode c8b8489eb54ac31a\n==6== \n==6== \n==6== I   refs:      425,281,849\n"
+        }
+      ]
+    },
+    {
+      "seq": 26,
+      "kind": "submit",
+      "at": 1791674928710,
+      "reason": "RegexTokenizer._encode_ordinary now encodes all distinct uncached chunks of a call in one batch (when there are at least 32 and _encode_chunk isn't overridden). The chunks are latin-1 strings joined with a separator code point above every token id. No merge pair contains the separator, so no merge can cross from one chunk into the next. The cached rank-order plan is then applied with one str.replace per merge, skipping merges whose two tokens are absent. This is the same equivalence argument _apply_merges_str already relies on for long sequences. The plan builder is factored out as _get_str_plan, and it falls back to the per-chunk path when the plan conditions don't hold. Equivalence identical; encode_ir ratio 0.9835."
+    }
+  ],
+  "candidate": {
+    "commit_id": "2c590be639796e933203f739462037207d14fe16d2b12eb6e9a67e1bf161ab84",
+    "candidate_id": "6867977f3230290f732d24a5e12d2a6b1be37d234891e3298aa5d49748bbc5d9",
+    "kind": "perf",
+    "target": "encode_ir",
+    "claimed_effect": 0.9835391147790522,
+    "patch": "diff --git a/minbpe/base.py b/minbpe/base.py\n--- a/minbpe/base.py\n+++ b/minbpe/base.py\n@@ -165,6 +165,43 @@ def _apply_merges_str(ids, merges):\n     then a str.replace over code points chr(id) (left to right, non-overlapping,\n     exactly like merge()). Returns None if the conditions do not hold.\n     \"\"\"\n+    plan = _get_str_plan(merges)\n+    if plan is None or not set(map(type, ids)) <= _INT_TYPE:\n+        return None\n+    try:\n+        s = \"\".join(map(chr, ids))\n+    except ValueError: # negative or above 0x10FFFF\n+        return None\n+    for needle, repl in plan:\n+        s = s.replace(needle, repl)\n+    return list(map(ord, s))\n+\n+def apply_merges_many(texts, merges):\n+    \"\"\"\n+    Same result as [apply_merges(list(map(ord, t)), merges) for t in texts]\n+    for strs t of code points < 256, under the conditions of _apply_merges_str\n+    (returns None otherwise). All texts are joined with a separator code point\n+    above every token id, which no merge pair contains, so no merge spans two\n+    texts and str.replace over the joined str merges each text independently.\n+    Merges whose tokens are both absent are skipped (no occurrence possible).\n+    \"\"\"\n+    plan = _get_str_plan(merges)\n+    if plan is None:\n+        return None\n+    sep = _STR_PLAN[2]\n+    if sep is None:\n+        return None\n+    s = sep.join(texts)\n+    present = set(s)\n+    for needle, repl in plan:\n+        if needle[0] in present and needle[1] in present:\n+            n = len(s)\n+            s = s.replace(needle, repl)\n+            if len(s) != n:\n+                present.add(repl)\n+    return [list(map(ord, t)) for t in s.split(sep)]\n+\n+def _get_str_plan(merges):\n     # the plan (needle, replacement) in rank order is cached for the last\n     # merges seen; a snapshot copy is compared so any change rebuilds it\n     cached = _STR_PLAN[0]\n@@ -185,19 +222,14 @@ def _apply_merges_str(ids, merges):\n                 if a[0] == b[0]:\n                     plan = None # duplicate rank\n                     break\n+        # separator for apply_merges_many: above every token id (and byte)\n+        top = max(order[-1][0] if order else 0, 255) + 1\n         _STR_PLAN[0] = dict(merges)\n         _STR_PLAN[1] = plan\n-    if plan is None or not set(map(type, ids)) <= _INT_TYPE:\n-        return None\n-    try:\n-        s = \"\".join(map(chr, ids))\n-    except ValueError: # negative or above 0x10FFFF\n-        return None\n-    for needle, repl in plan:\n-        s = s.replace(needle, repl)\n-    return list(map(ord, s))\n+        _STR_PLAN[2] = chr(top) if plan is not None and top <= 0x10FFFF else None\n+    return plan\n \n-_STR_PLAN = [None, None] # [merges snapshot, plan or None]\n+_STR_PLAN = [None, None, None] # [merges snapshot, plan or None, separator]\n _INT_TYPE = {int}\n \n def _apply_merges_heap(ids, merges):\ndiff --git a/minbpe/regex.py b/minbpe/regex.py\n--- a/minbpe/regex.py\n+++ b/minbpe/regex.py\n@@ -13,7 +13,7 @@ from collections import defaultdict\n from heapq import heapify, heappop, heappush\n \n import regex as re\n-from .base import Tokenizer, merge, apply_merges, _count_elements\n+from .base import Tokenizer, merge, apply_merges, apply_merges_many, _count_elements\n \n \n # the main GPT text split patterns, see\n@@ -287,6 +287,16 @@ class RegexTokenizer(Tokenizer):\n         # chunk once per call (cache: chunk -> ids, shared by the caller)\n         cache_get = cache.get\n         encode_chunk = self._encode_chunk\n+        if type(self)._encode_chunk is RegexTokenizer._encode_chunk:\n+            # encode all distinct uncached chunks at once (each merge is one\n+            # C-level str.replace over all of them); same ids as encode_chunk\n+            missing = [ch for ch in dict.fromkeys(text_chunks) if ch not in cache]\n+            if len(missing) >= 32:\n+                out = apply_merges_many(\n+                    [ch.encode(\"utf-8\").decode(\"latin-1\") for ch in missing],\n+                    self.merges)\n+                if out is not None:\n+                    cache.update(zip(missing, out))\n         for chunk in text_chunks:\n             chunk_ids = cache_get(chunk)\n             if chunk_ids is None:\n",
+    "patch_hash": "a79b1ab425bf005d4cfa13a8be1211a34dfd0f7af4c1d5e7b0f781a995297821",
+    "semantic_hash": "6e8be651131bc24f6d0c3e386c5d15ac901f3f4dfe1e75d97bd42f20f3c9904b",
+    "status": "rejected",
+    "reason": "dependency_failed",
+    "committed_at": 1791674928726,
+    "revealed_at": 1791674928769,
+    "finalized_at": 1791676530297,
+    "gen_id": null
+  },
+  "replays": [
+    {
+      "replay_id": "1b421f57ab4f2189c8e1f5e34d0d00f27afbe9042d31076dc4e62899cad89288",
+      "kind": "replay",
+      "role": "counted",
+      "status": "revealed",
+      "replayer": "7ToydZerFjuoguBEBkdnJgFfjED2paWonAecHSVA1kjK",
+      "counted": true,
+      "apply": "conflict",
+      "build": {
+        "base": "ok",
+        "cand": "skipped"
+      },
+      "tests": {
+        "base_pass": 21,
+        "cand_pass": 0,
+        "cand_fail": 0
+      },
+      "equivalence_same": null,
+      "metrics": {},
+      "env": {
+        "cores": 2,
+        "cpu_model": "DO-Regular",
+        "image_digest": "sha256:beb7b0264451a2bdc993fe5deee1e8b6275fbad7d83d593c69f7a40c64f1164d",
+        "worker_version": "lineage-sandbox/0.1.0"
+      }
+    },
+    {
+      "replay_id": "f9246c803c2721cbd9c05a88f7b6ecd3e3984b4e7893cf1da9ded9e08b04e7d5",
+      "kind": "replay",
+      "role": "counted",
+      "status": "revealed",
+      "replayer": "3jJHAgibtbRtbTw9T2TMadYppiFV2YzGptWMrCsgu6Xz",
+      "counted": true,
+      "apply": "conflict",
+      "build": {
+        "base": "ok",
+        "cand": "skipped"
+      },
+      "tests": {
+        "base_pass": 21,
+        "cand_pass": 0,
+        "cand_fail": 0
+      },
+      "equivalence_same": null,
+      "metrics": {},
+      "env": {
+        "cores": 2,
+        "cpu_model": "DO-Regular",
+        "image_digest": "sha256:beb7b0264451a2bdc993fe5deee1e8b6275fbad7d83d593c69f7a40c64f1164d",
+        "worker_version": "lineage-sandbox/0.1.0"
+      }
+    }
+  ],
+  "verdict": {
+    "outcome": "rejected",
+    "reason": "apply_conflict",
+    "detail": "patch does not apply to parent",
+    "effect": null,
+    "digest": "781e0e770a3a0509b0c9bf205dcd34bbb83ba6780fdded8f1437d06d100376b6"
+  },
+  "outcome": "rejected",
+  "effect": null,
+  "cost": {
+    "input_tokens": 18,
+    "output_tokens": 6979,
+    "cache_read_tokens": 151859,
+    "cache_write_tokens": 31473,
+    "usd": 0.327389,
+    "sandbox_s": 235,
+    "source": "provenance:hosted"
+  },
+  "reward": {
+    "v": 1,
+    "accepted": 0,
+    "effect": 0,
+    "fixed_tests": 0,
+    "effect_per_usd": 0,
+    "effect_per_sandbox_hour": 0,
+    "reverted": false,
+    "inputs": [
+      "outcome",
+      "cost.usd (provenance:hosted)",
+      "cost.sandbox_s (provenance:hosted)"
+    ]
+  },
+  "worker_outcome": "submitted a perf candidate on encode_ir (64 changed lines); it was committed and revealed (status waiting); its verdict comes later from independent replays",
+  "journal": null,
+  "provenance": {
+    "runtime": "hosted",
+    "digest": "32be69d362fb755f353d192dbdfe70b95bc31175edb9bfd428fa7ef2cccae94f",
+    "sig": "2ffEQHzvRt7sC3V7GLFghCA6zosJ9c5BnnxFF6S63k8eQaBf9VUEYsX9i8dYYsH7ptYWbTEqCyPZ9J3ubEJ7sary",
+    "signer": "DCmdy5MoAfnN6fn3nVW27db62ZwtjoksqSqdjAc8VPk4"
+  },
+  "license": {
+    "repo": "https://github.com/karpathy/minbpe",
+    "spdx": "MIT",
+    "name": "MIT License",
+    "url": "https://github.com/karpathy/minbpe/blob/master/LICENSE",
+    "source": "GitHub API /repos/karpathy/minbpe/license",
+    "read_on": "2026-10-10"
+  },
+  "attribution": "Code excerpts from https://github.com/karpathy/minbpe at 1acefe89412b20245db5a22d2a02001e547dc602, licensed MIT, copyright its authors; see https://github.com/karpathy/minbpe/blob/master/LICENSE.",
+  "times": {
+    "started_at": 1791674621377,
+    "ended_at": 1791674928856,
+    "finalized_at": 1791676530297,
+    "published_at": 1791676533080
+  },
+  "verify": {
+    "session": "/v1/sessions/190942853684f3d742015c22d4a5c7cd9529a152a3dbb30f215de280f196a9d9",
+    "candidate": "/v1/candidates/2c590be639796e933203f739462037207d14fe16d2b12eb6e9a67e1bf161ab84",
+    "generation": null,
+    "provenance": "/v1/candidates/2c590be639796e933203f739462037207d14fe16d2b12eb6e9a67e1bf161ab84/provenance",
+    "journal": null
+  }
+}

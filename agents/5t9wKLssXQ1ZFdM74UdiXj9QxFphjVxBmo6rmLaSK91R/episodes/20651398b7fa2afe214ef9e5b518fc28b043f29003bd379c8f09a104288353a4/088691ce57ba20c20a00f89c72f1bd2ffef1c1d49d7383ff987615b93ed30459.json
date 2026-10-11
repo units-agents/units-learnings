@@ -1,0 +1,678 @@
+{
+  "schema": "lineage-episode/1",
+  "episode_id": "088691ce57ba20c20a00f89c72f1bd2ffef1c1d49d7383ff987615b93ed30459",
+  "seq": 2660,
+  "network": "devnet",
+  "session_id": "b37d35f497fd79b188041b2e9a971b4305c541a364fcfc55af68414ca5ac9778",
+  "agent": {
+    "id": "5t9wKLssXQ1ZFdM74UdiXj9QxFphjVxBmo6rmLaSK91R",
+    "name": null,
+    "hidden": false,
+    "hosted": true,
+    "identity_mode": "app",
+    "soul": null
+  },
+  "model": {
+    "provider": "anthropic",
+    "models": [
+      "claude-opus-5-5"
+    ],
+    "route": null,
+    "harness": {
+      "name": "anthropic",
+      "version": "anthropic/1",
+      "digest": "addd1f19b8193784674f2c52ca9e30a81e1c83fca6238003deb565cfb56946b1"
+    },
+    "source": "provenance:hosted"
+  },
+  "task": {
+    "recipe": {
+      "recipe_id": "46a0d78dd189aa96c32d8f87402f2288b375c0934af32d036350034feb51f648",
+      "name": "minbpe",
+      "class": "python",
+      "repo": "https://github.com/karpathy/minbpe",
+      "commit": "1acefe89412b20245db5a22d2a02001e547dc602"
+    },
+    "lineage_id": "20651398b7fa2afe214ef9e5b518fc28b043f29003bd379c8f09a104288353a4",
+    "parent_gen_id": "153a98f137c9fb9d0e80d0e77d501e7cb08ec35a4e60e44b9644c838d42f8a14",
+    "parent_height": 12,
+    "metrics": [
+      {
+        "name": "train_ir",
+        "kind": "perf",
+        "direction": "lower",
+        "deterministic": true,
+        "min_effect": 0.01
+      },
+      {
+        "name": "encode_ir",
+        "kind": "perf",
+        "direction": "lower",
+        "deterministic": true,
+        "min_effect": 0.01
+      }
+    ],
+    "target": {
+      "kind": "perf",
+      "target": "encode_ir",
+      "source": "candidate"
+    },
+    "baseline": {
+      "encode_ir": {
+        "median": 610735881,
+        "samples": [
+          610735884,
+          610735878
+        ]
+      },
+      "train_ir": {
+        "median": 690151975,
+        "samples": [
+          690151975,
+          690151975
+        ]
+      }
+    }
+  },
+  "plan": {
+    "planned": null,
+    "opening_note": null,
+    "source": "session notes"
+  },
+  "hypotheses": [],
+  "actions": [
+    {
+      "seq": 1,
+      "kind": "list",
+      "path": "minbpe",
+      "count": 5,
+      "at": 1791595602594
+    },
+    {
+      "seq": 2,
+      "kind": "read",
+      "path": "lineage_bench.py",
+      "start_line": 1,
+      "end_line": 107,
+      "content_sha256": "0e575e458ce50ddadd5137d4ad35bdf3dde443e46e4c7a6be1d8011a16d274ca",
+      "at": 1791595602595
+    },
+    {
+      "seq": 3,
+      "kind": "read",
+      "path": "minbpe/base.py",
+      "start_line": 1,
+      "end_line": 274,
+      "content_sha256": "a103bc83cbca95b46c8d704f90cd216d5966775e2db949ed8930b0c08768b290",
+      "at": 1791595604501
+    },
+    {
+      "seq": 4,
+      "kind": "read",
+      "path": "minbpe/regex.py",
+      "start_line": 1,
+      "end_line": 214,
+      "content_sha256": "b73888cd8202d7e1d9fb5df28e3bf9848059d615efe4c41b4b3126ce8ede7473",
+      "at": 1791595604502
+    },
+    {
+      "seq": 5,
+      "kind": "read",
+      "path": "minbpe/basic.py",
+      "start_line": 1,
+      "end_line": 126,
+      "content_sha256": "016ebafb767bc455b9f46acaf0c72197c8da52dfb9defcb3c05a7f24098c4be5",
+      "at": 1791595604502
+    },
+    {
+      "seq": 6,
+      "kind": "search",
+      "query": "apply_merges|_encode_chunk|inf=",
+      "matches": 9,
+      "at": 1791595723948
+    },
+    {
+      "seq": 7,
+      "kind": "edit",
+      "path": "minbpe/base.py",
+      "start_line": 83,
+      "end_line": 85,
+      "lines_before": 3,
+      "lines_after": 6,
+      "at": 1791595735238,
+      "diff": "--- a/minbpe/base.py\n+++ b/minbpe/base.py\n@@ -83,3 +83,6 @@\n-    if len(ids) < 2:\n-        return ids\n-    merges_get = merges.get\n+    if len(ids) < 2:\n+        return ids\n+    if len(ids) >= 256:\n+        # long sequences: avoid the O(len) min/index/count scans per merge round\n+        return _apply_merges_heap(ids, merges)\n+    merges_get = merges.get"
+    },
+    {
+      "seq": 8,
+      "kind": "edit",
+      "path": "minbpe/base.py",
+      "start_line": 154,
+      "end_line": 154,
+      "lines_before": 1,
+      "lines_after": 66,
+      "at": 1791595735238,
+      "diff": "--- a/minbpe/base.py\n+++ b/minbpe/base.py\n@@ -154,1 +154,66 @@\n-# first two helper functions...\n+def _apply_merges_heap(ids, merges):\n+    \"\"\"\n+    Same result as apply_merges, for long sequences: a doubly linked list over\n+    the original positions plus a heap of (rank, position) entries for every\n+    mergeable adjacent pair. Entries are validated lazily when popped (a pair\n+    whose tokens changed is recomputed), and each round pops all entries of the\n+    minimal rank in position order, i.e. sequence order. The first valid one\n+    picks the pair (same as the first-seen minimal pair); its occurrences are\n+    merged left to right, skipping overlaps, exactly like merge().\n+    \"\"\"\n+    merges_get = merges.get\n+    n = len(ids)\n+    val = list(ids)\n+    nxt = list(range(1, n + 1)) # n means \"no next\"\n+    prv = list(range(-1, n - 1)) # -1 means \"no previous\"\n+    heap = [(r, i) for i, r in enumerate(map(merges_get, zip(val, val[1:])))\n+            if r is not None]\n+    heapify(heap)\n+    while heap:\n+        r = heap[0][0]\n+        pair = None\n+        last = -1\n+        merged = []\n+        rest = []\n+        while heap and heap[0][0] == r:\n+            p = heappop(heap)[1]\n+            if p == last:\n+                continue # duplicate entry (pops come out in position order)\n+            last = p\n+            v = val[p]\n+            if v is None:\n+                continue # position was merged away\n+            q = nxt[p]\n+            if q == n:\n+                continue\n+            pr = (v, val[q])\n+            if merges_get(pr) != r:\n+                continue # stale entry\n+            if pair is None:\n+                pair = pr\n+            elif pr != pair:\n+                rest.append(p) # another pair with the same rank: later round\n+                continue\n+            val[p] = r\n+            val[q] = None\n+            q2 = nxt[q]\n+            nxt[p] = q2\n+            if q2 < n:\n+                prv[q2] = p\n+            merged.append(p)\n+        for p in rest:\n+            heappush(heap, (r, p))\n+        for p in merged:\n+            a = prv[p]\n+            if a >= 0:\n+                rk = merges_get((val[a], r))\n+                if rk is not None:\n+                    heappush(heap, (rk, a))\n+            b = nxt[p]\n+            if b < n:\n+                rk = merges_get((r, val[b]))\n+                if rk is not None:\n+                    heappush(heap, (rk, p))\n+    return [v for v in val if v is not None]\n+\n+# first two helper functions..."
+    },
+    {
+      "seq": 9,
+      "kind": "edit",
+      "path": "minbpe/base.py",
+      "start_line": 9,
+      "end_line": 9,
+      "lines_before": 1,
+      "lines_after": 2,
+      "at": 1791595735238,
+      "diff": "--- a/minbpe/base.py\n+++ b/minbpe/base.py\n@@ -9,1 +9,2 @@\n-from itertools import repeat\n+from heapq import heapify, heappop, heappush\n+from itertools import repeat"
+    },
+    {
+      "seq": 10,
+      "kind": "evaluate",
+      "target": "encode_ir",
+      "eval_kind": "perf",
+      "at": 1791595746477,
+      "phases": [
+        {
+          "phase": "prepare",
+          "at": 1791595746477
+        },
+        {
+          "phase": "build",
+          "at": 1791595747005
+        },
+        {
+          "phase": "build",
+          "at": 1791595747006
+        },
+        {
+          "phase": "test",
+          "at": 1791595748898
+        },
+        {
+          "phase": "test",
+          "at": 1791595788863
+        },
+        {
+          "phase": "equivalence",
+          "at": 1791595827139
+        },
+        {
+          "phase": "equivalence",
+          "at": 1791595827141
+        },
+        {
+          "phase": "metrics",
+          "at": 1791595828746
+        },
+        {
+          "phase": "metrics",
+          "at": 1791595838650
+        },
+        {
+          "phase": "metrics",
+          "at": 1791595848474
+        },
+        {
+          "phase": "metrics",
+          "at": 1791595857552
+        }
+      ]
+    },
+    {
+      "seq": 22,
+      "kind": "result",
+      "at": 1791595867711,
+      "output": "outcome: accepted\nguard: ok, 1 files, 69 lines\nbuild: base ok, candidate ok\nequivalence: identical outputs\nmetric train_ir: parent 688865735, candidate 692580139, ratio 1.0054\nmetric encode_ir: parent 582714810, candidate 458600619, ratio 0.7870",
+      "outcome": "accepted",
+      "steps": [
+        {
+          "step": "build",
+          "side": "cand",
+          "exit": 0,
+          "duration_ms": 1802,
+          "timed_out": false,
+          "tail": "3.12.15\n"
+        },
+        {
+          "step": "build",
+          "side": "base",
+          "exit": 0,
+          "duration_ms": 1857,
+          "timed_out": false,
+          "tail": "3.12.15\n"
+        },
+        {
+          "step": "test",
+          "side": "base",
+          "exit": 0,
+          "duration_ms": 39938,
+          "timed_out": false,
+          "tail": ".....................                                                    [100%]\n---------------------- generated xml file: /out/junit.xml ----------------------\n21 passed in 38.52s\n"
+        },
+        {
+          "step": "test",
+          "side": "cand",
+          "exit": 0,
+          "duration_ms": 38268,
+          "timed_out": false,
+          "tail": ".....................                                                    [100%]\n---------------------- generated xml file: /out/junit.xml ----------------------\n21 passed in 36.81s\n"
+        },
+        {
+          "step": "equivalence",
+          "side": "cand",
+          "exit": 0,
+          "duration_ms": 1578,
+          "timed_out": false,
+          "tail": ", 114, 97, 116, 101, 102, 117, 108, 32, 68, 271, 100, 39, 115, 32, 70, 97, 114, 101, 32, 84, 104, 101, 101, 32, 87, 101, 108, 108, 32, 82, 274, 110, 269, 110, 44, 32, 84, 97, 121, 108, 111, 114, 32, 83, 119, 105, 102, 116, 44, 32, 79, 110, 101, 32, 68, 105, 114, 101, 99, 116, 269, 110, 32, 84, 111, 112, 32, 66, 111, 120, 115, 99, 111, 114, 101, 39, 115, 32, 89, 271, 114, 45, 69, 110, 100, 34, 46, 32, 66, 105, 108, 108, 272, 97, 114, 100, 46, 32, 65, 114, 99, 104, 105, 118, 101, 100, 32, 102, 114, 111, 109, 32, 116, 104, 101, 32, 111, 114, 105, 103, 105, 110, 97, 108, 32, 111, 110, 32, 68, 101, 99, 101, 109, 267, 114, 32, 49, 52, 44, 32, 50, 48, 49, 53, 46, 10, 32, 87, 101, 105, 115, 115, 109, 97, 110, 110, 44, 32, 74, 111, 114, 100, 97, 110, 32, 40, 74, 117, 108, 121, 32, 55, 44, 32, 50, 48, 49, 52, 41, 46, 32, 34, 84, 97, 121, 108, 111, 114, 32, 83, 119, 105, 102, 116, 32, 72, 268, 32, 87, 114, 285, 116, 101, 110, 32, 97, 110, 32, 79, 112, 45, 69, 100, 32, 105, 110, 32, 116, 104, 101, 32, 87, 97, 108, 108, 32, 83, 116, 114, 101, 101, 116, 32, 74, 111, 117, 114, 110, 97, 108, 34, 46, 32, 83, 108, 97, 116, 101, 32, 40, 66, 108, 111, 103, 41, 46, 32, 65, 114, 99, 104, 105, 118, 101]\n"
+        },
+        {
+          "step": "equivalence",
+          "side": "base",
+          "exit": 0,
+          "duration_ms": 1596,
+          "timed_out": false,
+          "tail": ", 114, 97, 116, 101, 102, 117, 108, 32, 68, 271, 100, 39, 115, 32, 70, 97, 114, 101, 32, 84, 104, 101, 101, 32, 87, 101, 108, 108, 32, 82, 274, 110, 269, 110, 44, 32, 84, 97, 121, 108, 111, 114, 32, 83, 119, 105, 102, 116, 44, 32, 79, 110, 101, 32, 68, 105, 114, 101, 99, 116, 269, 110, 32, 84, 111, 112, 32, 66, 111, 120, 115, 99, 111, 114, 101, 39, 115, 32, 89, 271, 114, 45, 69, 110, 100, 34, 46, 32, 66, 105, 108, 108, 272, 97, 114, 100, 46, 32, 65, 114, 99, 104, 105, 118, 101, 100, 32, 102, 114, 111, 109, 32, 116, 104, 101, 32, 111, 114, 105, 103, 105, 110, 97, 108, 32, 111, 110, 32, 68, 101, 99, 101, 109, 267, 114, 32, 49, 52, 44, 32, 50, 48, 49, 53, 46, 10, 32, 87, 101, 105, 115, 115, 109, 97, 110, 110, 44, 32, 74, 111, 114, 100, 97, 110, 32, 40, 74, 117, 108, 121, 32, 55, 44, 32, 50, 48, 49, 52, 41, 46, 32, 34, 84, 97, 121, 108, 111, 114, 32, 83, 119, 105, 102, 116, 32, 72, 268, 32, 87, 114, 285, 116, 101, 110, 32, 97, 110, 32, 79, 112, 45, 69, 100, 32, 105, 110, 32, 116, 104, 101, 32, 87, 97, 108, 108, 32, 83, 116, 114, 101, 101, 116, 32, 74, 111, 117, 114, 110, 97, 108, 34, 46, 32, 83, 108, 97, 116, 101, 32, 40, 66, 108, 111, 103, 41, 46, 32, 65, 114, 99, 104, 105, 118, 101]\n"
+        },
+        {
+          "step": "metrics",
+          "side": "base",
+          "exit": 0,
+          "duration_ms": 9903,
+          "timed_out": false,
+          "tail": "==6== Cachegrind, a cache and branch-prediction profiler\n==6== Copyright (C) 2002-2017, and GNU GPL'd, by Nicholas Nethercote et al.\n==6== Using Valgrind-3.19.0 and LibVEX; rerun with -h for copyright info\n==6== Command: python lineage_bench.py train de4378a0ac9a6a23\n==6== \n==6== \n==6== I   refs:      688,865,735\n"
+        },
+        {
+          "step": "metrics",
+          "side": "cand",
+          "exit": 0,
+          "duration_ms": 9824,
+          "timed_out": false,
+          "tail": "==7== Cachegrind, a cache and branch-prediction profiler\n==7== Copyright (C) 2002-2017, and GNU GPL'd, by Nicholas Nethercote et al.\n==7== Using Valgrind-3.19.0 and LibVEX; rerun with -h for copyright info\n==7== Command: python lineage_bench.py train de4378a0ac9a6a23\n==7== \n==7== \n==7== I   refs:      692,580,139\n"
+        },
+        {
+          "step": "metrics",
+          "side": "base",
+          "exit": 0,
+          "duration_ms": 9077,
+          "timed_out": false,
+          "tail": "==6== Cachegrind, a cache and branch-prediction profiler\n==6== Copyright (C) 2002-2017, and GNU GPL'd, by Nicholas Nethercote et al.\n==6== Using Valgrind-3.19.0 and LibVEX; rerun with -h for copyright info\n==6== Command: python lineage_bench.py encode de4378a0ac9a6a23\n==6== \n==6== \n==6== I   refs:      582,714,810\n"
+        },
+        {
+          "step": "metrics",
+          "side": "cand",
+          "exit": 0,
+          "duration_ms": 10120,
+          "timed_out": false,
+          "tail": "==7== Cachegrind, a cache and branch-prediction profiler\n==7== Copyright (C) 2002-2017, and GNU GPL'd, by Nicholas Nethercote et al.\n==7== Using Valgrind-3.19.0 and LibVEX; rerun with -h for copyright info\n==7== Command: python lineage_bench.py encode de4378a0ac9a6a23\n==7== \n==7== \n==7== I   refs:      458,600,619\n"
+        }
+      ]
+    },
+    {
+      "seq": 23,
+      "kind": "edit",
+      "path": "minbpe/base.py",
+      "start_line": 9,
+      "end_line": 10,
+      "lines_before": 2,
+      "lines_after": 1,
+      "at": 1791595873624,
+      "diff": "--- a/minbpe/base.py\n+++ b/minbpe/base.py\n@@ -9,2 +9,1 @@\n-from heapq import heapify, heappop, heappush\n-from itertools import repeat\n+from itertools import repeat"
+    },
+    {
+      "seq": 24,
+      "kind": "edit",
+      "path": "minbpe/base.py",
+      "start_line": 163,
+      "end_line": 166,
+      "lines_before": 4,
+      "lines_after": 6,
+      "at": 1791595873624,
+      "diff": "--- a/minbpe/base.py\n+++ b/minbpe/base.py\n@@ -163,4 +163,6 @@\n-    \"\"\"\n-    merges_get = merges.get\n-    n = len(ids)\n-    val = list(ids)\n+    \"\"\"\n+    # imported lazily: only long inputs need it, keep it off the import path\n+    from heapq import heapify, heappop, heappush\n+    merges_get = merges.get\n+    n = len(ids)\n+    val = list(ids)"
+    },
+    {
+      "seq": 25,
+      "kind": "evaluate",
+      "target": "encode_ir",
+      "eval_kind": "perf",
+      "at": 1791595875153,
+      "phases": [
+        {
+          "phase": "prepare",
+          "at": 1791595875154
+        },
+        {
+          "phase": "build",
+          "at": 1791595875864
+        },
+        {
+          "phase": "build",
+          "at": 1791595875866
+        },
+        {
+          "phase": "test",
+          "at": 1791595877741
+        },
+        {
+          "phase": "test",
+          "at": 1791595916805
+        },
+        {
+          "phase": "equivalence",
+          "at": 1791595958213
+        },
+        {
+          "phase": "equivalence",
+          "at": 1791595958215
+        },
+        {
+          "phase": "metrics",
+          "at": 1791595959967
+        },
+        {
+          "phase": "metrics",
+          "at": 1791595970034
+        },
+        {
+          "phase": "metrics",
+          "at": 1791595980103
+        },
+        {
+          "phase": "metrics",
+          "at": 1791595989949
+        }
+      ]
+    },
+    {
+      "seq": 37,
+      "kind": "result",
+      "at": 1791595998880,
+      "output": "outcome: accepted\nguard: ok, 1 files, 70 lines\nbuild: base ok, candidate ok\nequivalence: identical outputs\nmetric train_ir: parent 688865735, candidate 692195893, ratio 1.0048\nmetric encode_ir: parent 582714810, candidate 458653867, ratio 0.7871",
+      "outcome": "accepted",
+      "steps": [
+        {
+          "step": "build",
+          "side": "cand",
+          "exit": 0,
+          "duration_ms": 1829,
+          "timed_out": false,
+          "tail": "3.12.15\n"
+        },
+        {
+          "step": "build",
+          "side": "base",
+          "exit": 0,
+          "duration_ms": 1854,
+          "timed_out": false,
+          "tail": "3.12.15\n"
+        },
+        {
+          "step": "test",
+          "side": "base",
+          "exit": 0,
+          "duration_ms": 39014,
+          "timed_out": false,
+          "tail": ".....................                                                    [100%]\n---------------------- generated xml file: /out/junit.xml ----------------------\n21 passed in 36.89s\n"
+        },
+        {
+          "step": "test",
+          "side": "cand",
+          "exit": 0,
+          "duration_ms": 41393,
+          "timed_out": false,
+          "tail": ".....................                                                    [100%]\n---------------------- generated xml file: /out/junit.xml ----------------------\n21 passed in 38.60s\n"
+        },
+        {
+          "step": "equivalence",
+          "side": "cand",
+          "exit": 0,
+          "duration_ms": 1715,
+          "timed_out": false,
+          "tail": ", 114, 97, 116, 101, 102, 117, 108, 32, 68, 271, 100, 39, 115, 32, 70, 97, 114, 101, 32, 84, 104, 101, 101, 32, 87, 101, 108, 108, 32, 82, 274, 110, 269, 110, 44, 32, 84, 97, 121, 108, 111, 114, 32, 83, 119, 105, 102, 116, 44, 32, 79, 110, 101, 32, 68, 105, 114, 101, 99, 116, 269, 110, 32, 84, 111, 112, 32, 66, 111, 120, 115, 99, 111, 114, 101, 39, 115, 32, 89, 271, 114, 45, 69, 110, 100, 34, 46, 32, 66, 105, 108, 108, 272, 97, 114, 100, 46, 32, 65, 114, 99, 104, 105, 118, 101, 100, 32, 102, 114, 111, 109, 32, 116, 104, 101, 32, 111, 114, 105, 103, 105, 110, 97, 108, 32, 111, 110, 32, 68, 101, 99, 101, 109, 267, 114, 32, 49, 52, 44, 32, 50, 48, 49, 53, 46, 10, 32, 87, 101, 105, 115, 115, 109, 97, 110, 110, 44, 32, 74, 111, 114, 100, 97, 110, 32, 40, 74, 117, 108, 121, 32, 55, 44, 32, 50, 48, 49, 52, 41, 46, 32, 34, 84, 97, 121, 108, 111, 114, 32, 83, 119, 105, 102, 116, 32, 72, 268, 32, 87, 114, 285, 116, 101, 110, 32, 97, 110, 32, 79, 112, 45, 69, 100, 32, 105, 110, 32, 116, 104, 101, 32, 87, 97, 108, 108, 32, 83, 116, 114, 101, 101, 116, 32, 74, 111, 117, 114, 110, 97, 108, 34, 46, 32, 83, 108, 97, 116, 101, 32, 40, 66, 108, 111, 103, 41, 46, 32, 65, 114, 99, 104, 105, 118, 101]\n"
+        },
+        {
+          "step": "equivalence",
+          "side": "base",
+          "exit": 0,
+          "duration_ms": 1738,
+          "timed_out": false,
+          "tail": ", 114, 97, 116, 101, 102, 117, 108, 32, 68, 271, 100, 39, 115, 32, 70, 97, 114, 101, 32, 84, 104, 101, 101, 32, 87, 101, 108, 108, 32, 82, 274, 110, 269, 110, 44, 32, 84, 97, 121, 108, 111, 114, 32, 83, 119, 105, 102, 116, 44, 32, 79, 110, 101, 32, 68, 105, 114, 101, 99, 116, 269, 110, 32, 84, 111, 112, 32, 66, 111, 120, 115, 99, 111, 114, 101, 39, 115, 32, 89, 271, 114, 45, 69, 110, 100, 34, 46, 32, 66, 105, 108, 108, 272, 97, 114, 100, 46, 32, 65, 114, 99, 104, 105, 118, 101, 100, 32, 102, 114, 111, 109, 32, 116, 104, 101, 32, 111, 114, 105, 103, 105, 110, 97, 108, 32, 111, 110, 32, 68, 101, 99, 101, 109, 267, 114, 32, 49, 52, 44, 32, 50, 48, 49, 53, 46, 10, 32, 87, 101, 105, 115, 115, 109, 97, 110, 110, 44, 32, 74, 111, 114, 100, 97, 110, 32, 40, 74, 117, 108, 121, 32, 55, 44, 32, 50, 48, 49, 52, 41, 46, 32, 34, 84, 97, 121, 108, 111, 114, 32, 83, 119, 105, 102, 116, 32, 72, 268, 32, 87, 114, 285, 116, 101, 110, 32, 97, 110, 32, 79, 112, 45, 69, 100, 32, 105, 110, 32, 116, 104, 101, 32, 87, 97, 108, 108, 32, 83, 116, 114, 101, 101, 116, 32, 74, 111, 117, 114, 110, 97, 108, 34, 46, 32, 83, 108, 97, 116, 101, 32, 40, 66, 108, 111, 103, 41, 46, 32, 65, 114, 99, 104, 105, 118, 101]\n"
+        },
+        {
+          "step": "metrics",
+          "side": "base",
+          "exit": 0,
+          "duration_ms": 10066,
+          "timed_out": false,
+          "tail": "==7== Cachegrind, a cache and branch-prediction profiler\n==7== Copyright (C) 2002-2017, and GNU GPL'd, by Nicholas Nethercote et al.\n==7== Using Valgrind-3.19.0 and LibVEX; rerun with -h for copyright info\n==7== Command: python lineage_bench.py train de4378a0ac9a6a23\n==7== \n==7== \n==7== I   refs:      688,865,735\n"
+        },
+        {
+          "step": "metrics",
+          "side": "cand",
+          "exit": 0,
+          "duration_ms": 10069,
+          "timed_out": false,
+          "tail": "==7== Cachegrind, a cache and branch-prediction profiler\n==7== Copyright (C) 2002-2017, and GNU GPL'd, by Nicholas Nethercote et al.\n==7== Using Valgrind-3.19.0 and LibVEX; rerun with -h for copyright info\n==7== Command: python lineage_bench.py train de4378a0ac9a6a23\n==7== \n==7== \n==7== I   refs:      692,195,893\n"
+        },
+        {
+          "step": "metrics",
+          "side": "base",
+          "exit": 0,
+          "duration_ms": 9846,
+          "timed_out": false,
+          "tail": "==7== Cachegrind, a cache and branch-prediction profiler\n==7== Copyright (C) 2002-2017, and GNU GPL'd, by Nicholas Nethercote et al.\n==7== Using Valgrind-3.19.0 and LibVEX; rerun with -h for copyright info\n==7== Command: python lineage_bench.py encode de4378a0ac9a6a23\n==7== \n==7== \n==7== I   refs:      582,714,810\n"
+        },
+        {
+          "step": "metrics",
+          "side": "cand",
+          "exit": 0,
+          "duration_ms": 8904,
+          "timed_out": false,
+          "tail": "==7== Cachegrind, a cache and branch-prediction profiler\n==7== Copyright (C) 2002-2017, and GNU GPL'd, by Nicholas Nethercote et al.\n==7== Using Valgrind-3.19.0 and LibVEX; rerun with -h for copyright info\n==7== Command: python lineage_bench.py encode de4378a0ac9a6a23\n==7== \n==7== \n==7== I   refs:      458,653,867\n"
+        }
+      ]
+    },
+    {
+      "seq": 38,
+      "kind": "submit",
+      "at": 1791596004567,
+      "reason": "apply_merges did O(len) min/index/count scans per merge round, which is quadratic-ish for long inputs (BasicTokenizer.encode on whole texts). For sequences of >=256 ids it now dispatches to _apply_merges_heap: a doubly linked list over original positions plus a lazily-validated heap of (rank, position) entries. Each round pops all entries of the minimal rank in position order, the first valid one fixes the pair (= first-seen minimal pair), and its occurrences are merged left to right skipping overlaps, exactly like merge(); other same-rank pairs are pushed back for later rounds, and new neighbour pairs are pushed after the round. Short chunks keep the existing path. Equivalence harness identical; encode_ir 0.787x."
+    }
+  ],
+  "candidate": {
+    "commit_id": "f4388666d4c44bedb2121037b7a4ac8d5df527cc5af7ecf840c30ff889c066b1",
+    "candidate_id": "2db819aef4db24c7d56f3f4c2595be41373190cffe26ddfacfb4f6699fb7235d",
+    "kind": "perf",
+    "target": "encode_ir",
+    "claimed_effect": 0.787098352622958,
+    "patch": "diff --git a/minbpe/base.py b/minbpe/base.py\n--- a/minbpe/base.py\n+++ b/minbpe/base.py\n@@ -82,6 +82,9 @@ def apply_merges(ids, merges, inf=None):\n     \"\"\"\n     if len(ids) < 2:\n         return ids\n+    if len(ids) >= 256:\n+        # long sequences: avoid the O(len) min/index/count scans per merge round\n+        return _apply_merges_heap(ids, merges)\n     merges_get = merges.get\n     if inf is None:\n         inf = float(\"inf\")\n@@ -148,6 +151,73 @@ def apply_merges(ids, merges, inf=None):\n         ranks = newranks\n     return ids\n \n+def _apply_merges_heap(ids, merges):\n+    \"\"\"\n+    Same result as apply_merges, for long sequences: a doubly linked list over\n+    the original positions plus a heap of (rank, position) entries for every\n+    mergeable adjacent pair. Entries are validated lazily when popped (a pair\n+    whose tokens changed is recomputed), and each round pops all entries of the\n+    minimal rank in position order, i.e. sequence order. The first valid one\n+    picks the pair (same as the first-seen minimal pair); its occurrences are\n+    merged left to right, skipping overlaps, exactly like merge().\n+    \"\"\"\n+    # imported lazily: only long inputs need it, keep it off the import path\n+    from heapq import heapify, heappop, heappush\n+    merges_get = merges.get\n+    n = len(ids)\n+    val = list(ids)\n+    nxt = list(range(1, n + 1)) # n means \"no next\"\n+    prv = list(range(-1, n - 1)) # -1 means \"no previous\"\n+    heap = [(r, i) for i, r in enumerate(map(merges_get, zip(val, val[1:])))\n+            if r is not None]\n+    heapify(heap)\n+    while heap:\n+        r = heap[0][0]\n+        pair = None\n+        last = -1\n+        merged = []\n+        rest = []\n+        while heap and heap[0][0] == r:\n+            p = heappop(heap)[1]\n+            if p == last:\n+                continue # duplicate entry (pops come out in position order)\n+            last = p\n+            v = val[p]\n+            if v is None:\n+                continue # position was merged away\n+            q = nxt[p]\n+            if q == n:\n+                continue\n+            pr = (v, val[q])\n+            if merges_get(pr) != r:\n+                continue # stale entry\n+            if pair is None:\n+                pair = pr\n+            elif pr != pair:\n+                rest.append(p) # another pair with the same rank: later round\n+                continue\n+            val[p] = r\n+            val[q] = None\n+            q2 = nxt[q]\n+            nxt[p] = q2\n+            if q2 < n:\n+                prv[q2] = p\n+            merged.append(p)\n+        for p in rest:\n+            heappush(heap, (r, p))\n+        for p in merged:\n+            a = prv[p]\n+            if a >= 0:\n+                rk = merges_get((val[a], r))\n+                if rk is not None:\n+                    heappush(heap, (rk, a))\n+            b = nxt[p]\n+            if b < n:\n+                rk = merges_get((r, val[b]))\n+                if rk is not None:\n+                    heappush(heap, (rk, p))\n+    return [v for v in val if v is not None]\n+\n # first two helper functions...\n def replace_control_characters(s: str) -> str:\n     # we don't want to print control characters\n",
+    "patch_hash": "5fdce3a9136b60797e82bf18fd7d412c5388533b6a350c7b404fae7ed66d1716",
+    "semantic_hash": "92b16a1df0867623a81225c5f561df9953f17705e4665a55237c04485e9e1db2",
+    "status": "accepted",
+    "reason": null,
+    "committed_at": 1791596004577,
+    "revealed_at": 1791596004580,
+    "finalized_at": 1791596171089,
+    "gen_id": "25fc16e227782e156d8ff6ec13d6e65d4c0e0b57654e51e683477ae959aac9dd"
+  },
+  "replays": [
+    {
+      "replay_id": "9dcb252de7ba4632c8786eb5ee8e89d1e990c6dcb576e0416cf8baa5d9b4d300",
+      "kind": "replay",
+      "role": "counted",
+      "status": "revealed",
+      "replayer": "3jJHAgibtbRtbTw9T2TMadYppiFV2YzGptWMrCsgu6Xz",
+      "counted": true,
+      "apply": "ok",
+      "build": {
+        "base": "ok",
+        "cand": "ok"
+      },
+      "tests": {
+        "base_pass": 21,
+        "cand_pass": 21,
+        "cand_fail": 0
+      },
+      "equivalence_same": true,
+      "metrics": {
+        "encode_ir": {
+          "base": [
+            610735884
+          ],
+          "cand": [
+            472797195
+          ],
+          "ratio": 0.7741434675549538
+        },
+        "train_ir": {
+          "base": [
+            690151975
+          ],
+          "cand": [
+            693019671
+          ],
+          "ratio": 1.0041551659690606
+        }
+      },
+      "env": {
+        "cores": 2,
+        "cpu_model": "DO-Regular",
+        "image_digest": "sha256:beb7b0264451a2bdc993fe5deee1e8b6275fbad7d83d593c69f7a40c64f1164d",
+        "worker_version": "lineage-sandbox/0.1.0"
+      }
+    },
+    {
+      "replay_id": "fb0dbffdbd590593299c197188a2e39ce2bf9322ce13c6612595c2c343759b9a",
+      "kind": "replay",
+      "role": "counted",
+      "status": "revealed",
+      "replayer": "7ToydZerFjuoguBEBkdnJgFfjED2paWonAecHSVA1kjK",
+      "counted": true,
+      "apply": "ok",
+      "build": {
+        "base": "ok",
+        "cand": "ok"
+      },
+      "tests": {
+        "base_pass": 21,
+        "cand_pass": 21,
+        "cand_fail": 0
+      },
+      "equivalence_same": true,
+      "metrics": {
+        "encode_ir": {
+          "base": [
+            610735878
+          ],
+          "cand": [
+            472797195
+          ],
+          "ratio": 0.7741434751603049
+        },
+        "train_ir": {
+          "base": [
+            690151975
+          ],
+          "cand": [
+            693019671
+          ],
+          "ratio": 1.0041551659690606
+        }
+      },
+      "env": {
+        "cores": 2,
+        "cpu_model": "DO-Regular",
+        "image_digest": "sha256:beb7b0264451a2bdc993fe5deee1e8b6275fbad7d83d593c69f7a40c64f1164d",
+        "worker_version": "lineage-sandbox/0.1.0"
+      }
+    }
+  ],
+  "verdict": {
+    "outcome": "accepted",
+    "reason": null,
+    "detail": null,
+    "effect": {
+      "metric": "encode_ir",
+      "ratio": 0.7741434751603049,
+      "ci_low": 0.7741434675549538,
+      "ci_high": 0.7741434751603049,
+      "per_replay": [
+        {
+          "replay_id": "9dcb252de7ba4632c8786eb5ee8e89d1e990c6dcb576e0416cf8baa5d9b4d300",
+          "ratio": 0.7741434675549538,
+          "ci_low": 0.7741434675549538,
+          "ci_high": 0.7741434675549538,
+          "pass": true
+        },
+        {
+          "replay_id": "fb0dbffdbd590593299c197188a2e39ce2bf9322ce13c6612595c2c343759b9a",
+          "ratio": 0.7741434751603049,
+          "ci_low": 0.7741434751603049,
+          "ci_high": 0.7741434751603049,
+          "pass": true
+        }
+      ]
+    },
+    "digest": "d6ef359452feefb1fe428f1a853e8d229fdd4b5e82e6662d92de21200ab3788a"
+  },
+  "outcome": "accepted",
+  "effect": {
+    "metric": "encode_ir",
+    "ratio": 0.7741434751603049,
+    "ci_low": 0.7741434675549538,
+    "ci_high": 0.7741434751603049,
+    "gain_pct": 22.58565248396951
+  },
+  "cost": {
+    "input_tokens": 18,
+    "output_tokens": 14933,
+    "cache_read_tokens": 151589,
+    "cache_write_tokens": 14924,
+    "usd": 0.40367,
+    "sandbox_s": 251,
+    "source": "provenance:hosted"
+  },
+  "reward": {
+    "v": 1,
+    "accepted": 1,
+    "effect": 0.2258565248396951,
+    "fixed_tests": 0,
+    "effect_per_usd": 0.5595078277793621,
+    "effect_per_sandbox_hour": 3.239376451884073,
+    "reverted": false,
+    "inputs": [
+      "outcome",
+      "verdict.effect.ratio",
+      "cost.usd (provenance:hosted)",
+      "cost.sandbox_s (provenance:hosted)"
+    ]
+  },
+  "worker_outcome": null,
+  "journal": null,
+  "provenance": {
+    "runtime": "hosted",
+    "digest": "d12f8bc1dd07c4b6f38afd87ba718826f4a89c4ace398788ab4f1c956d0e2712",
+    "sig": "5uyEbUe6wBq8XKsxtbpQPCkfzZ5vfuGeo9UaSFhAhm2Ae8eMRx6y3cHc8yL2KpLH72GDu5VqefgGUGoBj8eiz6kz",
+    "signer": "DCmdy5MoAfnN6fn3nVW27db62ZwtjoksqSqdjAc8VPk4"
+  },
+  "license": {
+    "repo": "https://github.com/karpathy/minbpe",
+    "spdx": "MIT",
+    "name": "MIT License",
+    "url": "https://github.com/karpathy/minbpe/blob/master/LICENSE",
+    "source": "GitHub API /repos/karpathy/minbpe/license",
+    "read_on": "2026-10-10"
+  },
+  "attribution": "Code excerpts from https://github.com/karpathy/minbpe at 1acefe89412b20245db5a22d2a02001e547dc602, licensed MIT, copyright its authors; see https://github.com/karpathy/minbpe/blob/master/LICENSE.",
+  "times": {
+    "started_at": 1791595604283,
+    "ended_at": 1791596004609,
+    "finalized_at": 1791596171089,
+    "published_at": 1791669219426
+  },
+  "verify": {
+    "session": "/v1/sessions/b37d35f497fd79b188041b2e9a971b4305c541a364fcfc55af68414ca5ac9778",
+    "candidate": "/v1/candidates/f4388666d4c44bedb2121037b7a4ac8d5df527cc5af7ecf840c30ff889c066b1",
+    "generation": "/v1/generations/25fc16e227782e156d8ff6ec13d6e65d4c0e0b57654e51e683477ae959aac9dd",
+    "provenance": "/v1/candidates/f4388666d4c44bedb2121037b7a4ac8d5df527cc5af7ecf840c30ff889c066b1/provenance",
+    "journal": null
+  }
+}

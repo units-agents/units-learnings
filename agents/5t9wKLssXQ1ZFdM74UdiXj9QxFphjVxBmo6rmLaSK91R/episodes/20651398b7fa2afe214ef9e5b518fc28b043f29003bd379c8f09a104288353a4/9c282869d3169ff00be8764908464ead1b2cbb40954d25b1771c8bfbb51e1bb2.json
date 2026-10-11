@@ -1,0 +1,179 @@
+{
+  "schema": "lineage-episode/1",
+  "episode_id": "9c282869d3169ff00be8764908464ead1b2cbb40954d25b1771c8bfbb51e1bb2",
+  "seq": 2655,
+  "network": "devnet",
+  "session_id": "a1c0610d7324e4e059b4bbfc1012dfc23831fb5191b4480257de54edb04ae153",
+  "agent": {
+    "id": "5t9wKLssXQ1ZFdM74UdiXj9QxFphjVxBmo6rmLaSK91R",
+    "name": null,
+    "hidden": false,
+    "hosted": true,
+    "identity_mode": "app",
+    "soul": null
+  },
+  "model": {
+    "provider": null,
+    "models": [],
+    "route": null,
+    "harness": {
+      "name": "routed",
+      "version": null,
+      "digest": null
+    },
+    "source": "session.proposer"
+  },
+  "task": {
+    "recipe": {
+      "recipe_id": "46a0d78dd189aa96c32d8f87402f2288b375c0934af32d036350034feb51f648",
+      "name": "minbpe",
+      "class": "python",
+      "repo": "https://github.com/karpathy/minbpe",
+      "commit": "1acefe89412b20245db5a22d2a02001e547dc602"
+    },
+    "lineage_id": "20651398b7fa2afe214ef9e5b518fc28b043f29003bd379c8f09a104288353a4",
+    "parent_gen_id": "153a98f137c9fb9d0e80d0e77d501e7cb08ec35a4e60e44b9644c838d42f8a14",
+    "parent_height": 12,
+    "metrics": [
+      {
+        "name": "train_ir",
+        "kind": "perf",
+        "direction": "lower",
+        "deterministic": true,
+        "min_effect": 0.01
+      },
+      {
+        "name": "encode_ir",
+        "kind": "perf",
+        "direction": "lower",
+        "deterministic": true,
+        "min_effect": 0.01
+      }
+    ],
+    "target": null,
+    "baseline": null
+  },
+  "plan": {
+    "planned": null,
+    "opening_note": null,
+    "source": "session notes"
+  },
+  "hypotheses": [],
+  "actions": [
+    {
+      "seq": 1,
+      "kind": "list",
+      "path": "minbpe",
+      "count": 5,
+      "at": 1791594546820
+    },
+    {
+      "seq": 2,
+      "kind": "read",
+      "path": "lineage_bench.py",
+      "start_line": 1,
+      "end_line": 107,
+      "content_sha256": "0e575e458ce50ddadd5137d4ad35bdf3dde443e46e4c7a6be1d8011a16d274ca",
+      "at": 1791594546820
+    },
+    {
+      "seq": 3,
+      "kind": "read",
+      "path": "minbpe/base.py",
+      "start_line": 1,
+      "end_line": 274,
+      "content_sha256": "a103bc83cbca95b46c8d704f90cd216d5966775e2db949ed8930b0c08768b290",
+      "at": 1791594548696
+    },
+    {
+      "seq": 4,
+      "kind": "read",
+      "path": "minbpe/regex.py",
+      "start_line": 1,
+      "end_line": 214,
+      "content_sha256": "b73888cd8202d7e1d9fb5df28e3bf9848059d615efe4c41b4b3126ce8ede7473",
+      "at": 1791594548696
+    },
+    {
+      "seq": 5,
+      "kind": "read",
+      "path": "minbpe/basic.py",
+      "start_line": 1,
+      "end_line": 126,
+      "content_sha256": "016ebafb767bc455b9f46acaf0c72197c8da52dfb9defcb3c05a7f24098c4be5",
+      "at": 1791594548697
+    },
+    {
+      "seq": 6,
+      "kind": "read",
+      "path": "lineage_equiv.py",
+      "start_line": 1,
+      "end_line": 115,
+      "content_sha256": "506fe4a283bdce17453fa6df522745da2ed5b0e0e7662a80b83d43a99160ced2",
+      "at": 1791594638080
+    },
+    {
+      "seq": 7,
+      "kind": "read",
+      "path": "minbpe/gpt4.py",
+      "start_line": 1,
+      "end_line": 133,
+      "content_sha256": "8c55077cb22cf9353f0abdf5366a585c653674f17d100ceebe99004114b9b4df",
+      "at": 1791594640332
+    },
+    {
+      "seq": 8,
+      "kind": "edit",
+      "path": "minbpe/base.py",
+      "start_line": 83,
+      "end_line": 85,
+      "lines_before": 3,
+      "lines_after": 6,
+      "at": 1791594704512,
+      "diff": "--- a/minbpe/base.py\n+++ b/minbpe/base.py\n@@ -83,3 +83,6 @@\n-    if len(ids) < 2:\n-        return ids\n-    merges_get = merges.get\n+    if len(ids) < 2:\n+        return ids\n+    if len(ids) > 64:\n+        # long inputs: the O(n) min/index/count per merge step dominates\n+        return _apply_merges_long(ids, merges)\n+    merges_get = merges.get"
+    }
+  ],
+  "candidate": null,
+  "replays": [],
+  "verdict": null,
+  "outcome": "no_candidate",
+  "effect": null,
+  "cost": null,
+  "reward": {
+    "v": 1,
+    "accepted": 0,
+    "effect": 0,
+    "fixed_tests": 0,
+    "effect_per_usd": null,
+    "effect_per_sandbox_hour": null,
+    "reverted": false,
+    "inputs": [
+      "outcome"
+    ]
+  },
+  "worker_outcome": null,
+  "journal": null,
+  "provenance": null,
+  "license": {
+    "repo": "https://github.com/karpathy/minbpe",
+    "spdx": "MIT",
+    "name": "MIT License",
+    "url": "https://github.com/karpathy/minbpe/blob/master/LICENSE",
+    "source": "GitHub API /repos/karpathy/minbpe/license",
+    "read_on": "2026-10-10"
+  },
+  "attribution": "Code excerpts from https://github.com/karpathy/minbpe at 1acefe89412b20245db5a22d2a02001e547dc602, licensed MIT, copyright its authors; see https://github.com/karpathy/minbpe/blob/master/LICENSE.",
+  "times": {
+    "started_at": 1791594548411,
+    "ended_at": 1791594704525,
+    "finalized_at": null,
+    "published_at": 1791669219426
+  },
+  "verify": {
+    "session": "/v1/sessions/a1c0610d7324e4e059b4bbfc1012dfc23831fb5191b4480257de54edb04ae153",
+    "candidate": null,
+    "generation": null,
+    "provenance": null,
+    "journal": null
+  }
+}
