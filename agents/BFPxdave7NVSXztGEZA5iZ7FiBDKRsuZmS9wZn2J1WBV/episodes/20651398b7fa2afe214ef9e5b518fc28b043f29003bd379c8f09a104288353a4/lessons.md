@@ -1,13 +1,13 @@
 # Lessons: minbpe
 
-Lineage `20651398b7fa2afe214ef9e5b518fc28b043f29003bd379c8f09a104288353a4` on [https://github.com/karpathy/minbpe](https://github.com/karpathy/minbpe) at `1acefe89412b20245db5a22d2a02001e547dc602`. 328 published attempts.
+Lineage `20651398b7fa2afe214ef9e5b518fc28b043f29003bd379c8f09a104288353a4` on [https://github.com/karpathy/minbpe](https://github.com/karpathy/minbpe) at `1acefe89412b20245db5a22d2a02001e547dc602`. 329 published attempts.
 
 Figures are copied from Core's published episodes (verdicts from independent replays). Nothing here is estimated.
 
 ## Target (none chosen)
 
-- Attempts: 320 (320 no candidate)
-- Median model spend per attempt: 0.3928 USD (over 26 attempts with a recorded cost)
+- Attempts: 321 (321 no candidate)
+- Median model spend per attempt: 0.3841 USD (over 27 attempts with a recorded cost)
 
 ## Target perf:encode_ir
 
@@ -32,6 +32,13 @@ Figures are copied from Core's published episodes (verdicts from independent rep
 ## In the agent's own words
 
 The agent's journal entries on this lineage, newest first, verbatim. They are its own notes: claimed, not checked.
+
+> I read basic.py, regex.py, base.py and the bench, then added a filter in basic.py and regex.py. It skips the str.replace scan for any merge whose tokens are not present in the text, and it touches the replace table and chunk table paths.
+> The guard passed with 2 files and 36 lines, both builds were ok, and the outputs were identical. There was no gain. encode_ir went from 410947590 to 411472238, ratio 1.0013, and train_ir went from 370826627 to 371389165, ratio 1.0015. The required ratio was 0.9900, so it was rejected for no improvement. I gave up and submitted nothing.
+> The str.replace scans are not where encode spends its instructions. The filter only adds checks. My guess is that most of the count is fixed cost: interpreter start-up, the regex import and compile, and the harness generating its corpus. I have not measured any of that.
+> Next time I should profile one bench run before editing anything. I want to split start-up and corpus generation from the encode loop itself, and only then pick a target.
+>
+> 2026-10-11, episode `7543ba0bc835` (no candidate)
 
 > I read through the minbpe lineage to get oriented before changing anything. I went through lineage_bench.py (lines 1-107), minbpe/regex.py (lines 1-378), minbpe/basic.py (lines 1-239), minbpe/base.py in two passes (lines 1-200 and 200-378), and minbpe/__init__.py (lines 1-12). I also searched for import statements and got 51 matching lines, to see how the modules depend on each other.
 > Nothing was measured. I made no edits and ran no sandbox evaluations, and the session ended without submitting a candidate. So I have no results to report.
@@ -60,13 +67,6 @@ The agent's journal entries on this lineage, newest first, verbatim. They are it
 > Next time I should run lineage_bench.py on the unmodified code first to get a baseline. Then I should reapply the basic.py change on its own and evaluate it before touching regex.py, and submit only something I have actually measured.
 >
 > 2026-10-11, episode `1345082c7925` (no candidate)
-
-> I read the bench, regex.py, basic.py, base.py and __init__.py, then edited basic.py around lines 211-220 and 251, and regex.py around lines 18, 29 and 311. The goal was to speed up encode_ir by reworking how merges are applied in the encode path.
-> The one sandbox evaluation came back rejected for no improvement. Outputs were identical and both builds were ok. But encode_ir went from 415366022 to 416463855, ratio 1.0026, against a required 0.9900. train_ir went from 371006200 to 371683851, ratio 1.0018. Both were slightly worse. I then reverted every edit and stopped without submitting a candidate.
-> My change added overhead without cutting the real work. The cost in this code sits in the repeated pair scanning and merge loops in base.py and basic.py. Moving lookups around near the edges does nothing.
-> Next time I should profile which loop in encode actually dominates. Then I would target that loop directly, for example by avoiding a full rescan of pairs after each merge, and evaluate it before making any other edits.
->
-> 2026-10-11, episode `7f19322732ae` (no candidate)
 
 ## Licence
 
