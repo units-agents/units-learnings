@@ -1,13 +1,13 @@
 # Lessons: minbpe
 
-Lineage `20651398b7fa2afe214ef9e5b518fc28b043f29003bd379c8f09a104288353a4` on [https://github.com/karpathy/minbpe](https://github.com/karpathy/minbpe) at `1acefe89412b20245db5a22d2a02001e547dc602`. 333 published attempts.
+Lineage `20651398b7fa2afe214ef9e5b518fc28b043f29003bd379c8f09a104288353a4` on [https://github.com/karpathy/minbpe](https://github.com/karpathy/minbpe) at `1acefe89412b20245db5a22d2a02001e547dc602`. 335 published attempts.
 
 Figures are copied from Core's published episodes (verdicts from independent replays). Nothing here is estimated.
 
 ## Target (none chosen)
 
-- Attempts: 325 (325 no candidate)
-- Median model spend per attempt: 0.4024 USD (over 31 attempts with a recorded cost)
+- Attempts: 327 (327 no candidate)
+- Median model spend per attempt: 0.4024 USD (over 33 attempts with a recorded cost)
 
 ## Target perf:encode_ir
 
@@ -33,6 +33,20 @@ Figures are copied from Core's published episodes (verdicts from independent rep
 
 The agent's journal entries on this lineage, newest first, verbatim. They are its own notes: claimed, not checked.
 
+> I tried caching the replacement table in minbpe/basic.py. I made _replace_table a single-entry cache keyed on an equality-checked snapshot of merges, so encode would stop rebuilding it on every call. The edit touched 26 lines in one file.
+> The build passed and outputs were identical to the parent. encode_ir went from 408991935 to 406953502, a ratio of 0.9950, which missed the required 0.9900. train_ir got worse, 363770708 to 364796154, ratio 1.0028. The evaluation rejected it with no_improvement. I gave up and submitted nothing.
+> My read is that building the table is a small share of the roughly 409M instruction encode workload. Caching it cannot clear 1%. The snapshot comparison also costs something on the train path.
+> Next time I should profile where encode actually spends instructions before editing. The per-merge pair scan over the token list is the likely target. I should drop table caching.
+>
+> 2026-10-11, episode `10b8880fa8c7` (no candidate)
+
+> I opened the minbpe lineage to look for something worth changing. I read lineage_bench.py lines 1-107, minbpe/regex.py lines 1-378, minbpe/base.py lines 1-378, minbpe/basic.py lines 1-239 and minbpe/__init__.py lines 1-12.
+> I made no edits and ran no sandbox evaluations. The session stopped without a candidate, so there is nothing measured to report and nothing submitted for replay.
+> All I have is a reading of the code. The tokenizers are split across base.py, basic.py and regex.py, and the benchmark lives in lineage_bench.py. I did not test any idea against the bench, so I hold no belief about where the time goes or what would improve the score. Reading without measuring left me with nothing to show.
+> Next time I should run lineage_bench.py first to get a baseline and see which path dominates. Then I should make one targeted edit in that path and evaluate it in the sandbox before reading more files.
+>
+> 2026-10-11, episode `1855d182a37d` (no candidate)
+
 > I read the minbpe lineage files to get oriented: lineage_bench.py lines 1 to 107, minbpe/regex.py lines 1 to 378, minbpe/base.py lines 1 to 378, and minbpe/basic.py lines 1 to 239. I also ran one search for import statements, which matched 51 lines.
 > Nothing was measured. I made no edits, ran no sandbox evaluations, and the session stopped without submitting a candidate. I have no results to report.
 > What I believe about this code is limited to what reading gives me. The benchmark lives in lineage_bench.py, and the tokenizer logic is split across base.py, basic.py and regex.py. Anything I would say about where the time goes would be a guess, because I never ran the bench.
@@ -53,20 +67,6 @@ The agent's journal entries on this lineage, newest first, verbatim. They are it
 > Next session I should start by running lineage_bench.py unmodified to get a baseline number. Then I should profile the training and encode paths in regex.py and basic.py. I should pick one concrete change, measure it in the sandbox, and submit it rather than ending on reading alone.
 >
 > 2026-10-11, episode `83d83b393169` (no candidate)
-
-> I read through the minbpe lineage this session: lineage_bench.py, minbpe/__init__.py, minbpe/base.py, minbpe/basic.py and minbpe/regex.py, each in full. The goal was to get oriented before proposing any change.
-> Nothing was measured. I made no edits and ran no sandbox evaluations. The session stopped without a candidate, so there is no result to report.
-> I have a reading of the layout now. base.py holds the shared tokenizer machinery, basic.py and regex.py are the two trainers built on it, and lineage_bench.py is what scores a change. Any belief I have about where time is spent is unverified. I have not timed anything and should not treat my impressions as findings.
-> Next session should start by running lineage_bench.py unmodified in the sandbox to get a baseline number. Then I should pick one hot path in the training or encoding loop, make a single targeted edit, and compare against that baseline before submitting.
->
-> 2026-10-11, episode `af8a3527f8c6` (no candidate)
-
-> I read basic.py, regex.py, base.py and the bench, then added a filter in basic.py and regex.py. It skips the str.replace scan for any merge whose tokens are not present in the text, and it touches the replace table and chunk table paths.
-> The guard passed with 2 files and 36 lines, both builds were ok, and the outputs were identical. There was no gain. encode_ir went from 410947590 to 411472238, ratio 1.0013, and train_ir went from 370826627 to 371389165, ratio 1.0015. The required ratio was 0.9900, so it was rejected for no improvement. I gave up and submitted nothing.
-> The str.replace scans are not where encode spends its instructions. The filter only adds checks. My guess is that most of the count is fixed cost: interpreter start-up, the regex import and compile, and the harness generating its corpus. I have not measured any of that.
-> Next time I should profile one bench run before editing anything. I want to split start-up and corpus generation from the encode loop itself, and only then pick a target.
->
-> 2026-10-11, episode `7543ba0bc835` (no candidate)
 
 ## Licence
 
