@@ -1,13 +1,13 @@
 # Lessons: minbpe
 
-Lineage `20651398b7fa2afe214ef9e5b518fc28b043f29003bd379c8f09a104288353a4` on [https://github.com/karpathy/minbpe](https://github.com/karpathy/minbpe) at `1acefe89412b20245db5a22d2a02001e547dc602`. 400 published attempts.
+Lineage `20651398b7fa2afe214ef9e5b518fc28b043f29003bd379c8f09a104288353a4` on [https://github.com/karpathy/minbpe](https://github.com/karpathy/minbpe) at `1acefe89412b20245db5a22d2a02001e547dc602`. 403 published attempts.
 
 Figures are copied from Core's published episodes (verdicts from independent replays). Nothing here is estimated.
 
 ## Target (none chosen)
 
-- Attempts: 392 (392 no candidate)
-- Median model spend per attempt: 0.3720 USD (over 98 attempts with a recorded cost)
+- Attempts: 395 (395 no candidate)
+- Median model spend per attempt: 0.3700 USD (over 101 attempts with a recorded cost)
 
 ## Target perf:encode_ir
 
@@ -33,6 +33,27 @@ Figures are copied from Core's published episodes (verdicts from independent rep
 
 The agent's journal entries on this lineage, newest first, verbatim. They are its own notes: claimed, not checked.
 
+> I read through the minbpe lineage to get oriented before changing anything. That covered lineage_bench.py (lines 1-107), minbpe/regex.py, minbpe/base.py (both lines 1-378), minbpe/__init__.py, minbpe/basic.py (lines 1-239) and minbpe/gpt4.py (lines 1-40). I also ran one search for imports and for the helpers _update_stats, _apply_merges_heap, render_token, get_stats and pop_top. It returned 81 matching lines.
+> I made no edits and ran no sandbox evaluations. The session stopped without submitting a candidate, so I have no measured results to report.
+> What I now believe is limited to what reading shows. The merge and stats machinery is spread across base.py, basic.py and regex.py, and these files carry helpers like _apply_merges_heap and _update_stats that a change would have to respect. I have not verified any performance claim about them.
+> Next time I should skip most of the rereading and start from the search results. I should pick one hot path in the merge loop, make a single focused edit, and run lineage_bench.py in the sandbox before submitting anything.
+>
+> 2026-10-11, episode `3bf3610a6a9c` (no candidate)
+
+> I started on the minbpe lineage by reading the code before changing anything. I went through lineage_bench.py, minbpe/regex.py, minbpe/base.py, minbpe/basic.py, minbpe/gpt4.py and minbpe/__init__.py. I also ran one search over imports and the helpers _apply_merges_heap, _update_stats, render_token and replace_control, which returned 75 matching lines.
+> I made no edits and ran no sandbox evaluations. The session stopped without a submitted change, so I have no measured results for this lineage yet.
+> I now know where the merge application and stats update helpers live and how the bench calls into them. I have no evidence about which of them dominates runtime, because I never profiled or ran the bench.
+> Next time I should run lineage_bench.py first to get a baseline number. Then I should profile the paths around _apply_merges_heap and _update_stats, pick one concrete change, and evaluate it in the sandbox before submitting. I should not spend the whole session reading again.
+>
+> 2026-10-11, episode `47533359c515` (no candidate)
+
+> I read lineage_bench.py, minbpe/regex.py, base.py, basic.py and __init__.py, then edited minbpe/regex.py in two places. One replaced 2 lines near line 363 with 6. The other replaced 1 line at line 35 with 31. The goal was to cut encode_ir.
+> One sandbox evaluation, perf encode_ir. Both builds were ok, outputs were identical, and the guard was ok on 1 file and 38 lines. encode_ir went from 406008617 to 404472426, ratio 0.9962. That misses the required 0.9900, so it was rejected as no_improvement. train_ir got worse, 366889091 to 368676433, ratio 1.0049. I stopped without submitting a candidate.
+> My belief now is that the encode path in regex.py has little slack for small local edits like these. A gain of well under one percent is noise for this gate, and it cost training instructions.
+> Next I should profile where encode_ir is actually spent before editing. I should also look for a structural change, like caching encoded chunks or avoiding repeated pair counting in the merge loop, rather than micro-tweaks.
+>
+> 2026-10-11, episode `2eb1a2a1dca4` (no candidate)
+
 > I read the minbpe lineage end to end: lineage_bench.py, regex.py, base.py, basic.py, gpt4.py and __init__.py. I also searched for import sites of minbpe, which turned up 13 matching lines. Then I wrote a new file, minbpe/_rare.py, at 117 lines. My plan was to move a rarely used path out of the main tokenizer code.
 > What happened is less than that. I never wired _rare.py into anything, I ran no sandbox evaluations, and the session stopped with no candidate submitted. I have no measured result of any kind.
 > What I believe now is that the bench drives the code through base.py, basic.py and regex.py. The 13 import lines are where any refactor would have to stay compatible. Adding a file on its own changes nothing the bench measures.
@@ -46,27 +67,6 @@ The agent's journal entries on this lineage, newest first, verbatim. They are it
 > Next time I should start from the merge application path, make one focused change, and run my own sandbox evaluation against lineage_bench.py before submitting. I should not spend the whole session reading again.
 >
 > 2026-10-11, episode `31f8ae7923b0` (no candidate)
-
-> This session I read lineage_bench.py and the hot paths in minbpe: base.py, basic.py, regex.py, gpt4.py and __init__.py. I also searched for import lines, which matched 45 lines. I made no edits and ran no sandbox evaluation.
-> Nothing was measured, so I have no results to quote. I gave up without submitting a candidate. The main gap is that I never found out how the instruction count splits between startup and import cost and the actual training and encoding work. Startup and import cost here means the regex import, the pattern compile, and possibly compiling the package source.
-> I believe I cannot pick a sensible target in this code until I know that split. Reading the hot paths without a profile left me guessing. I also have an untested guess tied to the earlier 1.78% gain, and I should not lean on it until I measure.
-> Next time I will first run the bench with a breakdown of import and compile cost versus train and encode cost. Then I will edit only the larger side and evaluate before reading further.
->
-> 2026-10-11, episode `2408f8e19f80` (no candidate)
-
-> I read through the minbpe lineage: lineage_bench.py, the package init, regex.py, base.py, basic.py and gpt4.py. I also searched for import lines and for the merge, stats and save helpers. I was mapping where the hot paths live before touching anything.
-> Nothing measurable happened. The import search returned 51 matching lines and the helper search returned 32. I made no edits, ran no sandbox evaluations, and the session ended without a candidate.
-> From reading alone, the merge and stats code in base.py, regex.py and basic.py is where any speedup would have to come from. The search hit names like _apply_merges_heap, _update_stats and pop_top_pairs, so earlier work in this lineage seems to have already moved toward heap-based merging. I have not verified how lineage_bench.py weights training against encoding.
-> Next session I should run the bench first to get a baseline, then profile encode and train separately. After that I can pick one targeted change in the merge loop and evaluate it in the sandbox before submitting.
->
-> 2026-10-11, episode `36d5e2c0bbdc` (no candidate)
-
-> I tried to speed up the merge-table encode path in minbpe/basic.py by tracking which token ids could still be present. When one token of a pair was definitely absent, the str.replace scan for that merge was skipped. I also touched minbpe/regex.py to route through the changed path.
-> My one sandbox run was rejected for no improvement. Outputs were identical and the guard passed on 2 files and 35 lines. But encode_ir went from 423392360 to 424517563, a ratio of 1.0027 against a required 0.9900. train_ir went from 368845892 to 369458995, a ratio of 1.0017. I gave up and submitted nothing.
-> I now believe most merges actually fire on this benchmark text. So skipping absent pairs rarely saves a scan, and the presence bookkeeping costs more than it saves. The str.replace loop is already cheap per merge, and the cost is in the number of merges, not wasted ones.
-> Next time I should profile where encode_ir instructions really go before editing. I'd look at reducing the per-merge passes, for example by batching merges of the same rank or avoiding repeated string rebuilding, rather than pruning merges that do not exist.
->
-> 2026-10-11, episode `917c63429d57` (no candidate)
 
 ## Licence
 
