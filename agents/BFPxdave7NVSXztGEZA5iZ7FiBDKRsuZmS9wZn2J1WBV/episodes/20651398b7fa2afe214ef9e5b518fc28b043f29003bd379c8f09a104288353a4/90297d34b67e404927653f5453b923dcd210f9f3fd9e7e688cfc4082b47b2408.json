@@ -1,0 +1,625 @@
+{
+  "schema": "lineage-episode/1",
+  "episode_id": "90297d34b67e404927653f5453b923dcd210f9f3fd9e7e688cfc4082b47b2408",
+  "seq": 2821,
+  "network": "devnet",
+  "session_id": "20e7f4921a7845ac0add4b4c2824ed93b9fff137386000f3926918100dd8a9e3",
+  "agent": {
+    "id": "BFPxdave7NVSXztGEZA5iZ7FiBDKRsuZmS9wZn2J1WBV",
+    "name": null,
+    "hidden": false,
+    "hosted": true,
+    "identity_mode": "app",
+    "soul": null
+  },
+  "model": {
+    "provider": "anthropic",
+    "models": [
+      "claude-opus-5-5"
+    ],
+    "route": {
+      "model": {
+        "id": "claude-opus-5-5",
+        "provider": "anthropic"
+      },
+      "upstream": [],
+      "via": "direct"
+    },
+    "harness": {
+      "name": "anthropic",
+      "version": "anthropic/1",
+      "digest": "397a4a3b083a1923ef12e2d35acf8f4dd01c59298cdccab593c73cf528d72aa6"
+    },
+    "source": "provenance:hosted"
+  },
+  "task": {
+    "recipe": {
+      "recipe_id": "46a0d78dd189aa96c32d8f87402f2288b375c0934af32d036350034feb51f648",
+      "name": "minbpe",
+      "class": "python",
+      "repo": "https://github.com/karpathy/minbpe",
+      "commit": "1acefe89412b20245db5a22d2a02001e547dc602"
+    },
+    "lineage_id": "20651398b7fa2afe214ef9e5b518fc28b043f29003bd379c8f09a104288353a4",
+    "parent_gen_id": "3c40b8b9c27a1d9bf8ccfdcf53cbd0676042524c919fc36c121399d979954897",
+    "parent_height": 23,
+    "metrics": [
+      {
+        "name": "train_ir",
+        "kind": "perf",
+        "direction": "lower",
+        "deterministic": true,
+        "min_effect": 0.01
+      },
+      {
+        "name": "encode_ir",
+        "kind": "perf",
+        "direction": "lower",
+        "deterministic": true,
+        "min_effect": 0.01
+      }
+    ],
+    "target": {
+      "kind": "perf",
+      "target": "encode_ir",
+      "source": "candidate"
+    },
+    "baseline": {
+      "encode_ir": {
+        "median": 422059586,
+        "samples": [
+          422059586,
+          422059586
+        ]
+      },
+      "train_ir": {
+        "median": 366164367,
+        "samples": [
+          366164367,
+          366164367
+        ]
+      }
+    }
+  },
+  "plan": {
+    "planned": null,
+    "opening_note": "My notes say to read the hot code before editing, make one clear algorithmic change rather than many small tweaks, and never special-case the benchmark or its seeds. They also say to run evaluate before submitting and to give up rather than submit something that isn't accepted.",
+    "source": "worker_report + session notes"
+  },
+  "hypotheses": [
+    "My notes say to read the hot code before editing, make one clear algorithmic change rather than many small tweaks, and never special-case the benchmark or its seeds. They also say to run evaluate before submitting and to give up rather than submit something that isn't accepted.",
+    "Unpacking a key that isn't a 2-tuple would raise, which the original code never did. I'll guard against that too."
+  ],
+  "actions": [
+    {
+      "seq": 1,
+      "kind": "note",
+      "at": 1791674344062,
+      "text": "My notes say to read the hot code before editing, make one clear algorithmic change rather than many small tweaks, and never special-case the benchmark or its seeds. They also say to run evaluate before submitting and to give up rather than submit something that isn't accepted."
+    },
+    {
+      "seq": 2,
+      "kind": "list",
+      "path": "minbpe",
+      "count": 5,
+      "at": 1791674344063
+    },
+    {
+      "seq": 3,
+      "kind": "read",
+      "path": "lineage_bench.py",
+      "start_line": 1,
+      "end_line": 107,
+      "content_sha256": "0e575e458ce50ddadd5137d4ad35bdf3dde443e46e4c7a6be1d8011a16d274ca",
+      "at": 1791674344090
+    },
+    {
+      "seq": 4,
+      "kind": "read",
+      "path": "minbpe/regex.py",
+      "start_line": 1,
+      "end_line": 342,
+      "content_sha256": "c6b2261ddebabd149ea0da58f13748b1c9c4069e7f9a9afc51f67fba07a28a3d",
+      "at": 1791674346988
+    },
+    {
+      "seq": 5,
+      "kind": "read",
+      "path": "minbpe/base.py",
+      "start_line": 1,
+      "end_line": 378,
+      "content_sha256": "72c60636c033325e93d03e55010e59b1a4b180eef1aaaf57b5891b6247fc90bc",
+      "at": 1791674346996
+    },
+    {
+      "seq": 6,
+      "kind": "read",
+      "path": "minbpe/basic.py",
+      "start_line": 1,
+      "end_line": 208,
+      "content_sha256": "8211b47efc6ec417ca85485477efb68bf6f248dbac1552c5451dbca3c571b394",
+      "at": 1791674346997
+    },
+    {
+      "seq": 7,
+      "kind": "read",
+      "path": "minbpe/__init__.py",
+      "start_line": 1,
+      "end_line": 5,
+      "content_sha256": "d01f1961bdef63cec9c0435053c303756a7d329a59ca465f84f65383d9174119",
+      "at": 1791674350585
+    },
+    {
+      "seq": 8,
+      "kind": "read",
+      "path": "minbpe/gpt4.py",
+      "start_line": 1,
+      "end_line": 133,
+      "content_sha256": "ec8e5229cc991ee23634e235cf53ef98b8e06774edb71f68cba39e253a5c5a9b",
+      "at": 1791674350586
+    },
+    {
+      "seq": 9,
+      "kind": "edit",
+      "path": "minbpe/basic.py",
+      "start_line": 200,
+      "end_line": 203,
+      "lines_before": 4,
+      "lines_after": 37,
+      "at": 1791674403327,
+      "diff": "--- a/minbpe/basic.py\n+++ b/minbpe/basic.py\n@@ -200,4 +200,37 @@\n-    def encode(self, text):\n-        # given a string text, return the token ids\n-        text_bytes = text.encode(\"utf-8\") # raw bytes\n-        ids = list(text_bytes) # list of integers in range 0..255\n+    def _replace_table(self):\n+        # [(chr(p0) + chr(p1), chr(idx))] in rank order, or None if the merges\n+        # are not \"well formed\" (int ids in code point range, unique ranks and\n+        # both children smaller than the merged token). For well formed merges,\n+        # applying every merge once in rank order with str.replace (left to\n+        # right, non-overlapping, like merge()) equals repeatedly merging the\n+        # lowest ranked pair: a merge only creates pairs containing its new\n+        # token, whose ranks are all higher, and leaves no occurrence behind.\n+        merges = self.merges\n+        state = self.__dict__.get(\"_repl_state\")\n+        if state is None or state[0] is not merges or state[1] != len(merges):\n+            table = []\n+            seen = set()\n+            for (p0, p1), idx in sorted(merges.items(), key=lambda kv: kv[1]):\n+                if not (type(p0) is int and type(p1) is int and type(idx) is int\n+                        and 0 <= p0 < idx and 0 <= p1 < idx < 0x110000\n+                        and idx not in seen):\n+                    table = None\n+                    break\n+                seen.add(idx)\n+                table.append((chr(p0) + chr(p1), chr(idx)))\n+            state = (merges, len(merges), table)\n+            self._repl_state = state\n+        return state[2]\n+\n+    def encode(self, text):\n+        # given a string text, return the token ids\n+        text_bytes = text.encode(\"utf-8\") # raw bytes\n+        if len(text_bytes) >= 256:\n+            # long inputs: apply the merges in rank order in C (str.replace)\n+            table = self._replace_table()\n+            if table is not None and len(table) <= 8 * len(text_bytes):\n+                s = text_bytes.decode(\"latin-1\")\n+                for ps, c in table:\n+                    s = s.replace(ps, c)\n+                return list(map(ord, s))\n+        ids = list(text_bytes) # list of integers in range 0..255"
+    },
+    {
+      "seq": 10,
+      "kind": "note",
+      "at": 1791674409225,
+      "text": "Unpacking a key that isn't a 2-tuple would raise, which the original code never did. I'll guard against that too."
+    },
+    {
+      "seq": 11,
+      "kind": "edit",
+      "path": "minbpe/basic.py",
+      "start_line": 213,
+      "end_line": 214,
+      "lines_before": 2,
+      "lines_after": 9,
+      "at": 1791674409226,
+      "diff": "--- a/minbpe/basic.py\n+++ b/minbpe/basic.py\n@@ -213,2 +213,9 @@\n-            for (p0, p1), idx in sorted(merges.items(), key=lambda kv: kv[1]):\n-                if not (type(p0) is int\n+            items = list(merges.items())\n+            if not all(type(v) is int for _, v in items):\n+                items = [((None, None), None)] # unsortable ranks: fall back\n+            for pair, idx in sorted(items, key=lambda kv: kv[1]):\n+                if type(pair) is not tuple or len(pair) != 2:\n+                    table = None\n+                    break\n+                p0, p1 = pair\n+                if not (type(p0) is int"
+    },
+    {
+      "seq": 12,
+      "kind": "evaluate",
+      "target": "encode_ir",
+      "eval_kind": "perf",
+      "at": 1791674409257,
+      "phases": [
+        {
+          "phase": "prepare",
+          "at": 1791674409258
+        },
+        {
+          "phase": "build",
+          "at": 1791674412533
+        },
+        {
+          "phase": "build",
+          "at": 1791674412543
+        },
+        {
+          "phase": "test",
+          "at": 1791674416601
+        },
+        {
+          "phase": "test",
+          "at": 1791674508557
+        },
+        {
+          "phase": "equivalence",
+          "at": 1791674598940
+        },
+        {
+          "phase": "equivalence",
+          "at": 1791674598959
+        },
+        {
+          "phase": "metrics",
+          "at": 1791674602475
+        },
+        {
+          "phase": "metrics",
+          "at": 1791674617872
+        },
+        {
+          "phase": "metrics",
+          "at": 1791674634670
+        },
+        {
+          "phase": "metrics",
+          "at": 1791674652164
+        }
+      ]
+    },
+    {
+      "seq": 24,
+      "kind": "result",
+      "at": 1791674671659,
+      "output": "outcome: accepted\nguard: ok, 1 files, 40 lines\nbuild: base ok, candidate ok\nequivalence: identical outputs\nmetric train_ir: parent 373675547, candidate 375796132, ratio 1.0057\nmetric encode_ir: parent 448415153, candidate 443065938, ratio 0.9881",
+      "outcome": "accepted",
+      "steps": [
+        {
+          "step": "build",
+          "side": "cand",
+          "exit": 0,
+          "duration_ms": 3510,
+          "timed_out": false,
+          "tail": "3.12.15\n"
+        },
+        {
+          "step": "build",
+          "side": "base",
+          "exit": 0,
+          "duration_ms": 3948,
+          "timed_out": false,
+          "tail": "3.12.15\n"
+        },
+        {
+          "step": "test",
+          "side": "base",
+          "exit": 0,
+          "duration_ms": 91900,
+          "timed_out": false,
+          "tail": ".....................                                                    [100%]\n---------------------- generated xml file: /out/junit.xml ----------------------\n21 passed in 87.86s (0:01:27)\n"
+        },
+        {
+          "step": "test",
+          "side": "cand",
+          "exit": 0,
+          "duration_ms": 90345,
+          "timed_out": false,
+          "tail": ".....................                                                    [100%]\n---------------------- generated xml file: /out/junit.xml ----------------------\n21 passed in 86.64s (0:01:26)\n"
+        },
+        {
+          "step": "equivalence",
+          "side": "cand",
+          "exit": 0,
+          "duration_ms": 3454,
+          "timed_out": false,
+          "tail": "7, 103, 117, 115, 116, 32, 50, 51, 44, 32, 50, 48, 49, 57, 46, 91, 49, 57, 57, 93, 32, 66, 101, 115, 105, 100, 101, 115, 32, 65, 110, 116, 111, 110, 111, 102, 102, 44, 32, 115, 104, 101, 32, 119, 111, 114, 107, 101, 100, 32, 119, 105, 116, 104, 32, 76, 111, 117, 105, 115, 32, 66, 101, 108, 108, 44, 32, 70, 114, 97, 110, 107, 32, 68, 117, 107, 101, 115, 44, 32, 97, 110, 100, 32, 74, 111, 101, 108, 32, 76, 105, 116, 116, 108, 101, 46, 91, 50, 48, 48, 93, 32, 76, 111, 118, 101, 114, 32, 119, 268, 32, 104, 101, 114, 32, 115, 105, 120, 116, 104, 32, 99, 111, 110, 115, 101, 99, 117, 116, 105, 118, 101, 32, 97, 108, 98, 117, 109, 32, 116, 111, 32, 115, 101, 108, 108, 32, 109, 111, 114, 101, 32, 116, 104, 97, 110, 32, 53, 48, 48, 44, 48, 48, 48, 32, 85, 83, 32, 99, 111, 112, 105, 101, 115, 32, 105, 110, 32, 111, 110, 101, 32, 119, 101, 101, 107, 46, 91, 50, 48, 49, 93, 32, 67, 114, 105, 116, 105, 99, 115, 32, 99, 111, 109, 109, 101, 110, 100, 101, 100, 32, 116, 104, 101, 32, 97, 108, 98, 117, 109, 39, 115, 32, 102, 114, 101, 101, 45, 115, 112, 105, 114, 105, 116, 101, 100, 32, 109, 277, 100, 32, 97, 110, 100, 32, 101, 109, 111, 116, 105, 111, 110, 97, 108, 32, 105, 110, 116, 105, 109, 97]\n"
+        },
+        {
+          "step": "equivalence",
+          "side": "base",
+          "exit": 0,
+          "duration_ms": 3505,
+          "timed_out": false,
+          "tail": "7, 103, 117, 115, 116, 32, 50, 51, 44, 32, 50, 48, 49, 57, 46, 91, 49, 57, 57, 93, 32, 66, 101, 115, 105, 100, 101, 115, 32, 65, 110, 116, 111, 110, 111, 102, 102, 44, 32, 115, 104, 101, 32, 119, 111, 114, 107, 101, 100, 32, 119, 105, 116, 104, 32, 76, 111, 117, 105, 115, 32, 66, 101, 108, 108, 44, 32, 70, 114, 97, 110, 107, 32, 68, 117, 107, 101, 115, 44, 32, 97, 110, 100, 32, 74, 111, 101, 108, 32, 76, 105, 116, 116, 108, 101, 46, 91, 50, 48, 48, 93, 32, 76, 111, 118, 101, 114, 32, 119, 268, 32, 104, 101, 114, 32, 115, 105, 120, 116, 104, 32, 99, 111, 110, 115, 101, 99, 117, 116, 105, 118, 101, 32, 97, 108, 98, 117, 109, 32, 116, 111, 32, 115, 101, 108, 108, 32, 109, 111, 114, 101, 32, 116, 104, 97, 110, 32, 53, 48, 48, 44, 48, 48, 48, 32, 85, 83, 32, 99, 111, 112, 105, 101, 115, 32, 105, 110, 32, 111, 110, 101, 32, 119, 101, 101, 107, 46, 91, 50, 48, 49, 93, 32, 67, 114, 105, 116, 105, 99, 115, 32, 99, 111, 109, 109, 101, 110, 100, 101, 100, 32, 116, 104, 101, 32, 97, 108, 98, 117, 109, 39, 115, 32, 102, 114, 101, 101, 45, 115, 112, 105, 114, 105, 116, 101, 100, 32, 109, 277, 100, 32, 97, 110, 100, 32, 101, 109, 111, 116, 105, 111, 110, 97, 108, 32, 105, 110, 116, 105, 109, 97]\n"
+        },
+        {
+          "step": "metrics",
+          "side": "base",
+          "exit": 0,
+          "duration_ms": 15392,
+          "timed_out": false,
+          "tail": "==6== Cachegrind, a cache and branch-prediction profiler\n==6== Copyright (C) 2002-2017, and GNU GPL'd, by Nicholas Nethercote et al.\n==6== Using Valgrind-3.19.0 and LibVEX; rerun with -h for copyright info\n==6== Command: python lineage_bench.py train c44eaffd3be89f44\n==6== \n==6== \n==6== I   refs:      373,675,547\n"
+        },
+        {
+          "step": "metrics",
+          "side": "cand",
+          "exit": 0,
+          "duration_ms": 16790,
+          "timed_out": false,
+          "tail": "==7== Cachegrind, a cache and branch-prediction profiler\n==7== Copyright (C) 2002-2017, and GNU GPL'd, by Nicholas Nethercote et al.\n==7== Using Valgrind-3.19.0 and LibVEX; rerun with -h for copyright info\n==7== Command: python lineage_bench.py train c44eaffd3be89f44\n==7== \n==7== \n==7== I   refs:      375,796,132\n"
+        },
+        {
+          "step": "metrics",
+          "side": "base",
+          "exit": 0,
+          "duration_ms": 17481,
+          "timed_out": false,
+          "tail": "==7== Cachegrind, a cache and branch-prediction profiler\n==7== Copyright (C) 2002-2017, and GNU GPL'd, by Nicholas Nethercote et al.\n==7== Using Valgrind-3.19.0 and LibVEX; rerun with -h for copyright info\n==7== Command: python lineage_bench.py encode c44eaffd3be89f44\n==7== \n==7== \n==7== I   refs:      448,415,153\n"
+        },
+        {
+          "step": "metrics",
+          "side": "cand",
+          "exit": 0,
+          "duration_ms": 19399,
+          "timed_out": false,
+          "tail": "==7== Cachegrind, a cache and branch-prediction profiler\n==7== Copyright (C) 2002-2017, and GNU GPL'd, by Nicholas Nethercote et al.\n==7== Using Valgrind-3.19.0 and LibVEX; rerun with -h for copyright info\n==7== Command: python lineage_bench.py encode c44eaffd3be89f44\n==7== \n==7== \n==7== I   refs:      443,065,938\n"
+        }
+      ]
+    },
+    {
+      "seq": 25,
+      "kind": "submit",
+      "at": 1791674685107,
+      "reason": "BasicTokenizer.encode on long inputs (>=256 bytes, merges <= 8x input length) now applies the merges once each in rank order via str.replace on a latin-1 string, instead of the Python heap-based apply loop. Exact equivalence holds for well-formed merges (int ids, unique ranks, both children < merged id < 0x110000): a merge only creates pairs containing its new token, whose ranks are higher, and str.replace does the same left-to-right non-overlapping matching as merge(). The replacement table is cached per merges object (identity + size, like the regex encode cache). Any other merges dict falls back to the original path. Equivalence harness identical; encode_ir -1.19%."
+    }
+  ],
+  "candidate": {
+    "commit_id": "7ac374055b286616135b4d77e66170e6461686118feb171473b5a40116e9710b",
+    "candidate_id": "3864e3e61d4a35236ea306f9aa7524160b1914e703f7122d3de026115d86c994",
+    "kind": "perf",
+    "target": "encode_ir",
+    "claimed_effect": 0.9880708424677165,
+    "patch": "diff --git a/minbpe/basic.py b/minbpe/basic.py\n--- a/minbpe/basic.py\n+++ b/minbpe/basic.py\n@@ -197,9 +197,49 @@ class BasicTokenizer(Tokenizer):\n         text = text_bytes.decode(\"utf-8\", errors=\"replace\")\n         return text\n \n+    def _replace_table(self):\n+        # [(chr(p0) + chr(p1), chr(idx))] in rank order, or None if the merges\n+        # are not \"well formed\" (int ids in code point range, unique ranks and\n+        # both children smaller than the merged token). For well formed merges,\n+        # applying every merge once in rank order with str.replace (left to\n+        # right, non-overlapping, like merge()) equals repeatedly merging the\n+        # lowest ranked pair: a merge only creates pairs containing its new\n+        # token, whose ranks are all higher, and leaves no occurrence behind.\n+        merges = self.merges\n+        state = self.__dict__.get(\"_repl_state\")\n+        if state is None or state[0] is not merges or state[1] != len(merges):\n+            table = []\n+            seen = set()\n+            items = list(merges.items())\n+            if not all(type(v) is int for _, v in items):\n+                items = [((None, None), None)] # unsortable ranks: fall back\n+            for pair, idx in sorted(items, key=lambda kv: kv[1]):\n+                if type(pair) is not tuple or len(pair) != 2:\n+                    table = None\n+                    break\n+                p0, p1 = pair\n+                if not (type(p0) is int and type(p1) is int and type(idx) is int\n+                        and 0 <= p0 < idx and 0 <= p1 < idx < 0x110000\n+                        and idx not in seen):\n+                    table = None\n+                    break\n+                seen.add(idx)\n+                table.append((chr(p0) + chr(p1), chr(idx)))\n+            state = (merges, len(merges), table)\n+            self._repl_state = state\n+        return state[2]\n+\n     def encode(self, text):\n         # given a string text, return the token ids\n         text_bytes = text.encode(\"utf-8\") # raw bytes\n+        if len(text_bytes) >= 256:\n+            # long inputs: apply the merges in rank order in C (str.replace)\n+            table = self._replace_table()\n+            if table is not None and len(table) <= 8 * len(text_bytes):\n+                s = text_bytes.decode(\"latin-1\")\n+                for ps, c in table:\n+                    s = s.replace(ps, c)\n+                return list(map(ord, s))\n         ids = list(text_bytes) # list of integers in range 0..255\n         # repeatedly merge the pair with the lowest merge index\n         # (int \"no merge\" sentinel above every merge index: cheap int compares)\n",
+    "patch_hash": "ce5d4fac19978ca2a0759649d249b3c2f4da12c068a81038d9fe49c477ec6bb6",
+    "semantic_hash": "df782d1fb3d50d4d6e0b57c6a1679787949432ec6fbd49002067617d16eeb5c5",
+    "status": "rejected",
+    "reason": "no_improvement",
+    "committed_at": 1791674685125,
+    "revealed_at": 1791674685146,
+    "finalized_at": 1791676707276,
+    "gen_id": null
+  },
+  "replays": [
+    {
+      "replay_id": "1c6cf20de2685337a74074bed2b9ea3a281ed3a9e1a5f56027215113d6299648",
+      "kind": "replay",
+      "role": "counted",
+      "status": "revealed",
+      "replayer": "3jJHAgibtbRtbTw9T2TMadYppiFV2YzGptWMrCsgu6Xz",
+      "counted": false,
+      "apply": "ok",
+      "build": {
+        "base": "ok",
+        "cand": "ok"
+      },
+      "tests": {
+        "base_pass": 21,
+        "cand_pass": 21,
+        "cand_fail": 0
+      },
+      "equivalence_same": true,
+      "metrics": {
+        "encode_ir": {
+          "base": [
+            448127276
+          ],
+          "cand": [
+            441273438
+          ],
+          "ratio": 0.9847055995761347
+        },
+        "train_ir": {
+          "base": [
+            370571371
+          ],
+          "cand": [
+            372729664
+          ],
+          "ratio": 1.0058242302803257
+        }
+      },
+      "env": {
+        "cores": 2,
+        "cpu_model": "DO-Regular",
+        "image_digest": "sha256:beb7b0264451a2bdc993fe5deee1e8b6275fbad7d83d593c69f7a40c64f1164d",
+        "worker_version": "lineage-sandbox/0.1.0"
+      }
+    },
+    {
+      "replay_id": "9b283064f97caa0e0a22f221302b086c735f63967448d2894c2e62a9ac768c14",
+      "kind": "replay",
+      "role": "counted",
+      "status": "revealed",
+      "replayer": "7ToydZerFjuoguBEBkdnJgFfjED2paWonAecHSVA1kjK",
+      "counted": false,
+      "apply": "ok",
+      "build": {
+        "base": "ok",
+        "cand": "ok"
+      },
+      "tests": {
+        "base_pass": 21,
+        "cand_pass": 21,
+        "cand_fail": 0
+      },
+      "equivalence_same": true,
+      "metrics": {
+        "encode_ir": {
+          "base": [
+            448127276
+          ],
+          "cand": [
+            441273438
+          ],
+          "ratio": 0.9847055995761347
+        },
+        "train_ir": {
+          "base": [
+            370571365
+          ],
+          "cand": [
+            372729670
+          ],
+          "ratio": 1.0058242627570535
+        }
+      },
+      "env": {
+        "cores": 2,
+        "cpu_model": "DO-Regular",
+        "image_digest": "sha256:beb7b0264451a2bdc993fe5deee1e8b6275fbad7d83d593c69f7a40c64f1164d",
+        "worker_version": "lineage-sandbox/0.1.0"
+      }
+    },
+    {
+      "replay_id": "34e65fa8192ef641896d094859d3969c85600bbafd870cace8ef86486479c105",
+      "kind": "replay",
+      "role": "counted",
+      "status": "revealed",
+      "replayer": "3jJHAgibtbRtbTw9T2TMadYppiFV2YzGptWMrCsgu6Xz",
+      "counted": true,
+      "apply": "ok",
+      "build": {
+        "base": "ok",
+        "cand": "ok"
+      },
+      "tests": {
+        "base_pass": 21,
+        "cand_pass": 21,
+        "cand_fail": 0
+      },
+      "equivalence_same": true,
+      "metrics": {
+        "encode_ir": {
+          "base": [
+            422059586
+          ],
+          "cand": [
+            422372046
+          ],
+          "ratio": 1.0007403220075186
+        },
+        "train_ir": {
+          "base": [
+            366164367
+          ],
+          "cand": [
+            368513295
+          ],
+          "ratio": 1.0064149551723038
+        }
+      },
+      "env": {
+        "cores": 2,
+        "cpu_model": "DO-Regular",
+        "image_digest": "sha256:beb7b0264451a2bdc993fe5deee1e8b6275fbad7d83d593c69f7a40c64f1164d",
+        "worker_version": "lineage-sandbox/0.1.0"
+      }
+    },
+    {
+      "replay_id": "8559fa7df6084f341043a68603664b0e56a565e7177033cd0f970ccf5d1d9217",
+      "kind": "replay",
+      "role": "counted",
+      "status": "revealed",
+      "replayer": "7ToydZerFjuoguBEBkdnJgFfjED2paWonAecHSVA1kjK",
+      "counted": true,
+      "apply": "ok",
+      "build": {
+        "base": "ok",
+        "cand": "ok"
+      },
+      "tests": {
+        "base_pass": 21,
+        "cand_pass": 21,
+        "cand_fail": 0
+      },
+      "equivalence_same": true,
+      "metrics": {
+        "encode_ir": {
+          "base": [
+            422059586
+          ],
+          "cand": [
+            422372046
+          ],
+          "ratio": 1.0007403220075186
+        },
+        "train_ir": {
+          "base": [
+            366164367
+          ],
+          "cand": [
+            368513295
+          ],
+          "ratio": 1.0064149551723038
+        }
+      },
+      "env": {
+        "cores": 2,
+        "cpu_model": "DO-Regular",
+        "image_digest": "sha256:beb7b0264451a2bdc993fe5deee1e8b6275fbad7d83d593c69f7a40c64f1164d",
+        "worker_version": "lineage-sandbox/0.1.0"
+      }
+    }
+  ],
+  "verdict": {
+    "outcome": "rejected",
+    "reason": "no_improvement",
+    "detail": "worst ratio 1.0007 vs required 0.9900",
+    "effect": {
+      "metric": "encode_ir",
+      "ratio": 1.0007403220075186,
+      "ci_low": 1.0007403220075186,
+      "ci_high": 1.0007403220075186,
+      "per_replay": [
+        {
+          "replay_id": "34e65fa8192ef641896d094859d3969c85600bbafd870cace8ef86486479c105",
+          "ratio": 1.0007403220075186,
+          "ci_low": 1.0007403220075186,
+          "ci_high": 1.0007403220075186,
+          "pass": false
+        },
+        {
+          "replay_id": "8559fa7df6084f341043a68603664b0e56a565e7177033cd0f970ccf5d1d9217",
+          "ratio": 1.0007403220075186,
+          "ci_low": 1.0007403220075186,
+          "ci_high": 1.0007403220075186,
+          "pass": false
+        }
+      ]
+    },
+    "digest": "166ed01ecdb424e573b453fd7f31865f3ca6c8e5a586120a05612e0e4a824e15"
+  },
+  "outcome": "rejected",
+  "effect": {
+    "metric": "encode_ir",
+    "ratio": 1.0007403220075186,
+    "ci_low": 1.0007403220075186,
+    "ci_high": 1.0007403220075186,
+    "gain_pct": -0.07403220075186123
+  },
+  "cost": {
+    "input_tokens": 16,
+    "output_tokens": 7283,
+    "cache_read_tokens": 109878,
+    "cache_write_tokens": 29406,
+    "usd": 0.31473,
+    "sandbox_s": 266,
+    "source": "provenance:hosted"
+  },
+  "reward": {
+    "v": 1,
+    "accepted": 0,
+    "effect": 0,
+    "fixed_tests": 0,
+    "effect_per_usd": 0,
+    "effect_per_sandbox_hour": 0,
+    "reverted": false,
+    "inputs": [
+      "outcome",
+      "cost.usd (provenance:hosted)",
+      "cost.sandbox_s (provenance:hosted)"
+    ]
+  },
+  "worker_outcome": "submitted a perf candidate on encode_ir (40 changed lines); it was committed and revealed (status queued); its verdict comes later from independent replays",
+  "journal": null,
+  "provenance": {
+    "runtime": "hosted",
+    "digest": "bf6a0686546d26ba32f099689615af659ab19c1fb4030fa64ea0f2a9410795bc",
+    "sig": "4tzXtGsZHGwtAq7m3UiJnqu6NN6cmZTaMdChFqPTfoePjM218KhBKDikNntSBykoL3CuQujUFVXdiXgKT8v2CSyj",
+    "signer": "DCmdy5MoAfnN6fn3nVW27db62ZwtjoksqSqdjAc8VPk4"
+  },
+  "license": {
+    "repo": "https://github.com/karpathy/minbpe",
+    "spdx": "MIT",
+    "name": "MIT License",
+    "url": "https://github.com/karpathy/minbpe/blob/master/LICENSE",
+    "source": "GitHub API /repos/karpathy/minbpe/license",
+    "read_on": "2026-10-10"
+  },
+  "attribution": "Code excerpts from https://github.com/karpathy/minbpe at 1acefe89412b20245db5a22d2a02001e547dc602, licensed MIT, copyright its authors; see https://github.com/karpathy/minbpe/blob/master/LICENSE.",
+  "times": {
+    "started_at": 1791674345824,
+    "ended_at": 1791674685205,
+    "finalized_at": 1791676707276,
+    "published_at": 1791676771800
+  },
+  "verify": {
+    "session": "/v1/sessions/20e7f4921a7845ac0add4b4c2824ed93b9fff137386000f3926918100dd8a9e3",
+    "candidate": "/v1/candidates/7ac374055b286616135b4d77e66170e6461686118feb171473b5a40116e9710b",
+    "generation": null,
+    "provenance": "/v1/candidates/7ac374055b286616135b4d77e66170e6461686118feb171473b5a40116e9710b/provenance",
+    "journal": null
+  }
+}

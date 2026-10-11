@@ -1,0 +1,179 @@
+{
+  "schema": "lineage-episode/1",
+  "episode_id": "e219a6c39f534cb5c58e5902cb34407c4645023a6474528cc721742893a76de1",
+  "seq": 2656,
+  "network": "devnet",
+  "session_id": "9e6957c31ae3281939cb69757e0ec4f615b432326b9adc9073273abbd309144e",
+  "agent": {
+    "id": "BFPxdave7NVSXztGEZA5iZ7FiBDKRsuZmS9wZn2J1WBV",
+    "name": null,
+    "hidden": false,
+    "hosted": true,
+    "identity_mode": "app",
+    "soul": null
+  },
+  "model": {
+    "provider": null,
+    "models": [],
+    "route": null,
+    "harness": {
+      "name": "routed",
+      "version": null,
+      "digest": null
+    },
+    "source": "session.proposer"
+  },
+  "task": {
+    "recipe": {
+      "recipe_id": "46a0d78dd189aa96c32d8f87402f2288b375c0934af32d036350034feb51f648",
+      "name": "minbpe",
+      "class": "python",
+      "repo": "https://github.com/karpathy/minbpe",
+      "commit": "1acefe89412b20245db5a22d2a02001e547dc602"
+    },
+    "lineage_id": "20651398b7fa2afe214ef9e5b518fc28b043f29003bd379c8f09a104288353a4",
+    "parent_gen_id": "153a98f137c9fb9d0e80d0e77d501e7cb08ec35a4e60e44b9644c838d42f8a14",
+    "parent_height": 12,
+    "metrics": [
+      {
+        "name": "train_ir",
+        "kind": "perf",
+        "direction": "lower",
+        "deterministic": true,
+        "min_effect": 0.01
+      },
+      {
+        "name": "encode_ir",
+        "kind": "perf",
+        "direction": "lower",
+        "deterministic": true,
+        "min_effect": 0.01
+      }
+    ],
+    "target": null,
+    "baseline": null
+  },
+  "plan": {
+    "planned": null,
+    "opening_note": null,
+    "source": "session notes"
+  },
+  "hypotheses": [],
+  "actions": [
+    {
+      "seq": 1,
+      "kind": "list",
+      "path": "minbpe",
+      "count": 5,
+      "at": 1791594709012
+    },
+    {
+      "seq": 2,
+      "kind": "read",
+      "path": "lineage_bench.py",
+      "start_line": 1,
+      "end_line": 107,
+      "content_sha256": "0e575e458ce50ddadd5137d4ad35bdf3dde443e46e4c7a6be1d8011a16d274ca",
+      "at": 1791594709013
+    },
+    {
+      "seq": 3,
+      "kind": "read",
+      "path": "minbpe/base.py",
+      "start_line": 1,
+      "end_line": 274,
+      "content_sha256": "a103bc83cbca95b46c8d704f90cd216d5966775e2db949ed8930b0c08768b290",
+      "at": 1791594710884
+    },
+    {
+      "seq": 4,
+      "kind": "read",
+      "path": "minbpe/regex.py",
+      "start_line": 1,
+      "end_line": 214,
+      "content_sha256": "b73888cd8202d7e1d9fb5df28e3bf9848059d615efe4c41b4b3126ce8ede7473",
+      "at": 1791594710885
+    },
+    {
+      "seq": 5,
+      "kind": "read",
+      "path": "minbpe/basic.py",
+      "start_line": 1,
+      "end_line": 126,
+      "content_sha256": "016ebafb767bc455b9f46acaf0c72197c8da52dfb9defcb3c05a7f24098c4be5",
+      "at": 1791594710885
+    },
+    {
+      "seq": 6,
+      "kind": "read",
+      "path": "minbpe/gpt4.py",
+      "start_line": 1,
+      "end_line": 133,
+      "content_sha256": "8c55077cb22cf9353f0abdf5366a585c653674f17d100ceebe99004114b9b4df",
+      "at": 1791594753691
+    },
+    {
+      "seq": 7,
+      "kind": "read",
+      "path": "lineage_equiv.py",
+      "start_line": 1,
+      "end_line": 115,
+      "content_sha256": "506fe4a283bdce17453fa6df522745da2ed5b0e0e7662a80b83d43a99160ced2",
+      "at": 1791594767316
+    },
+    {
+      "seq": 8,
+      "kind": "edit",
+      "path": "minbpe/basic.py",
+      "start_line": 12,
+      "end_line": 55,
+      "lines_before": 44,
+      "lines_after": 45,
+      "at": 1791594845901,
+      "diff": "--- a/minbpe/basic.py\n+++ b/minbpe/basic.py\n@@ -12,44 +12,45 @@\n-from itertools import compress, islice\n-\n-from .base import Tokenizer, get_stats, merge, apply_merges\n-\n-\n-def _update_stats(stats, old, new, pair, idx):\n-    \"\"\"\n-    Update pair counts (stats of old) in place so they become the stats of new,\n-    where new = merge(old, pair, idx) and idx does not occur in old. Only pairs\n-    touching a merged occurrence change; zero counts are removed.\n-    \"\"\"\n-    p0, p1 = pair\n-    get = stats.get\n-    n_old = len(old)\n-    n_new = len(new)\n-    k = new.count(idx)\n-    index = new.index\n-    removed = [pair]\n-    rapp = removed.append\n-    prev = -2\n-    q = -1\n-    for m in range(k):\n-        q = index(idx, q + 1)\n-        j = q + m # position of this occurrence in old\n-        if q and prev != q - 1:\n-            # left neighbour is untouched (an adjacent previous occurrence\n-            # already accounted for the pair between them)\n-            a = new[q-1]\n-            p = (a, p0)\n-            stats[p] -= 1\n-            rapp(p)\n-            p = (a, idx)\n-            stats[p] = get(p, 0) + 1\n-        if j + 2 < n_old:\n-            p = (p1, old[j+2])\n-            stats[p] -= 1\n-            rapp(p)\n-            p = (idx, new[q+1])\n-            stats[p] = get(p, 0) + 1\n-        prev = q\n-    stats[pair] -= k\n-    for p in removed:\n-        if get(p) == 0:\n-            del stats[p]\n+from itertools import compress, islice\n+from operator import add\n+\n+from .base import Tokenizer, apply_merges, _count_elements\n+\n+\n+def _update_stats(stats, old, new, pair, c, k):\n+    \"\"\"\n+    Update pair counts (stats of old) in place so they become the stats of new.\n+    Token sequences are str with one code point per token (chr(token id)) and\n+    pairs are 2-char str: new = old.replace(pair, c), k = old.count(pair) and\n+    c does not occur in old. Only pairs touching a merged occurrence change;\n+    zero counts are removed.\n+    \"\"\"\n+    p0, p1 = pair\n+    get = stats.get\n+    n_old = len(old)\n+    find = new.find\n+    removed = [pair]\n+    rapp = removed.append\n+    prev = -2\n+    q = -1\n+    for m in range(k):\n+        q = find(c, q + 1)\n+        j = q + m # position of this occurrence in old\n+        if q and prev != q - 1:\n+            # left neighbour is untouched (an adjacent previous occurrence\n+            # already accounted for the pair between them)\n+            a = new[q-1]\n+            p = a + p0\n+            stats[p] -= 1\n+            rapp(p)\n+            p = a + c\n+            stats[p] = get(p, 0) + 1\n+        if j + 2 < n_old:\n+            p = p1 + old[j+2]\n+            stats[p] -= 1\n+            rapp(p)\n+            p = c + new[q+1]\n+            stats[p] = get(p, 0) + 1\n+        prev = q\n+    stats[pair] -= k\n+    for p in removed:\n+        if get(p) == 0:\n+            del stats[p]"
+    }
+  ],
+  "candidate": null,
+  "replays": [],
+  "verdict": null,
+  "outcome": "no_candidate",
+  "effect": null,
+  "cost": null,
+  "reward": {
+    "v": 1,
+    "accepted": 0,
+    "effect": 0,
+    "fixed_tests": 0,
+    "effect_per_usd": null,
+    "effect_per_sandbox_hour": null,
+    "reverted": false,
+    "inputs": [
+      "outcome"
+    ]
+  },
+  "worker_outcome": null,
+  "journal": null,
+  "provenance": null,
+  "license": {
+    "repo": "https://github.com/karpathy/minbpe",
+    "spdx": "MIT",
+    "name": "MIT License",
+    "url": "https://github.com/karpathy/minbpe/blob/master/LICENSE",
+    "source": "GitHub API /repos/karpathy/minbpe/license",
+    "read_on": "2026-10-10"
+  },
+  "attribution": "Code excerpts from https://github.com/karpathy/minbpe at 1acefe89412b20245db5a22d2a02001e547dc602, licensed MIT, copyright its authors; see https://github.com/karpathy/minbpe/blob/master/LICENSE.",
+  "times": {
+    "started_at": 1791594710606,
+    "ended_at": 1791594845907,
+    "finalized_at": null,
+    "published_at": 1791669219426
+  },
+  "verify": {
+    "session": "/v1/sessions/9e6957c31ae3281939cb69757e0ec4f615b432326b9adc9073273abbd309144e",
+    "candidate": null,
+    "generation": null,
+    "provenance": null,
+    "journal": null
+  }
+}
