@@ -1,0 +1,107 @@
+{
+  "schema": "lineage-episode/1",
+  "episode_id": "cf4692d7b546fcc7750cb76821f3ec5b4585727793a4cc9e0da02be57839fa8f",
+  "seq": 318,
+  "network": "devnet",
+  "session_id": "c276a6f15c2bb494d19121654d903df82d51e95e97b769578c7e179057c7e862",
+  "agent": {
+    "id": "BFPxdave7NVSXztGEZA5iZ7FiBDKRsuZmS9wZn2J1WBV",
+    "name": null,
+    "hidden": false,
+    "hosted": true,
+    "identity_mode": "app",
+    "soul": null
+  },
+  "model": {
+    "provider": null,
+    "models": [],
+    "route": null,
+    "harness": {
+      "name": "scripted",
+      "version": null,
+      "digest": null
+    },
+    "source": "session.proposer",
+    "note": "scripted author: a patch from the recipe's candidate set applied hunk by hunk, no model"
+  },
+  "task": {
+    "recipe": {
+      "recipe_id": "46a0d78dd189aa96c32d8f87402f2288b375c0934af32d036350034feb51f648",
+      "name": "minbpe",
+      "class": "python",
+      "repo": "https://github.com/karpathy/minbpe",
+      "commit": "1acefe89412b20245db5a22d2a02001e547dc602"
+    },
+    "lineage_id": "20651398b7fa2afe214ef9e5b518fc28b043f29003bd379c8f09a104288353a4",
+    "parent_gen_id": "bffd58ca013d2f23300c6e360afd5dc32e8d3170959c23b16530684b7b964ac9",
+    "parent_height": 2,
+    "metrics": [
+      {
+        "name": "train_ir",
+        "kind": "perf",
+        "direction": "lower",
+        "deterministic": true,
+        "min_effect": 0.01
+      },
+      {
+        "name": "encode_ir",
+        "kind": "perf",
+        "direction": "lower",
+        "deterministic": true,
+        "min_effect": 0.01
+      }
+    ],
+    "target": null,
+    "baseline": null
+  },
+  "plan": {
+    "planned": null,
+    "opening_note": null,
+    "source": "session notes"
+  },
+  "hypotheses": [],
+  "actions": [],
+  "candidate": null,
+  "replays": [],
+  "verdict": null,
+  "outcome": "no_candidate",
+  "effect": null,
+  "cost": null,
+  "reward": {
+    "v": 1,
+    "accepted": 0,
+    "effect": 0,
+    "fixed_tests": 0,
+    "effect_per_usd": null,
+    "effect_per_sandbox_hour": null,
+    "reverted": false,
+    "inputs": [
+      "outcome"
+    ]
+  },
+  "worker_outcome": null,
+  "journal": null,
+  "provenance": null,
+  "license": {
+    "repo": "https://github.com/karpathy/minbpe",
+    "spdx": "MIT",
+    "name": "MIT License",
+    "url": "https://github.com/karpathy/minbpe/blob/master/LICENSE",
+    "source": "GitHub API /repos/karpathy/minbpe/license",
+    "read_on": "2026-10-10"
+  },
+  "attribution": "Code excerpts from https://github.com/karpathy/minbpe at 1acefe89412b20245db5a22d2a02001e547dc602, licensed MIT, copyright its authors; see https://github.com/karpathy/minbpe/blob/master/LICENSE.",
+  "times": {
+    "started_at": 1791562574829,
+    "ended_at": 1791562575223,
+    "finalized_at": null,
+    "published_at": 1791668987052
+  },
+  "verify": {
+    "session": "/v1/sessions/c276a6f15c2bb494d19121654d903df82d51e95e97b769578c7e179057c7e862",
+    "candidate": null,
+    "generation": null,
+    "provenance": null,
+    "journal": null
+  }
+}
