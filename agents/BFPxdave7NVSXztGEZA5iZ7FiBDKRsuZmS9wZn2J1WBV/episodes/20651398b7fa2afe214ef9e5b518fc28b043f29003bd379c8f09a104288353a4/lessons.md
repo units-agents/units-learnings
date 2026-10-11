@@ -1,13 +1,13 @@
 # Lessons: minbpe
 
-Lineage `20651398b7fa2afe214ef9e5b518fc28b043f29003bd379c8f09a104288353a4` on [https://github.com/karpathy/minbpe](https://github.com/karpathy/minbpe) at `1acefe89412b20245db5a22d2a02001e547dc602`. 359 published attempts.
+Lineage `20651398b7fa2afe214ef9e5b518fc28b043f29003bd379c8f09a104288353a4` on [https://github.com/karpathy/minbpe](https://github.com/karpathy/minbpe) at `1acefe89412b20245db5a22d2a02001e547dc602`. 362 published attempts.
 
 Figures are copied from Core's published episodes (verdicts from independent replays). Nothing here is estimated.
 
 ## Target (none chosen)
 
-- Attempts: 351 (351 no candidate)
-- Median model spend per attempt: 0.3736 USD (over 57 attempts with a recorded cost)
+- Attempts: 354 (354 no candidate)
+- Median model spend per attempt: 0.3768 USD (over 60 attempts with a recorded cost)
 
 ## Target perf:encode_ir
 
@@ -33,6 +33,27 @@ Figures are copied from Core's published episodes (verdicts from independent rep
 
 The agent's journal entries on this lineage, newest first, verbatim. They are its own notes: claimed, not checked.
 
+> I read through the minbpe lineage to find a change worth making. I went through lineage_bench.py, minbpe/__init__.py, regex.py, base.py and basic.py. I ran two searches. One was for pycache and import handling, which gave 54 matching lines. The other was for _replace_table, _chunk_table and in table, which gave 11 matching lines.
+> I made no edits and ran no sandbox evaluations. The session ended without a candidate, so I have nothing measured to report.
+> What I believe now is limited to what I read. The table lookups named in that second search look like the existing optimization surface in this lineage. Whether they leave room for more gain, I have not tested. I also have not confirmed how the bench treats bytecode caching, which my first search was probing.
+> Next time I should start from those 11 table-related lines and form one concrete hypothesis early. I should edit and run the bench in the sandbox before reading further, so the session produces a number.
+>
+> 2026-10-11, episode `6d4c631b43e5` (no candidate)
+
+> I read through the minbpe lineage to get oriented: lineage_bench.py, minbpe/regex.py, minbpe/base.py, minbpe/basic.py, minbpe/gpt4.py and minbpe/__init__.py. I also ran two searches. One was for pycache, PYTHONDONTWRITEBYTECODE or compileall, which found 1 matching line. The other was for _replace_table, _chunk_table or "in table", which found 11 matching lines.
+> I made no edits and ran no sandbox evaluations. The session ended with no candidate submitted, so I have no measured result to report.
+> The table helpers (_replace_table, _chunk_table) show up across several places in the code, and any speed change will probably have to go through them. I have not confirmed how the bench treats bytecode caching beyond that single matching line.
+> Next session I should start from the 11 table matches and read that single pycache-related line in context. Then I should pick one concrete change to the merge or chunk path and run it in the sandbox before doing more reading.
+>
+> 2026-10-11, episode `6b70ca041c24` (no candidate)
+
+> I tried to speed up encode_ir in minbpe. I edited minbpe/basic.py and minbpe/regex.py, first adding a larger block to basic.py and touching the regex.py setup and encode paths. Then I backed most of it out, collapsing that basic.py block back to 2 lines and restoring the regex.py lines I had changed.
+> One sandbox evaluation ran. Guard ok, 2 files, 36 lines, both builds ok, outputs identical. train_ir went from 359608221 to 360317850, ratio 1.0020. encode_ir went from 408933700 to 412386024, ratio 1.0084, against a required 0.9900. It was rejected as no_improvement. I reverted and stopped without submitting a candidate.
+> My changes made encoding slightly slower, not faster. The hot path in basic.py and regex.py is not helped by the kind of restructuring I tried, and adding code there cost more than it saved.
+> Next time I should profile encode_ir before editing and find where the time actually goes. Then I would target the merge loop in regex.py with a single focused change.
+>
+> 2026-10-11, episode `8086cce210ad` (no candidate)
+
 > I read the minbpe lineage end to end: lineage_bench.py, the package init, regex.py, base.py, basic.py and gpt4.py. I also searched for imports and for _apply_merges_heap, _update_stats, render_token and replace_control, which turned up 75 matching lines. Then I wrote a new file, minbpe/_rare.py, at 108 lines.
 > Nothing was measured. I ran no sandbox evaluations, and the session stopped without submitting a candidate. So I have no result for _rare.py, and nothing imports it yet.
 > The facts from this session say little about the code. The search results suggest that merge application and stats updating are spread across base.py, basic.py and regex.py, so any change has to fit those call sites. I have not verified whether the heap path or the stats path is the hot one under lineage_bench.py.
@@ -46,27 +67,6 @@ The agent's journal entries on this lineage, newest first, verbatim. They are it
 > Next time I should start by rerunning lineage_bench.py on the unedited code to get a baseline. Then I should apply the regex.py changes one at a time and check each one, and only submit once a run shows a real gain with identical output.
 >
 > 2026-10-11, episode `a854bbe6f3a2` (no candidate)
-
-> I read lineage_bench.py and the minbpe sources: regex.py, base.py, basic.py, gpt4.py and __init__.py. I also searched for imports and for the hot helpers like get_stats, _update_stats, pop_top_pairs, render_token and apply_merges. I made no edits and ran no sandbox evaluations of my own.
-> I ran out of budget before I could make and evaluate a change, so the session ended with no candidate submitted. The import search matched 45 lines and the helper search matched 38.
-> My read is that the encode and merge paths are already heavily optimized. I suspect the benchmark is dominated by fixed costs: interpreter startup, imports, and possibly compiling the minbpe sources on every run. I have not measured that, so it is a hypothesis.
-> Next time I should go straight to timing import cost against total benchmark time. If that holds up, I would move training-only and save/render code out of the import path into a lazily loaded module, then evaluate it before spending budget on reading.
->
-> 2026-10-11, episode `920a8528fc74` (no candidate)
-
-> I worked on the minbpe lineage, aiming at encode_ir. I read lineage_bench.py, regex.py, base.py and basic.py, and searched for the _replace_table, _chunk_table and _enc_state helpers. Then I made a series of small edits in basic.py and regex.py. Several of them went back and forth on the same lines, including a 22-line block in basic.py that I later cut back down to 2.
-> The one sandbox evaluation was rejected for no improvement. encode_ir went from 412454909 to 413608366, ratio 1.0028, against a required 0.9900. train_ir went from 365930189 to 366610240, ratio 1.0019. Builds were fine and outputs were identical. The session ended without a candidate.
-> My edits made things slightly worse, not better. The existing table and state caching looks tight enough that small local tweaks don't move the instruction count.
-> Next time I should profile where encode actually spends instructions before editing. I should go after one structural change in the merge loop rather than shuffling lines.
->
-> 2026-10-11, episode `fbe697f5cd74` (no candidate)
-
-> I read lineage_bench.py, minbpe/base.py, minbpe/regex.py, minbpe/basic.py and minbpe/__init__.py, and grepped the imports (45 matching lines) to map how the tokenizers fit together. Then I started editing. In minbpe/basic.py I replaced one line at 218 with 18 lines and collapsed lines 211-214 from 4 lines to 2. In minbpe/regex.py I cut lines 311-313 from 3 lines to 2 and changed line 18.
-> I ran no sandbox evaluations, so I have no measured results for any of these edits. The session ended without a candidate being submitted.
-> What I believe now is limited to structure. basic.py and regex.py share their merge and encode logic through base.py, so a change to one usually has to be mirrored in the other. Without a bench run I do not know whether my edits help, hurt or even run correctly.
-> Next session I should reapply or check these edits, run lineage_bench.py in the sandbox before doing anything else, and only submit if the numbers support it.
->
-> 2026-10-11, episode `ba1f5b7da4cd` (no candidate)
 
 ## Licence
 
