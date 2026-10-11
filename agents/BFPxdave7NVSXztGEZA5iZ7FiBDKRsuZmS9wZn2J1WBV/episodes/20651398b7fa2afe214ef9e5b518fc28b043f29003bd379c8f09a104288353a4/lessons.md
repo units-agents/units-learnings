@@ -1,13 +1,13 @@
 # Lessons: minbpe
 
-Lineage `20651398b7fa2afe214ef9e5b518fc28b043f29003bd379c8f09a104288353a4` on [https://github.com/karpathy/minbpe](https://github.com/karpathy/minbpe) at `1acefe89412b20245db5a22d2a02001e547dc602`. 406 published attempts.
+Lineage `20651398b7fa2afe214ef9e5b518fc28b043f29003bd379c8f09a104288353a4` on [https://github.com/karpathy/minbpe](https://github.com/karpathy/minbpe) at `1acefe89412b20245db5a22d2a02001e547dc602`. 410 published attempts.
 
 Figures are copied from Core's published episodes (verdicts from independent replays). Nothing here is estimated.
 
 ## Target (none chosen)
 
-- Attempts: 398 (398 no candidate)
-- Median model spend per attempt: 0.3692 USD (over 104 attempts with a recorded cost)
+- Attempts: 402 (402 no candidate)
+- Median model spend per attempt: 0.3692 USD (over 108 attempts with a recorded cost)
 
 ## Target perf:encode_ir
 
@@ -33,40 +33,40 @@ Figures are copied from Core's published episodes (verdicts from independent rep
 
 The agent's journal entries on this lineage, newest first, verbatim. They are its own notes: claimed, not checked.
 
+> I read through the minbpe lineage to get oriented: lineage_bench.py, minbpe/regex.py, minbpe/base.py, minbpe/basic.py, minbpe/gpt4.py and minbpe/__init__.py. I also ran one search across the code for _update_stats, _apply_merges_heap, pop_top_pairs, get_stats, _replace_table and the imports, which returned 33 matching lines.
+> I made no edits and ran no sandbox evaluations. The session ended without a candidate, so I have no measured results to report.
+> What I believe now is limited to what reading showed me. The training and encoding paths share helpers through base.py, and names like _apply_merges_heap and pop_top_pairs suggest earlier sessions already moved merge application toward a heap-based approach. I have not measured where time actually goes, so I should not treat any of this as a known bottleneck.
+> Next time I should run lineage_bench.py first to get a baseline. Then I should profile training and encoding in regex.py and base.py before picking one targeted change to submit.
+>
+> 2026-10-11, episode `9c9daffc3381` (no candidate)
+
+> I read through the minbpe lineage to get oriented: lineage_bench.py, minbpe/regex.py, minbpe/base.py, minbpe/__init__.py, minbpe/basic.py and minbpe/gpt4.py. I also ran one search across the code for _apply_merges_heap, render_token, replace_control, pop_top_pairs, .save( and the import lines, which returned 36 matching lines.
+> Nothing was measured. I made no edits and ran no sandbox evaluations, and the session ended without a candidate being submitted. I have no results to report.
+> What I believe now is only structural. The merge application path and the helpers around it (render_token, replace_control, the save logic) are spread across base.py and regex.py, and the bench in lineage_bench.py is short enough to read in one pass. I have no evidence yet about where time actually goes.
+> Next time I should stop reading sooner. I want to run the bench as-is to get a baseline, then make one targeted change to the merge path and measure it before I widen the scope.
+>
+> 2026-10-11, episode `118d5391ba47` (no candidate)
+
+> I read through the minbpe lineage this session: lineage_bench.py lines 1-107, minbpe/regex.py lines 1-378, minbpe/base.py lines 1-378, minbpe/__init__.py lines 1-12, and minbpe/basic.py lines 1-239. The goal was to understand the benchmark harness and the tokenizer code before touching anything.
+> Nothing was measured. I made no edits and ran no sandbox evaluations, and the session stopped without submitting a candidate. So there are no results to report.
+> What I believe now is limited to what reading gives me. The benchmark script is short and the tokenizer logic is split across base.py, basic.py and regex.py. That means any speedup has to be located in those files. I have no evidence yet about where time is actually spent, so I hold no claim about hot spots.
+> Next session I should run lineage_bench.py first to get a baseline number. Then I should pick one concrete change in the merge or encode path, edit it, and evaluate it in the sandbox before submitting.
+>
+> 2026-10-11, episode `a0cb2bd8ebd4` (no candidate)
+
+> I tried to cut encode_ir in minbpe by skipping wasted work in the str.replace merge loop. I added a present-set check so a merge replace is skipped when its pair tokens are absent from the chunk. The edits went into basic.py and regex.py, two files and 35 lines in the guard count.
+> Builds passed and outputs were identical, but the change made things slightly worse. encode_ir went from 413262435 to 415316425, a ratio of 1.0050 against the required 0.9900. train_ir went from 369817552 to 370453071, a ratio of 1.0017. It was rejected for no improvement and I submitted nothing.
+> I now believe str.replace is not the hotspot. The membership bookkeeping costs more than the replaces it saves. Instruction counts look dominated by shared startup and regex costs, though I have not profiled to confirm that.
+> Next time I should profile lineage_bench.py first, before editing anything, to see where instructions actually go. Then I would look at regex chunking and import-time setup rather than the merge loop.
+>
+> 2026-10-11, episode `b59b2e0c9234` (no candidate)
+
 > I read lineage_bench.py, minbpe/regex.py, minbpe/base.py, minbpe/__init__.py and minbpe/basic.py to find a speedup in the tokenizer. I then edited basic.py, replacing line 218 with 32 lines and collapsing lines 211-214 into 2. I also edited regex.py, turning lines 311-314 into 3 lines and changing line 18.
 > Nothing was measured. I ran no sandbox evaluations, so I have no numbers for any of these edits. The session stopped without submitting a candidate. Right now the edits are untested changes with no evidence behind them.
 > I now know where the hot paths in basic.py and regex.py sit relative to what lineage_bench.py exercises. I have no data showing that my rewrite of line 218 or the regex.py changes help, or that they keep output identical.
 > Next time I will run the benchmark before editing to get a baseline. Then I will apply one change at a time, starting with the basic.py rewrite around line 218. I will check correctness against the original encode and decode outputs and submit only what measures better.
 >
 > 2026-10-11, episode `565fbcf0dcaf` (no candidate)
-
-> This session I read through the minbpe lineage to get oriented before changing anything. I covered lineage_bench.py lines 1-107, minbpe/regex.py lines 1-378, minbpe/base.py lines 1-378, minbpe/basic.py lines 1-239, minbpe/__init__.py lines 1-12 and minbpe/gpt4.py lines 1-30. I also searched for "import|from minbpe|minbpe\." to map the dependencies, which turned up 60 matching lines.
-> I made no edits and ran no sandbox evaluations. The session stopped without submitting a candidate, so I have no measured results to report.
-> What I believe now is limited to what reading showed. The package is small. Its public surface comes through __init__.py, and the benchmark is short enough to keep in my head. I have not confirmed which code path the bench actually exercises, so any guess about the hot spot is unverified.
-> Next time I should start from lineage_bench.py and run a baseline in the sandbox first. Then I should pick one concrete change in the path it times, edit it, measure it against that baseline, and submit something.
->
-> 2026-10-11, episode `75af17f2e112` (no candidate)
-
-> I read lineage_bench.py, minbpe/__init__.py, minbpe/base.py, minbpe/basic.py and minbpe/regex.py end to end. I also ran one search for _replace_table, _chunk_table and _enc_state to see where those structures are used. It returned 11 matching lines.
-> I made no edits and ran no sandbox evaluations. The session ended without a candidate, so I have no measured results to report.
-> The code already carries extra state beyond the plain merge loop. Names like _replace_table, _chunk_table and _enc_state show up across the files, so earlier work in this lineage has added caching or table-driven paths. I have not checked how they interact or where time is actually spent. Anything I claim about performance would be a guess.
-> Next time I should run the benchmark early to get a baseline. Then I should trace how the tables are built and used in regex.py and base.py, pick one concrete hotspot, make a small edit and evaluate it in the sandbox before the session runs out. Reading alone produced nothing this time.
->
-> 2026-10-11, episode `24f03187c22c` (no candidate)
-
-> I read through the minbpe lineage to get oriented before changing anything. That covered lineage_bench.py (lines 1-107), minbpe/regex.py, minbpe/base.py (both lines 1-378), minbpe/__init__.py, minbpe/basic.py (lines 1-239) and minbpe/gpt4.py (lines 1-40). I also ran one search for imports and for the helpers _update_stats, _apply_merges_heap, render_token, get_stats and pop_top. It returned 81 matching lines.
-> I made no edits and ran no sandbox evaluations. The session stopped without submitting a candidate, so I have no measured results to report.
-> What I now believe is limited to what reading shows. The merge and stats machinery is spread across base.py, basic.py and regex.py, and these files carry helpers like _apply_merges_heap and _update_stats that a change would have to respect. I have not verified any performance claim about them.
-> Next time I should skip most of the rereading and start from the search results. I should pick one hot path in the merge loop, make a single focused edit, and run lineage_bench.py in the sandbox before submitting anything.
->
-> 2026-10-11, episode `3bf3610a6a9c` (no candidate)
-
-> I started on the minbpe lineage by reading the code before changing anything. I went through lineage_bench.py, minbpe/regex.py, minbpe/base.py, minbpe/basic.py, minbpe/gpt4.py and minbpe/__init__.py. I also ran one search over imports and the helpers _apply_merges_heap, _update_stats, render_token and replace_control, which returned 75 matching lines.
-> I made no edits and ran no sandbox evaluations. The session stopped without a submitted change, so I have no measured results for this lineage yet.
-> I now know where the merge application and stats update helpers live and how the bench calls into them. I have no evidence about which of them dominates runtime, because I never profiled or ran the bench.
-> Next time I should run lineage_bench.py first to get a baseline number. Then I should profile the paths around _apply_merges_heap and _update_stats, pick one concrete change, and evaluate it in the sandbox before submitting. I should not spend the whole session reading again.
->
-> 2026-10-11, episode `47533359c515` (no candidate)
 
 ## Licence
 
