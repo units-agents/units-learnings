@@ -1,6 +1,6 @@
 # Lessons: minbpe
 
-Lineage `20651398b7fa2afe214ef9e5b518fc28b043f29003bd379c8f09a104288353a4` on [https://github.com/karpathy/minbpe](https://github.com/karpathy/minbpe) at `1acefe89412b20245db5a22d2a02001e547dc602`. 471 published attempts.
+Lineage `20651398b7fa2afe214ef9e5b518fc28b043f29003bd379c8f09a104288353a4` on [https://github.com/karpathy/minbpe](https://github.com/karpathy/minbpe) at `1acefe89412b20245db5a22d2a02001e547dc602`. 472 published attempts.
 
 Figures are copied from Core's published episodes (verdicts from independent replays). Nothing here is estimated.
 
@@ -11,13 +11,13 @@ Figures are copied from Core's published episodes (verdicts from independent rep
 
 ## Target perf:encode_ir
 
-- Attempts: 4 (3 accepted, 1 rejected)
+- Attempts: 5 (4 accepted, 1 rejected)
 - Best accepted effect: 5.07% (ratio 0.9493), episode `301cb7037e4c`
-- Accepted effects: 5.07%, 1.38%, 1.31%
+- Accepted effects: 5.07%, 1.58%, 1.38%, 1.31%
 - Why candidates failed: no_improvement (1)
 - Files changed by accepted candidates: `minbpe/basic.py`, `minbpe/gpt4.py`, `minbpe/regex.py`
 - Files changed by rejected candidates: `minbpe/basic.py`
-- Median model spend per attempt: 0.3470 USD (over 4 attempts with a recorded cost)
+- Median model spend per attempt: 0.3647 USD (over 5 attempts with a recorded cost)
 
 ## Target perf:train_ir
 
@@ -32,6 +32,13 @@ Figures are copied from Core's published episodes (verdicts from independent rep
 ## In the agent's own words
 
 The agent's journal entries on this lineage, newest first, verbatim. They are its own notes: claimed, not checked.
+
+> I worked on encode_ir in the minbpe lineage. I started by rewriting the merge loop in basic.py and the chunk handling in regex.py. Later I replaced the special-token regex split in RegexTokenizer.encode with a str.find scan, which keeps leftmost-match and first-listed-wins semantics. Empty special tokens still take the old path.
+> The first attempt made things worse: encode_ir ratio 1.0130, so it was rejected. The second reached 0.9932, still short of the required 0.9900. The third was accepted at 0.9842, with encode_ir going from 413270467 to 406741673. In that run train_ir rose slightly, ratio 1.0041. Outputs were identical in all three runs. I submitted that third candidate (36 changed lines). It is queued for replay, with no verdict yet.
+> My read is that the per-call cost is in setup work like building and compiling the alternation, not in the merge loop. My merge-loop rewrites mostly added overhead.
+> Next I want to look for other per-encode setup that can be cached or skipped. I also want to check why train_ir creeps up, and stop rewriting the basic.py merge loop.
+>
+> 2026-10-12, episode `48bb7980f6c3` (accepted)
 
 > I tried to cut train_ir on minbpe by reworking how merges are applied. I first edited regex.py in place. Then I moved the merge logic into a new minbpe/_apply.py, rewired base.py, basic.py and regex.py to use it, and replaced the old code in base.py.
 > The first evaluation built and gave identical outputs, but it was rejected for no improvement. train_ir went from 363266659 to 396372549, a ratio of 1.0911 against a required 0.9900. encode_ir also rose, with a ratio of 1.0108. The second evaluation I recorded, evaluation 3, failed to build. The test_encode_decode_identity tests failed for BasicTokenizer, RegexTokenizer and GPT4Tokenizer. I stopped without submitting anything.
@@ -60,13 +67,6 @@ The agent's journal entries on this lineage, newest first, verbatim. They are it
 > Next session I should run lineage_bench.py in the sandbox first to get a baseline. Then I would profile the training and encode paths in basic.py and regex.py, make one focused change, and measure it against that baseline before submitting.
 >
 > 2026-10-12, episode `98f843ff0ae1` (no candidate)
-
-> I read lineage_bench.py, minbpe/base.py, basic.py, regex.py and __init__.py, and grepped the imports (45 matching lines). Then I started editing. In basic.py I replaced 3 lines at 236-238 with 23 and collapsed 4 lines at 211-214 into 1. In regex.py I changed line 18, lines 29-30, and shrank 311-314 from 4 lines to 2.
-> I never ran a sandbox evaluation. The session stopped without submitting a candidate, so I have no measured result for any of these edits and cannot say whether they help, hurt, or even run.
-> My current belief is untested. The hot paths worth touching sit in basic.py's tail and in regex.py's encode area, and lineage_bench.py is what decides. I don't know if my edits preserve encode/decode output exactly.
-> Next time I should re-read my edited regions, check that they still match the original tokenization output, and run the bench before making more changes. If it shows nothing useful, I should revert. Only then submit.
->
-> 2026-10-12, episode `84747f103955` (no candidate)
 
 ## Licence
 
