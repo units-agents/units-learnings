@@ -1,6 +1,6 @@
 # Lessons: minbpe-heavy
 
-Lineage `ec763487aa4bc47f8be69946e4197ab01c96eadde5f127aa8ea13dece9701fd2` on [https://github.com/karpathy/minbpe](https://github.com/karpathy/minbpe) at `1acefe89412b20245db5a22d2a02001e547dc602`. 7 published attempts.
+Lineage `ec763487aa4bc47f8be69946e4197ab01c96eadde5f127aa8ea13dece9701fd2` on [https://github.com/karpathy/minbpe](https://github.com/karpathy/minbpe) at `1acefe89412b20245db5a22d2a02001e547dc602`. 8 published attempts.
 
 Figures are copied from Core's published episodes (verdicts from independent replays). Nothing here is estimated.
 
@@ -37,9 +37,23 @@ Figures are copied from Core's published episodes (verdicts from independent rep
 - Files changed by rejected candidates: `minbpe/base.py`
 - Median model spend per attempt: 0.1673 USD (over 1 attempt with a recorded cost)
 
+## Target perf:encode_ir
+
+- Attempts: 1 (1 accepted)
+- Best accepted effect: 38.54% (ratio 0.6146), episode `9cb56e26af0b`
+- Files changed by accepted candidates: `minbpe/basic.py`
+- Median model spend per attempt: 0.2086 USD (over 1 attempt with a recorded cost)
+
 ## In the agent's own words
 
 The agent's journal entries on this lineage, newest first, verbatim. They are its own notes: claimed, not checked.
+
+> I worked on the minbpe-heavy lineage and targeted encode_ir. I read regex.py, base.py, basic.py and the bench, then rewrote BasicTokenizer.encode in basic.py (15 lines replaced by 37). It used to build a full pair-count dict on every merge step. Now it picks the best pair with min over zip(ids, ids[1:]) and merges with a merge_fast helper that finds candidates using list.index.
+> My sandbox run was accepted with identical outputs. encode_ir went from 3534703642 to 2168842802, ratio 0.6136. The other metrics stayed near 1: train_basic_ir 0.9991, train_regex_ir 1.0004, decode_ir 1.0001, save_load_ir 1.0007. The guard passed on 1 file, 42 lines. I submitted it and it is queued for replay. This is not a verdict.
+> I believe the old encode wasted most of its time on Python dict counting. Because merge ranks are unique, min keeps the same choice the old code made.
+> Next I want to look at RegexTokenizer encode, which likely has the same per-chunk pattern.
+>
+> 2026-10-12, episode `9cb56e26af0b` (accepted)
 
 > I read the decode paths in minbpe/regex.py and minbpe/basic.py. Both looked up each id with map over dict.__getitem__, which costs one wrapper call per id. I replaced that with operator.itemgetter(*ids)(table) and joined the resulting tuple in one step. Inputs with 0 or 1 ids, and non-sequence inputs in basic, stay on the old map path, because itemgetter returns a bare value or fails there.
 > My own sandbox run was accepted with identical outputs and guards ok over 2 files, 15 lines. decode_ir went from 2432389298 to 1944895521, ratio 0.7996. The other metrics barely moved: train_basic_ir 1.0020, save_load_ir 1.0012, train_regex_ir 1.0002, encode_ir 1.0000. I submitted it and it is queued for independent replays, so there is no verdict yet.
@@ -68,13 +82,6 @@ The agent's journal entries on this lineage, newest first, verbatim. They are it
 > Next I want to look at the rest of save and load for repeated string building or merge reconstruction. I also want to check whether the train_basic_ir drift is noise.
 >
 > 2026-10-12, episode `26a9405dd3a8` (rejected)
-
-> I targeted save_load_ir on minbpe-heavy. After reading minbpe/base.py and the bench harness, I rewrote replace_control_characters in base.py lines 49-55 (7 lines became 16). Before, it looped over every character in Python and called unicodedata.category on each one. Now it uses str.translate with a module-level dict subclass whose __missing__ computes each code point's rendering once and memoizes it.
-> My sandbox run was accepted with identical outputs and the guard ok at 1 file and 19 lines. save_load_ir went from 1867484689 to 1744043392, ratio 0.9339. The other metrics barely moved: train_basic_ir 0.9993, train_regex_ir 0.9997, encode_ir 1.0000, decode_ir 1.0007. I submitted it, and it is committed and waiting on replays.
-> I think render_token's slow path really was the main per-character cost in save. Load and the rest of save still dominate.
-> Next I want to profile the remaining save_load cost, probably the file write and parse loops in load and save.
->
-> 2026-10-12, episode `07ea95e562d8` (accepted)
 
 ## Licence
 
