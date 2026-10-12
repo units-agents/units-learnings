@@ -1,6 +1,6 @@
 # Lessons: minbpe
 
-Lineage `20651398b7fa2afe214ef9e5b518fc28b043f29003bd379c8f09a104288353a4` on [https://github.com/karpathy/minbpe](https://github.com/karpathy/minbpe) at `1acefe89412b20245db5a22d2a02001e547dc602`. 474 published attempts.
+Lineage `20651398b7fa2afe214ef9e5b518fc28b043f29003bd379c8f09a104288353a4` on [https://github.com/karpathy/minbpe](https://github.com/karpathy/minbpe) at `1acefe89412b20245db5a22d2a02001e547dc602`. 475 published attempts.
 
 Figures are copied from Core's published episodes (verdicts from independent replays). Nothing here is estimated.
 
@@ -11,13 +11,13 @@ Figures are copied from Core's published episodes (verdicts from independent rep
 
 ## Target perf:encode_ir
 
-- Attempts: 7 (5 accepted, 1 rejected, 1 no candidate)
+- Attempts: 8 (5 accepted, 1 rejected, 2 no candidate)
 - Best accepted effect: 5.07% (ratio 0.9493), episode `301cb7037e4c`
 - Accepted effects: 5.07%, 1.90%, 1.58%, 1.38%, 1.31%
 - Why candidates failed: no_improvement (1)
 - Files changed by accepted candidates: `minbpe/basic.py`, `minbpe/gpt4.py`, `minbpe/regex.py`
 - Files changed by rejected candidates: `minbpe/basic.py`
-- Median model spend per attempt: 0.3825 USD (over 7 attempts with a recorded cost)
+- Median model spend per attempt: 0.3890 USD (over 8 attempts with a recorded cost)
 
 ## Target perf:train_ir
 
@@ -32,6 +32,13 @@ Figures are copied from Core's published episodes (verdicts from independent rep
 ## In the agent's own words
 
 The agent's journal entries on this lineage, newest first, verbatim. They are its own notes: claimed, not checked.
+
+> I tried to speed up RegexTokenizer._encode_ordinary in minbpe/regex.py by shortening the batched replace scans. At a few stage boundaries, I pulled chunks that had already been reduced to a single token out of the joined string so later scans had less text to walk. I made several edits around lines 327-350 and touched line 16.
+> The sandbox evaluation rejected it. Outputs were identical and both builds were ok, but encode_ir went from 405189355 to 426461510, ratio 1.0525, against a required 0.9900. train_ir moved to ratio 1.0022. I reverted the change and submitted nothing.
+> I now believe the replace scans are not where encode spends its instructions. Compacting the string costs more than the shorter scans save.
+> Next time I should find where encode_ir actually goes before editing, probably in the merge selection or the per-chunk bookkeeping rather than the string scans. I want a measured target first and only then a change.
+>
+> 2026-10-12, episode `3559d9e167fe` (no candidate)
 
 > I tried to speed up encode in minbpe by skipping table replaces whose pair tokens cannot be present in the input. I kept a set of live chars so it costs no extra scans. The edits went into minbpe/basic.py and minbpe/regex.py, and I made several passes over the same lines in regex.py.
 > The sandbox evaluation showed identical outputs, but the change was rejected for no improvement. encode_ir went from 397509774 to 398146114, a ratio of 1.0016 against the required 0.9900. train_ir went from 367085819 to 367284702, a ratio of 1.0005. The guard was ok at 2 files and 32 lines. I reverted the change and submitted nothing.
@@ -59,13 +66,6 @@ The agent's journal entries on this lineage, newest first, verbatim. They are it
 > Next time I should get the identity tests passing with the smallest possible diff before measuring. I should also profile the train loop to find where the instructions actually go, rather than assuming merge application dominates.
 >
 > 2026-10-12, episode `4d601a10e9e6` (no candidate)
-
-> I read lineage_bench.py, base.py, basic.py and regex.py, then searched for _replace_table and _chunk_table. I edited basic.py and regex.py so that replace scans get skipped when a pair's character is absent from the chunk. The guard counted 2 files and 36 lines.
-> The build passed on both sides and outputs were identical, but the change was rejected for no improvement. encode_ir went from 410939923 to 413491253, ratio 1.0062, against a required 0.9900. train_ir went from 367941016 to 368667006, ratio 1.0020. All other guarded metrics stayed within limits. I gave up and submitted nothing.
-> I now believe replace scans are not where encode time goes in this code. The presence check costs more than the scans it avoids.
-> Next time I will profile before editing anything. That means looking at startup cost, import cost and regex findall cost in encode, and only then picking a target.
->
-> 2026-10-12, episode `568cb916ea50` (no candidate)
 
 ## Licence
 
