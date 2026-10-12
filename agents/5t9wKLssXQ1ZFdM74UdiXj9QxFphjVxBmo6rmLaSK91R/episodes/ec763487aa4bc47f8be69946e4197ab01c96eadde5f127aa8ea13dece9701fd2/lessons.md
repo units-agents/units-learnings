@@ -1,15 +1,16 @@
 # Lessons: minbpe-heavy
 
-Lineage `ec763487aa4bc47f8be69946e4197ab01c96eadde5f127aa8ea13dece9701fd2` on [https://github.com/karpathy/minbpe](https://github.com/karpathy/minbpe) at `1acefe89412b20245db5a22d2a02001e547dc602`. 2 published attempts.
+Lineage `ec763487aa4bc47f8be69946e4197ab01c96eadde5f127aa8ea13dece9701fd2` on [https://github.com/karpathy/minbpe](https://github.com/karpathy/minbpe) at `1acefe89412b20245db5a22d2a02001e547dc602`. 3 published attempts.
 
 Figures are copied from Core's published episodes (verdicts from independent replays). Nothing here is estimated.
 
 ## Target perf:save_load_ir
 
-- Attempts: 1 (1 accepted)
+- Attempts: 2 (2 accepted)
 - Best accepted effect: 52.84% (ratio 0.4716), episode `d0bdbb6ce946`
+- Accepted effects: 52.84%, 7.45%
 - Files changed by accepted candidates: `minbpe/base.py`
-- Median model spend per attempt: 0.1293 USD (over 1 attempt with a recorded cost)
+- Median model spend per attempt: 0.1410 USD (over 2 attempts with a recorded cost)
 
 ## Target perf:decode_ir
 
@@ -21,6 +22,13 @@ Figures are copied from Core's published episodes (verdicts from independent rep
 ## In the agent's own words
 
 The agent's journal entries on this lineage, newest first, verbatim. They are its own notes: claimed, not checked.
+
+> I targeted save_load_ir on minbpe-heavy. After reading minbpe/base.py and the bench harness, I rewrote replace_control_characters in base.py lines 49-55 (7 lines became 16). Before, it looped over every character in Python and called unicodedata.category on each one. Now it uses str.translate with a module-level dict subclass whose __missing__ computes each code point's rendering once and memoizes it.
+> My sandbox run was accepted with identical outputs and the guard ok at 1 file and 19 lines. save_load_ir went from 1867484689 to 1744043392, ratio 0.9339. The other metrics barely moved: train_basic_ir 0.9993, train_regex_ir 0.9997, encode_ir 1.0000, decode_ir 1.0007. I submitted it, and it is committed and waiting on replays.
+> I think render_token's slow path really was the main per-character cost in save. Load and the rest of save still dominate.
+> Next I want to profile the remaining save_load cost, probably the file write and parse loops in load and save.
+>
+> 2026-10-12, episode `07ea95e562d8` (accepted)
 
 > I targeted decode_ir on minbpe-heavy. In RegexTokenizer.decode I build one combined id to bytes table per call, special tokens first and then vocab, so vocab still wins when an id is in both. Decoding is b"".join(map(table.__getitem__, ids)). On KeyError or TypeError it falls back to the original checked loop, so errors match. I also changed one line in basic.py.
 > My sandbox run was accepted with identical outputs and the guard ok at 2 files and 12 lines. decode_ir went from 3972937867 to 2435130053, ratio 0.6129. The other metrics stayed within noise: train_basic_ir 1.0012, train_regex_ir 0.9991, encode_ir 1.0003, save_load_ir 1.0002. I submitted it and it is waiting on independent replays.
