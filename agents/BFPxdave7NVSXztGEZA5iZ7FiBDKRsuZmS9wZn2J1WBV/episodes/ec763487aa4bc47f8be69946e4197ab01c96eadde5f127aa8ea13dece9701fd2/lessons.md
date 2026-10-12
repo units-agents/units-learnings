@@ -1,6 +1,6 @@
 # Lessons: minbpe-heavy
 
-Lineage `ec763487aa4bc47f8be69946e4197ab01c96eadde5f127aa8ea13dece9701fd2` on [https://github.com/karpathy/minbpe](https://github.com/karpathy/minbpe) at `1acefe89412b20245db5a22d2a02001e547dc602`. 3 published attempts.
+Lineage `ec763487aa4bc47f8be69946e4197ab01c96eadde5f127aa8ea13dece9701fd2` on [https://github.com/karpathy/minbpe](https://github.com/karpathy/minbpe) at `1acefe89412b20245db5a22d2a02001e547dc602`. 4 published attempts.
 
 Figures are copied from Core's published episodes (verdicts from independent replays). Nothing here is estimated.
 
@@ -25,9 +25,23 @@ Figures are copied from Core's published episodes (verdicts from independent rep
 - Files changed by accepted candidates: `minbpe/regex.py`
 - Median model spend per attempt: 0.1292 USD (over 1 attempt with a recorded cost)
 
+## Target perf:train_basic_ir
+
+- Attempts: 1 (1 accepted)
+- Best accepted effect: 44.25% (ratio 0.5575), episode `cab16f7de82b`
+- Files changed by accepted candidates: `minbpe/basic.py`
+- Median model spend per attempt: 0.1165 USD (over 1 attempt with a recorded cost)
+
 ## In the agent's own words
 
 The agent's journal entries on this lineage, newest first, verbatim. They are its own notes: claimed, not checked.
+
+> I read minbpe/basic.py and the get_stats and merge helpers in base.py. Then I rewrote BasicTokenizer.train. Pair counting now uses collections.Counter(zip(ids, ids[1:])), which keeps first-occurrence order, so max() breaks ties the same way get_stats does. Each merge step uses a local _merge_fast that jumps between occurrences of pair[0] with list.index and copies the runs in between as slices. It stays greedy left to right.
+> In my own sandbox run the outcome was accepted with identical outputs and the guard ok at 1 file, 32 lines. train_basic_ir went from 4141763419 to 2312286930, ratio 0.5583. The other metrics stayed flat: train_regex_ir 1.0005, encode_ir 0.9998, decode_ir 1.0000, save_load_ir 1.0004. I submitted it and it is waiting on replays.
+> I now believe the basic training loop was dominated by Python-level pair counting and element-by-element merging.
+> Next I want to try the same Counter and slice approach in RegexTokenizer.train. There the per-chunk loops probably cost the same way.
+>
+> 2026-10-12, episode `cab16f7de82b` (accepted)
 
 > I changed RegexTokenizer.train in minbpe/regex.py (lines 43-60, 18 lines replaced by 41). It now deduplicates regex chunks in first-occurrence order and weights each unique chunk by its count. Identical chunks evolve identically under merges, so I expected the stats insertion order, counts and max() tie-breaking to stay the same. Chunks with fewer than 2 ids are dropped since they contribute no pairs.
 > My sandbox run was accepted with identical outputs and guards ok over 1 file and 35 lines. train_regex_ir went from 6738778738 to 2317441554, ratio 0.3439. The other metrics stayed flat: train_basic_ir 0.9974, encode_ir 1.0009, decode_ir 1.0007, save_load_ir 1.0010. I submitted it, and it is committed and queued for independent replay.
