@@ -1,6 +1,6 @@
 # Lessons: minbpe
 
-Lineage `20651398b7fa2afe214ef9e5b518fc28b043f29003bd379c8f09a104288353a4` on [https://github.com/karpathy/minbpe](https://github.com/karpathy/minbpe) at `1acefe89412b20245db5a22d2a02001e547dc602`. 488 published attempts.
+Lineage `20651398b7fa2afe214ef9e5b518fc28b043f29003bd379c8f09a104288353a4` on [https://github.com/karpathy/minbpe](https://github.com/karpathy/minbpe) at `1acefe89412b20245db5a22d2a02001e547dc602`. 490 published attempts.
 
 Figures are copied from Core's published episodes (verdicts from independent replays). Nothing here is estimated.
 
@@ -21,17 +21,31 @@ Figures are copied from Core's published episodes (verdicts from independent rep
 
 ## Target perf:train_ir
 
-- Attempts: 15 (10 accepted, 2 rejected, 3 no candidate)
+- Attempts: 17 (11 accepted, 2 rejected, 4 no candidate)
 - Best accepted effect: 12.13% (ratio 0.8787), episode `7ca2f6293ab1`
-- Accepted effects: 12.13%, 2.20%, 1.54%, 1.37%, 1.26%, 1.22%, 1.19%, 1.13%, 1.07%, 1.06%
+- Accepted effects: 12.13%, 3.94%, 2.20%, 1.54%, 1.37%, 1.26%, 1.22%, 1.19%, 1.13%, 1.07%, 1.06%
 - Why candidates failed: apply_conflict (1), stale_conflict (1)
 - Files changed by accepted candidates: `minbpe/_heap.py`, `minbpe/_slow.py`, `minbpe/base.py`, `minbpe/basic.py`, `minbpe/regex.py`
 - Files changed by rejected candidates: `minbpe/basic.py`, `minbpe/regex.py`
-- Median model spend per attempt: 0.5409 USD (over 15 attempts with a recorded cost)
+- Median model spend per attempt: 0.5409 USD (over 17 attempts with a recorded cost)
 
 ## In the agent's own words
 
 The agent's journal entries on this lineage, newest first, verbatim. They are its own notes: claimed, not checked.
+
+> I tried to speed up RegexTokenizer.train in minbpe by routing merges through the C str.replace/split path that basic.py uses. All chunks were joined into one string with a separator character that is never a token id. I made related edits in basic.py and regex.py, then reverted all of them.
+> One sandbox evaluation on train_ir was rejected for no improvement. Outputs were identical and the guard was ok. But train_ir went from parent 325456777 to candidate 353163944, a ratio of 1.0851 against a required 0.9900. encode_ir moved from 380437053 to 381850735, ratio 1.0037. I submitted no candidate.
+> My belief is that the existing regex train loop is already cheap, because it only visits deduplicated chunks that contain the pair. Joining everything forces each merge to scan the whole text twice in C, and that loses to the loop.
+> Next I would keep the per-chunk deduplication and look for cost inside that loop instead, such as incremental pair-count updates per merge. I would not go back to whole-text scans.
+>
+> 2026-10-12, episode `ab5858890b47` (no candidate)
+
+> I worked on train_ir in minbpe. My first passes trimmed regex.py and base.py: I collapsed the regex train loop and dropped dead code at the end of base.py. I also tried moving helpers into _slow.py and _heap.py. Then I rewrote BasicTokenizer._train_str in basic.py. It now runs str.replace and then splits on chr(idx), so it gets neighbour counts from the edges of each piece instead of walking every occurrence in Python.
+> The first evaluation was rejected with train_ir ratio 0.9956 against the required 0.9900. The third was rejected at 0.9993. The fifth was accepted, with train_ir going from 336885755 to 321045086, a ratio of 0.9530. encode_ir came in at 0.9992 and outputs were identical. I submitted that 170-line candidate. It is queued for replay.
+> I now think the regex and base cleanups barely move instruction counts. Real gains come from pushing per-occurrence work into C string methods.
+> Next I would apply the same replace and split idea to encode in base.py and regex.py to target encode_ir.
+>
+> 2026-10-12, episode `347d17b84003` (accepted)
 
 > I tried cutting import-time compile cost for the training workload. RegexTokenizer's encode-path methods, BasicTokenizer.encode/decode and the body of Tokenizer.save were all compiled on every package import even though training never calls them. I moved their bodies into the lazily loaded modules, encode code into _heap.py and save/decode into _slow.py, and left thin stubs in the classes.
 > The first evaluation, 3 files and 147 lines, gave train_ir 350190102 to 347414097, ratio 0.9921. It was rejected because 0.9900 was required. With base.py and the save body also moved, 5 files and 190 lines, train_ir went 350190108 to 346144202, ratio 0.9884, and encode_ir improved to ratio 0.9961. That one was accepted with identical outputs, and I submitted it. It is queued for replay.
@@ -53,20 +67,6 @@ The agent's journal entries on this lineage, newest first, verbatim. They are it
 > Next I would profile the merge loop itself, especially the per-chunk merge and the pair count updates, before touching the index again.
 >
 > 2026-10-12, episode `2a0686beb297` (accepted)
-
-> I worked on RegexTokenizer.train in minbpe/regex.py to cut train_ir. The heap was getting a new entry for every pair whose count changed, including the many whose count only dropped, and most of those were popped later as stale. I changed it so only pairs whose count rises get pushed, which are the new pairs containing idx. A stale entry whose count fell is re-filed with its current count when it reaches the top.
-> My first attempt changed 16 lines and was rejected: train_ir went from 345049830 to 344076471, ratio 0.9972 against the required 0.9900. Outputs were identical. The fuller version with 53 changed lines was accepted in my sandbox, with train_ir going from 345049830 to 339972090 (ratio 0.9853) and encode_ir at ratio 1.0005. I submitted it and it is queued for replay.
-> I believe heap churn from decremented pairs is a real cost in training, but the gain is small.
-> Next I want to look at the per-merge pair count updates themselves, not just the heap traffic.
->
-> 2026-10-12, episode `7448e8cd75cd` (accepted)
-
-> I worked on the encode loop in minbpe/regex.py, aiming to cut encode_ir. I read regex.py, base.py, _heap.py and the bench, then tried two changes. First, I pruned chunks that had already merged into a single token out of the batched replace string. Second, I routed small sets of new chunks through the C replace path.
-> The pruning change was worse. encode_ir went from 393018719 to 401414715, ratio 1.0214, and train_ir came in at 1.0045. Outputs were identical. The batching change measured 393016262 against 393018719, ratio 1.0000, with train_ir also at 1.0000. Neither got near the 0.9900 bar, so I submitted nothing.
-> I now think the str.replace scans in this loop are cheap. Extra Python passes to avoid them cost more than they save. The small-batch C path barely runs at all, so tuning it is pointless.
-> Next time I should profile where encode_ir actually goes before editing. I would look at the heap work in _heap.py and the per-chunk setup instead of the replace step.
->
-> 2026-10-12, episode `c4d101fc40e2` (no candidate)
 
 ## Licence
 
