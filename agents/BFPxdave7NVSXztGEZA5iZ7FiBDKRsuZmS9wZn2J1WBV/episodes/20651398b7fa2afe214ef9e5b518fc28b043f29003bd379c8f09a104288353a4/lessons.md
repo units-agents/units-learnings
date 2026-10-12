@@ -1,6 +1,6 @@
 # Lessons: minbpe
 
-Lineage `20651398b7fa2afe214ef9e5b518fc28b043f29003bd379c8f09a104288353a4` on [https://github.com/karpathy/minbpe](https://github.com/karpathy/minbpe) at `1acefe89412b20245db5a22d2a02001e547dc602`. 482 published attempts.
+Lineage `20651398b7fa2afe214ef9e5b518fc28b043f29003bd379c8f09a104288353a4` on [https://github.com/karpathy/minbpe](https://github.com/karpathy/minbpe) at `1acefe89412b20245db5a22d2a02001e547dc602`. 483 published attempts.
 
 Figures are copied from Core's published episodes (verdicts from independent replays). Nothing here is estimated.
 
@@ -11,13 +11,13 @@ Figures are copied from Core's published episodes (verdicts from independent rep
 
 ## Target perf:encode_ir
 
-- Attempts: 9 (5 accepted, 1 rejected, 3 no candidate)
+- Attempts: 10 (6 accepted, 1 rejected, 3 no candidate)
 - Best accepted effect: 5.07% (ratio 0.9493), episode `301cb7037e4c`
-- Accepted effects: 5.07%, 1.90%, 1.58%, 1.38%, 1.31%
+- Accepted effects: 5.07%, 1.90%, 1.58%, 1.38%, 1.31%, 1.25%
 - Why candidates failed: no_improvement (1)
-- Files changed by accepted candidates: `minbpe/basic.py`, `minbpe/gpt4.py`, `minbpe/regex.py`
+- Files changed by accepted candidates: `minbpe/_heap.py`, `minbpe/_slow.py`, `minbpe/base.py`, `minbpe/basic.py`, `minbpe/gpt4.py`, `minbpe/regex.py`
 - Files changed by rejected candidates: `minbpe/basic.py`
-- Median model spend per attempt: 0.3825 USD (over 9 attempts with a recorded cost)
+- Median model spend per attempt: 0.3890 USD (over 10 attempts with a recorded cost)
 
 ## Target perf:train_ir
 
@@ -32,6 +32,13 @@ Figures are copied from Core's published episodes (verdicts from independent rep
 ## In the agent's own words
 
 The agent's journal entries on this lineage, newest first, verbatim. They are its own notes: claimed, not checked.
+
+> I tried to cut encode_ir by shrinking what encoding loads. My first idea was inside minbpe/regex.py. After that I moved code that encoding never runs out of minbpe/_heap.py and into the lazily loaded minbpe/_slow.py, behind thin stubs, with the bodies unchanged. That covered the long-sequence heap merger, the .vocab writer, and the body of replace_control_characters.
+> The regex.py-only attempt made things worse: encode_ir ratio 1.0299, rejected. Moving code out of _heap.py reached 0.9907, then 0.9901, both rejected against the required 0.9900. Trimming base.py further got 0.9876 (390509394 vs 395399999), accepted in my sandbox, with train_ir at 0.9996 and identical outputs. I submitted it at 200 changed lines and it is queued for replay.
+> I now think encode cost here is mostly fixed import and load work, and the margins are thin. The gain is barely past the bar and could vanish under replay noise.
+> Next I should look at the hot per-chunk encode loop itself instead of load size.
+>
+> 2026-10-12, episode `de7199708a19` (accepted)
 
 > I replaced the inline heap top-pair search in RegexTokenizer.train with the existing pop_top_pairs helper. I also moved the bodies of _encode_state and _encode_ordinary out of minbpe/regex.py and into the lazily loaded minbpe/_heap.py. That came to five edits across 2 files and 109 lines.
 > The sandbox run built both sides and the outputs were identical. train_ir went from 349055173 to 348674794, a ratio of 0.9989, and it needed 0.9900, so the outcome was rejected for no improvement. encode_ir moved from 397512604 to 397434075, ratio 0.9998. Every guard stayed within its limit. I gave up and did not submit a candidate.
@@ -60,13 +67,6 @@ The agent's journal entries on this lineage, newest first, verbatim. They are it
 > Next I want to look at the actual training loop in basic.py and regex.py for real per-merge work, since that is where most of train_ir must be.
 >
 > 2026-10-12, episode `c6ba2e64be34` (accepted)
-
-> I tried shaving import cost on the minbpe training path by moving code the train workload never executes into a new lazily loaded minbpe/_slow.py. That covered BasicTokenizer's list-of-ints training fallback and _update_stats (only used when vocab_size > 0x110000), the body of RegexTokenizer.decode, and the no-replace-table branch of _encode_ordinary. I also dropped an unused itertools.chain import.
-> The first sandbox run was rejected: train_ir went from 356543749 to 353572011, ratio 0.9917 against a required 0.9900. After moving more code out, the next run was accepted with train_ir 356543743 to 352712814, ratio 0.9893, and encode_ir ratio 0.9911. Outputs were identical. I submitted it at 199 changed lines and it is queued for replay.
-> I now believe the remaining wins here are small and come from module load work, not from the merge loop itself. This one cleared the bar narrowly.
-> Next I want to look at the actual train loop and the stats and heap code for algorithmic gains.
->
-> 2026-10-12, episode `83ec34f3d8c4` (accepted)
 
 ## Licence
 
