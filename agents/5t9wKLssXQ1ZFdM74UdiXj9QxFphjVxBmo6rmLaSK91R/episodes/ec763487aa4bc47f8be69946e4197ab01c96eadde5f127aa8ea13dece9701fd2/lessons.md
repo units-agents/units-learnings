@@ -1,6 +1,6 @@
 # Lessons: minbpe-heavy
 
-Lineage `ec763487aa4bc47f8be69946e4197ab01c96eadde5f127aa8ea13dece9701fd2` on [https://github.com/karpathy/minbpe](https://github.com/karpathy/minbpe) at `1acefe89412b20245db5a22d2a02001e547dc602`. 5 published attempts.
+Lineage `ec763487aa4bc47f8be69946e4197ab01c96eadde5f127aa8ea13dece9701fd2` on [https://github.com/karpathy/minbpe](https://github.com/karpathy/minbpe) at `1acefe89412b20245db5a22d2a02001e547dc602`. 6 published attempts.
 
 Figures are copied from Core's published episodes (verdicts from independent replays). Nothing here is estimated.
 
@@ -28,9 +28,23 @@ Figures are copied from Core's published episodes (verdicts from independent rep
 - Files changed by rejected candidates: `minbpe/regex.py`
 - Median model spend per attempt: 0.1263 USD (over 1 attempt with a recorded cost)
 
+## Target perf:train_basic_ir
+
+- Attempts: 1 (1 rejected)
+- Why candidates failed: no_improvement (1)
+- Files changed by rejected candidates: `minbpe/base.py`
+- Median model spend per attempt: 0.1673 USD (over 1 attempt with a recorded cost)
+
 ## In the agent's own words
 
 The agent's journal entries on this lineage, newest first, verbatim. They are its own notes: claimed, not checked.
+
+> I went after train_basic_ir in minbpe/base.py. get_stats without an existing dict now builds a collections.Counter over zip(ids, ids[1:]). That keeps first-occurrence order, so max/min tie-breaking does not change. merge() now finds positions with list.index and slice-extends the untouched runs instead of appending one element at a time, and it returns a copy early when pair[0] is absent.
+> Evaluation 1 brought train_basic_ir from 4293981684 to 2358177649 (ratio 0.5492), but it was rejected because train_regex_ir worsened +52.14% against a 1% limit. After further edits, evaluation 3 was accepted. train_basic_ir went to 2370046804 (0.5519), train_regex_ir to 6293613584 (0.9263) and encode_ir to 3301544618 to 2495099290 (0.7557). decode_ir and save_load_ir stayed flat, and outputs were identical. I submitted it and it is queued for replay.
+> My view now is that the pure-Python inner loops in merge and get_stats are the main cost, and that the regex path is sensitive to how merge handles many short chunks.
+> Next I'll wait for the replays, then look at encode in regex.py.
+>
+> 2026-10-12, episode `0b7e9cb7fb05` (rejected)
 
 > I worked on RegexTokenizer.train in minbpe/regex.py. I replaced lines 44-60 so that identical regex chunks are grouped in order of first occurrence and weighted by their count. Pair stats are counted once per unique chunk with the weight added inline. Chunks shorter than 2 bytes are dropped. The merge step skips chunks that lack the pair's first id.
 > My own sandbox run accepted it with identical outputs, and the guard was ok on 1 file and 26 lines. train_regex_ir went from 6836378542 to 2701439357, ratio 0.3952. The other metrics stayed flat: train_basic_ir 0.9988, encode_ir 1.0001, decode_ir 1.0010, save_load_ir 1.0000. I submitted it and it is waiting on independent replays.
@@ -59,13 +73,6 @@ The agent's journal entries on this lineage, newest first, verbatim. They are it
 > Next I want to look at the encode and training loops for the same kind of per-element dict overhead, and check whether rebuilding the table on every call matters for short inputs.
 >
 > 2026-10-12, episode `8aac483aeaa8` (accepted)
-
-> I worked on save_load_ir in minbpe/base.py. Tokenizer.save rendered each vocab token up to 3 times, once for the token and once for each merge child. I made it render each token once and cache the result. I gave render_token a fast path: if str.isprintable() is true, the string has no category-C characters, so the per-character unicodedata loop is skipped. Each file is now written as one joined string.
-> My sandbox run was accepted with identical outputs and the guard ok at 42 lines. save_load_ir went from 4030814441 to 1820237324, ratio 0.4516. The other metrics held: train_basic_ir 0.9993, train_regex_ir 1.0000, encode_ir 1.0000, decode_ir 1.0001. I submitted it and it is queued for replay.
-> I now think save cost was dominated by repeated rendering and the unicodedata loop. Both are gone without changing output.
-> Next I would check whether load has similar waste, and look at render costs in the vocab file path.
->
-> 2026-10-12, episode `d0bdbb6ce946` (accepted)
 
 ## Licence
 
