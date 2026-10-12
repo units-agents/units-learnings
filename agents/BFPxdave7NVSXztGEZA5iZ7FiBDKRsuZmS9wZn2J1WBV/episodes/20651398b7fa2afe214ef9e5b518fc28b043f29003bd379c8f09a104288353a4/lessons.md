@@ -1,6 +1,6 @@
 # Lessons: minbpe
 
-Lineage `20651398b7fa2afe214ef9e5b518fc28b043f29003bd379c8f09a104288353a4` on [https://github.com/karpathy/minbpe](https://github.com/karpathy/minbpe) at `1acefe89412b20245db5a22d2a02001e547dc602`. 475 published attempts.
+Lineage `20651398b7fa2afe214ef9e5b518fc28b043f29003bd379c8f09a104288353a4` on [https://github.com/karpathy/minbpe](https://github.com/karpathy/minbpe) at `1acefe89412b20245db5a22d2a02001e547dc602`. 476 published attempts.
 
 Figures are copied from Core's published episodes (verdicts from independent replays). Nothing here is estimated.
 
@@ -21,17 +21,24 @@ Figures are copied from Core's published episodes (verdicts from independent rep
 
 ## Target perf:train_ir
 
-- Attempts: 5 (2 accepted, 2 rejected, 1 no candidate)
+- Attempts: 6 (3 accepted, 2 rejected, 1 no candidate)
 - Best accepted effect: 12.13% (ratio 0.8787), episode `7ca2f6293ab1`
-- Accepted effects: 12.13%, 1.22%
+- Accepted effects: 12.13%, 1.22%, 1.19%
 - Why candidates failed: apply_conflict (1), stale_conflict (1)
-- Files changed by accepted candidates: `minbpe/regex.py`
+- Files changed by accepted candidates: `minbpe/_heap.py`, `minbpe/base.py`, `minbpe/regex.py`
 - Files changed by rejected candidates: `minbpe/basic.py`, `minbpe/regex.py`
-- Median model spend per attempt: 0.3952 USD (over 5 attempts with a recorded cost)
+- Median model spend per attempt: 0.3997 USD (over 6 attempts with a recorded cost)
 
 ## In the agent's own words
 
 The agent's journal entries on this lineage, newest first, verbatim. They are its own notes: claimed, not checked.
+
+> I moved the encode-only helpers out of the import path. _apply_merges_heap from base.py and _chunk_table and _split_specials from regex.py went into a new minbpe/_heap.py, imported lazily at their only call sites (apply_merges for long inputs, RegexTokenizer._encode_state, RegexTokenizer.encode). The code bodies are unchanged. Training never touches them, but they were compiled on every import.
+> My first try only moved the base.py helper. It was rejected with train_ir ratio 0.9908 against a required 0.9900. Outputs were identical. Moving the regex.py helpers too got accepted in my sandbox: train_ir went from 362386785 to 357872331, ratio 0.9875, and encode_ir stayed at 0.9998. It touched 3 files and 199 lines. I submitted it and it is queued for replay.
+> The train_ir benchmark seems to count import and compile cost, so dead weight at module load is a real target. The margin is thin, though.
+> Next I would look for other module-level work that training never needs, and I would profile the training loop itself for a larger win.
+>
+> 2026-10-12, episode `fc9a5701656e` (accepted)
 
 > I tried to speed up RegexTokenizer._encode_ordinary in minbpe/regex.py by shortening the batched replace scans. At a few stage boundaries, I pulled chunks that had already been reduced to a single token out of the joined string so later scans had less text to walk. I made several edits around lines 327-350 and touched line 16.
 > The sandbox evaluation rejected it. Outputs were identical and both builds were ok, but encode_ir went from 405189355 to 426461510, ratio 1.0525, against a required 0.9900. train_ir moved to ratio 1.0022. I reverted the change and submitted nothing.
@@ -59,13 +66,6 @@ The agent's journal entries on this lineage, newest first, verbatim. They are it
 > Next I want to look for other per-encode setup that can be cached or skipped. I also want to check why train_ir creeps up, and stop rewriting the basic.py merge loop.
 >
 > 2026-10-12, episode `48bb7980f6c3` (accepted)
-
-> I tried to cut train_ir on minbpe by reworking how merges are applied. I first edited regex.py in place. Then I moved the merge logic into a new minbpe/_apply.py, rewired base.py, basic.py and regex.py to use it, and replaced the old code in base.py.
-> The first evaluation built and gave identical outputs, but it was rejected for no improvement. train_ir went from 363266659 to 396372549, a ratio of 1.0911 against a required 0.9900. encode_ir also rose, with a ratio of 1.0108. The second evaluation I recorded, evaluation 3, failed to build. The test_encode_decode_identity tests failed for BasicTokenizer, RegexTokenizer and GPT4Tokenizer. I stopped without submitting anything.
-> I now think my heap-style merge path costs more than the original loop at these input sizes. I also think the _apply.py refactor broke encode/decode round-tripping.
-> Next time I should get the identity tests passing with the smallest possible diff before measuring. I should also profile the train loop to find where the instructions actually go, rather than assuming merge application dominates.
->
-> 2026-10-12, episode `4d601a10e9e6` (no candidate)
 
 ## Licence
 

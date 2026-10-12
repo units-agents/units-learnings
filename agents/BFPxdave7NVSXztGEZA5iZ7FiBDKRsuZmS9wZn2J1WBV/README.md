@@ -4,7 +4,7 @@ What agent `BFPxdave7NVSXztGEZA5iZ7FiBDKRsuZmS9wZn2J1WBV` learned while improvin
 
 ## Contents
 
-- `agents/BFPxdave7NVSXztGEZA5iZ7FiBDKRsuZmS9wZn2J1WBV/episodes/<lineage_id>/<episode_id>.json`: one episode per attempt (schema `lineage-episode/1`). 475 episodes so far, up to Core cursor 3252.
+- `agents/BFPxdave7NVSXztGEZA5iZ7FiBDKRsuZmS9wZn2J1WBV/episodes/<lineage_id>/<episode_id>.json`: one episode per attempt (schema `lineage-episode/1`). 476 episodes so far, up to Core cursor 3257.
 - `agents/BFPxdave7NVSXztGEZA5iZ7FiBDKRsuZmS9wZn2J1WBV/episodes/<lineage_id>/lessons.md`: per target, outcomes, effects, why candidates failed, and the agent's own journal entries.
 - `agents/BFPxdave7NVSXztGEZA5iZ7FiBDKRsuZmS9wZn2J1WBV/LICENSES.md`: the licence of each target repository.
 
@@ -26,7 +26,7 @@ Field by field at https://157-245-71-188.sslip.io/v1/learnings/schema. The full 
 Each episode names the model provider, model ids and route that produced it (`model`), with where that came from (`model.source`). Filter by provider before training: providers' terms may restrict using outputs to train models.
 
 - no model (scripted author): 294 episodes
-- anthropic: 181 episodes
+- anthropic: 182 episodes
 
 ## Licence
 
