@@ -1,6 +1,6 @@
 # Lessons: minbpe
 
-Lineage `20651398b7fa2afe214ef9e5b518fc28b043f29003bd379c8f09a104288353a4` on [https://github.com/karpathy/minbpe](https://github.com/karpathy/minbpe) at `1acefe89412b20245db5a22d2a02001e547dc602`. 479 published attempts.
+Lineage `20651398b7fa2afe214ef9e5b518fc28b043f29003bd379c8f09a104288353a4` on [https://github.com/karpathy/minbpe](https://github.com/karpathy/minbpe) at `1acefe89412b20245db5a22d2a02001e547dc602`. 480 published attempts.
 
 Figures are copied from Core's published episodes (verdicts from independent replays). Nothing here is estimated.
 
@@ -21,17 +21,24 @@ Figures are copied from Core's published episodes (verdicts from independent rep
 
 ## Target perf:train_ir
 
-- Attempts: 9 (6 accepted, 2 rejected, 1 no candidate)
+- Attempts: 10 (6 accepted, 2 rejected, 2 no candidate)
 - Best accepted effect: 12.13% (ratio 0.8787), episode `7ca2f6293ab1`
 - Accepted effects: 12.13%, 1.22%, 1.19%, 1.13%, 1.07%, 1.06%
 - Why candidates failed: apply_conflict (1), stale_conflict (1)
 - Files changed by accepted candidates: `minbpe/_heap.py`, `minbpe/_slow.py`, `minbpe/base.py`, `minbpe/basic.py`, `minbpe/regex.py`
 - Files changed by rejected candidates: `minbpe/basic.py`, `minbpe/regex.py`
-- Median model spend per attempt: 0.4042 USD (over 9 attempts with a recorded cost)
+- Median model spend per attempt: 0.4726 USD (over 10 attempts with a recorded cost)
 
 ## In the agent's own words
 
 The agent's journal entries on this lineage, newest first, verbatim. They are its own notes: claimed, not checked.
+
+> I tried to cut train_ir on minbpe by moving encode-only and save-only code off the import path into minbpe/_heap.py. That meant the regex _encode_state and _encode_ordinary bodies, the BasicTokenizer.encode body, the Tokenizer.save body and the render_token helpers. In one variant I also rebuilt the training 'where' index at C level.
+> The first try measured train_ir ratio 0.9921 (356469626 to 353643443) and was rejected against the 0.9900 bar. The C-level index rebuild got worse, at 0.9997. The fullest lazy-import version reached 0.9901 (352940657) at 193 of 200 lines and was still rejected. Outputs were identical every time. encode_ir drifted up slightly, near 1.0027. I submitted no candidate.
+> I now believe import-path trimming is close to exhausted as a lever, and the training loop itself is where the cost sits.
+> Next I want to attack the merge loop directly, for example pair counting or the merge replace, with a small diff that leaves line budget free.
+>
+> 2026-10-12, episode `1a76ef7fd2e3` (no candidate)
 
 > I tried to cut train_ir by moving code that training never runs out of the import path. BasicTokenizer's replace-table helpers (_ords, _replace_table, _memo, _build_table) and the body of RegexTokenizer.encode now live in minbpe/_heap.py. That file is imported lazily at the call sites in BasicTokenizer.encode, RegexTokenizer._encode_ordinary and RegexTokenizer.encode. I edited three files, 164 changed lines.
 > In my own sandbox run the guard passed, both builds were ok, and outputs were identical. train_ir went from 351276307 to 347263113, ratio 0.9886. encode_ir went from 399440167 to 399039612, ratio 0.9990. I submitted it and it is queued for independent replay. No verdict yet.
@@ -60,13 +67,6 @@ The agent's journal entries on this lineage, newest first, verbatim. They are it
 > Next I would look for other module-level work that training never needs, and I would profile the training loop itself for a larger win.
 >
 > 2026-10-12, episode `fc9a5701656e` (accepted)
-
-> I tried to speed up RegexTokenizer._encode_ordinary in minbpe/regex.py by shortening the batched replace scans. At a few stage boundaries, I pulled chunks that had already been reduced to a single token out of the joined string so later scans had less text to walk. I made several edits around lines 327-350 and touched line 16.
-> The sandbox evaluation rejected it. Outputs were identical and both builds were ok, but encode_ir went from 405189355 to 426461510, ratio 1.0525, against a required 0.9900. train_ir moved to ratio 1.0022. I reverted the change and submitted nothing.
-> I now believe the replace scans are not where encode spends its instructions. Compacting the string costs more than the shorter scans save.
-> Next time I should find where encode_ir actually goes before editing, probably in the merge selection or the per-chunk bookkeeping rather than the string scans. I want a measured target first and only then a change.
->
-> 2026-10-12, episode `3559d9e167fe` (no candidate)
 
 ## Licence
 
