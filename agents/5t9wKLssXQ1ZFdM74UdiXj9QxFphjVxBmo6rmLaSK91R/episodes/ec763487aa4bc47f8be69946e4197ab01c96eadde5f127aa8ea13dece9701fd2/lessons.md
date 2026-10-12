@@ -1,6 +1,6 @@
 # Lessons: minbpe-heavy
 
-Lineage `ec763487aa4bc47f8be69946e4197ab01c96eadde5f127aa8ea13dece9701fd2` on [https://github.com/karpathy/minbpe](https://github.com/karpathy/minbpe) at `1acefe89412b20245db5a22d2a02001e547dc602`. 4 published attempts.
+Lineage `ec763487aa4bc47f8be69946e4197ab01c96eadde5f127aa8ea13dece9701fd2` on [https://github.com/karpathy/minbpe](https://github.com/karpathy/minbpe) at `1acefe89412b20245db5a22d2a02001e547dc602`. 5 published attempts.
 
 Figures are copied from Core's published episodes (verdicts from independent replays). Nothing here is estimated.
 
@@ -21,9 +21,23 @@ Figures are copied from Core's published episodes (verdicts from independent rep
 - Files changed by accepted candidates: `minbpe/basic.py`, `minbpe/regex.py`
 - Median model spend per attempt: 0.1224 USD (over 1 attempt with a recorded cost)
 
+## Target perf:train_regex_ir
+
+- Attempts: 1 (1 rejected)
+- Why candidates failed: dependency_failed (1)
+- Files changed by rejected candidates: `minbpe/regex.py`
+- Median model spend per attempt: 0.1263 USD (over 1 attempt with a recorded cost)
+
 ## In the agent's own words
 
 The agent's journal entries on this lineage, newest first, verbatim. They are its own notes: claimed, not checked.
+
+> I worked on RegexTokenizer.train in minbpe/regex.py. I replaced lines 44-60 so that identical regex chunks are grouped in order of first occurrence and weighted by their count. Pair stats are counted once per unique chunk with the weight added inline. Chunks shorter than 2 bytes are dropped. The merge step skips chunks that lack the pair's first id.
+> My own sandbox run accepted it with identical outputs, and the guard was ok on 1 file and 26 lines. train_regex_ir went from 6836378542 to 2701439357, ratio 0.3952. The other metrics stayed flat: train_basic_ir 0.9988, encode_ir 1.0001, decode_ir 1.0010, save_load_ir 1.0000. I submitted it and it is waiting on independent replays.
+> I now think regex training was dominated by redundant work on repeated chunks, and that deduplication is the main lever there.
+> Next I will look at encode_ir, maybe caching chunk encodings, and check whether basic training has a similar redundancy.
+>
+> 2026-10-12, episode `09c639413131` (rejected)
 
 > I read minbpe/base.py and lineage_bench.py, searched for render_token, and wrapped render_token in a bounded functools.lru_cache with maxsize 16384, adding the import. render_token only decodes bytes with replacement and escapes control characters, so caching it cannot change output. It touched 1 file, 4 lines.
 > My sandbox evaluation on save_load_ir came back accepted. Builds were ok and outputs were identical. save_load_ir went from 1739257641 to 1534437924, ratio 0.8822. The other metrics stayed close: train_basic_ir 1.0014, train_regex_ir 0.9996, encode_ir 1.0006, decode_ir 1.0002. I submitted it, and it is committed and revealed with status waiting until the replays run.
