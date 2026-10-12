@@ -1,6 +1,6 @@
 # Lessons: minbpe
 
-Lineage `20651398b7fa2afe214ef9e5b518fc28b043f29003bd379c8f09a104288353a4` on [https://github.com/karpathy/minbpe](https://github.com/karpathy/minbpe) at `1acefe89412b20245db5a22d2a02001e547dc602`. 484 published attempts.
+Lineage `20651398b7fa2afe214ef9e5b518fc28b043f29003bd379c8f09a104288353a4` on [https://github.com/karpathy/minbpe](https://github.com/karpathy/minbpe) at `1acefe89412b20245db5a22d2a02001e547dc602`. 485 published attempts.
 
 Figures are copied from Core's published episodes (verdicts from independent replays). Nothing here is estimated.
 
@@ -21,17 +21,24 @@ Figures are copied from Core's published episodes (verdicts from independent rep
 
 ## Target perf:train_ir
 
-- Attempts: 11 (6 accepted, 2 rejected, 3 no candidate)
+- Attempts: 12 (7 accepted, 2 rejected, 3 no candidate)
 - Best accepted effect: 12.13% (ratio 0.8787), episode `7ca2f6293ab1`
-- Accepted effects: 12.13%, 1.22%, 1.19%, 1.13%, 1.07%, 1.06%
+- Accepted effects: 12.13%, 1.37%, 1.22%, 1.19%, 1.13%, 1.07%, 1.06%
 - Why candidates failed: apply_conflict (1), stale_conflict (1)
 - Files changed by accepted candidates: `minbpe/_heap.py`, `minbpe/_slow.py`, `minbpe/base.py`, `minbpe/basic.py`, `minbpe/regex.py`
 - Files changed by rejected candidates: `minbpe/basic.py`, `minbpe/regex.py`
-- Median model spend per attempt: 0.4224 USD (over 11 attempts with a recorded cost)
+- Median model spend per attempt: 0.4816 USD (over 12 attempts with a recorded cost)
 
 ## In the agent's own words
 
 The agent's journal entries on this lineage, newest first, verbatim. They are its own notes: claimed, not checked.
+
+> I worked on RegexTokenizer.train in minbpe/regex.py to cut train_ir. The heap was getting a new entry for every pair whose count changed, including the many whose count only dropped, and most of those were popped later as stale. I changed it so only pairs whose count rises get pushed, which are the new pairs containing idx. A stale entry whose count fell is re-filed with its current count when it reaches the top.
+> My first attempt changed 16 lines and was rejected: train_ir went from 345049830 to 344076471, ratio 0.9972 against the required 0.9900. Outputs were identical. The fuller version with 53 changed lines was accepted in my sandbox, with train_ir going from 345049830 to 339972090 (ratio 0.9853) and encode_ir at ratio 1.0005. I submitted it and it is queued for replay.
+> I believe heap churn from decremented pairs is a real cost in training, but the gain is small.
+> Next I want to look at the per-merge pair count updates themselves, not just the heap traffic.
+>
+> 2026-10-12, episode `7448e8cd75cd` (accepted)
 
 > I worked on the encode loop in minbpe/regex.py, aiming to cut encode_ir. I read regex.py, base.py, _heap.py and the bench, then tried two changes. First, I pruned chunks that had already merged into a single token out of the batched replace string. Second, I routed small sets of new chunks through the C replace path.
 > The pruning change was worse. encode_ir went from 393018719 to 401414715, ratio 1.0214, and train_ir came in at 1.0045. Outputs were identical. The batching change measured 393016262 against 393018719, ratio 1.0000, with train_ir also at 1.0000. Neither got near the 0.9900 bar, so I submitted nothing.
@@ -60,13 +67,6 @@ The agent's journal entries on this lineage, newest first, verbatim. They are it
 > Next time I should stop guarding the replaces. Better to find work that stays in C entirely, for example fewer chunk cache misses or folding several replaces into one pass, and profile before editing.
 >
 > 2026-10-12, episode `e56ee6b2f027` (no candidate)
-
-> I tried to cut train_ir on minbpe by moving encode-only and save-only code off the import path into minbpe/_heap.py. That meant the regex _encode_state and _encode_ordinary bodies, the BasicTokenizer.encode body, the Tokenizer.save body and the render_token helpers. In one variant I also rebuilt the training 'where' index at C level.
-> The first try measured train_ir ratio 0.9921 (356469626 to 353643443) and was rejected against the 0.9900 bar. The C-level index rebuild got worse, at 0.9997. The fullest lazy-import version reached 0.9901 (352940657) at 193 of 200 lines and was still rejected. Outputs were identical every time. encode_ir drifted up slightly, near 1.0027. I submitted no candidate.
-> I now believe import-path trimming is close to exhausted as a lever, and the training loop itself is where the cost sits.
-> Next I want to attack the merge loop directly, for example pair counting or the merge replace, with a small diff that leaves line budget free.
->
-> 2026-10-12, episode `1a76ef7fd2e3` (no candidate)
 
 ## Licence
 
