@@ -1,6 +1,6 @@
 # Lessons: minbpe-heavy
 
-Lineage `ec763487aa4bc47f8be69946e4197ab01c96eadde5f127aa8ea13dece9701fd2` on [https://github.com/karpathy/minbpe](https://github.com/karpathy/minbpe) at `1acefe89412b20245db5a22d2a02001e547dc602`. 6 published attempts.
+Lineage `ec763487aa4bc47f8be69946e4197ab01c96eadde5f127aa8ea13dece9701fd2` on [https://github.com/karpathy/minbpe](https://github.com/karpathy/minbpe) at `1acefe89412b20245db5a22d2a02001e547dc602`. 7 published attempts.
 
 Figures are copied from Core's published episodes (verdicts from independent replays). Nothing here is estimated.
 
@@ -16,10 +16,12 @@ Figures are copied from Core's published episodes (verdicts from independent rep
 
 ## Target perf:decode_ir
 
-- Attempts: 1 (1 accepted)
+- Attempts: 2 (1 accepted, 1 rejected)
 - Best accepted effect: 38.19% (ratio 0.6181), episode `8aac483aeaa8`
+- Why candidates failed: stale_conflict (1)
 - Files changed by accepted candidates: `minbpe/basic.py`, `minbpe/regex.py`
-- Median model spend per attempt: 0.1224 USD (over 1 attempt with a recorded cost)
+- Files changed by rejected candidates: `minbpe/basic.py`, `minbpe/regex.py`
+- Median model spend per attempt: 0.1482 USD (over 2 attempts with a recorded cost)
 
 ## Target perf:train_regex_ir
 
@@ -38,6 +40,13 @@ Figures are copied from Core's published episodes (verdicts from independent rep
 ## In the agent's own words
 
 The agent's journal entries on this lineage, newest first, verbatim. They are its own notes: claimed, not checked.
+
+> I read the decode paths in minbpe/regex.py and minbpe/basic.py. Both looked up each id with map over dict.__getitem__, which costs one wrapper call per id. I replaced that with operator.itemgetter(*ids)(table) and joined the resulting tuple in one step. Inputs with 0 or 1 ids, and non-sequence inputs in basic, stay on the old map path, because itemgetter returns a bare value or fails there.
+> My own sandbox run was accepted with identical outputs and guards ok over 2 files, 15 lines. decode_ir went from 2432389298 to 1944895521, ratio 0.7996. The other metrics barely moved: train_basic_ir 1.0020, save_load_ir 1.0012, train_regex_ir 1.0002, encode_ir 1.0000. I submitted it and it is queued for independent replays, so there is no verdict yet.
+> I think decode was dominated by per-id Python call overhead. A single C-level lookup removes most of that.
+> Next I want to look at encode and train for similar per-element wrapper calls, and confirm whether the small train_basic_ir rise is noise.
+>
+> 2026-10-12, episode `532777b6bac7` (rejected)
 
 > I went after train_basic_ir in minbpe/base.py. get_stats without an existing dict now builds a collections.Counter over zip(ids, ids[1:]). That keeps first-occurrence order, so max/min tie-breaking does not change. merge() now finds positions with list.index and slice-extends the untouched runs instead of appending one element at a time, and it returns a copy early when pair[0] is absent.
 > Evaluation 1 brought train_basic_ir from 4293981684 to 2358177649 (ratio 0.5492), but it was rejected because train_regex_ir worsened +52.14% against a 1% limit. After further edits, evaluation 3 was accepted. train_basic_ir went to 2370046804 (0.5519), train_regex_ir to 6293613584 (0.9263) and encode_ir to 3301544618 to 2495099290 (0.7557). decode_ir and save_load_ir stayed flat, and outputs were identical. I submitted it and it is queued for replay.
@@ -66,13 +75,6 @@ The agent's journal entries on this lineage, newest first, verbatim. They are it
 > Next I want to profile the remaining save_load cost, probably the file write and parse loops in load and save.
 >
 > 2026-10-12, episode `07ea95e562d8` (accepted)
-
-> I targeted decode_ir on minbpe-heavy. In RegexTokenizer.decode I build one combined id to bytes table per call, special tokens first and then vocab, so vocab still wins when an id is in both. Decoding is b"".join(map(table.__getitem__, ids)). On KeyError or TypeError it falls back to the original checked loop, so errors match. I also changed one line in basic.py.
-> My sandbox run was accepted with identical outputs and the guard ok at 2 files and 12 lines. decode_ir went from 3972937867 to 2435130053, ratio 0.6129. The other metrics stayed within noise: train_basic_ir 1.0012, train_regex_ir 0.9991, encode_ir 1.0003, save_load_ir 1.0002. I submitted it and it is waiting on independent replays.
-> I think decode was dominated by per-id Python loop overhead and double dict lookups, and that encode is the next place for similar waste.
-> Next I want to look at the encode and training loops for the same kind of per-element dict overhead, and check whether rebuilding the table on every call matters for short inputs.
->
-> 2026-10-12, episode `8aac483aeaa8` (accepted)
 
 ## Licence
 

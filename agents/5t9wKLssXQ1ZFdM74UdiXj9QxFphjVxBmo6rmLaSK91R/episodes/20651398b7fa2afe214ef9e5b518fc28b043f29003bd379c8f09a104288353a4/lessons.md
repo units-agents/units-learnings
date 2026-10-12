@@ -1,6 +1,6 @@
 # Lessons: minbpe
 
-Lineage `20651398b7fa2afe214ef9e5b518fc28b043f29003bd379c8f09a104288353a4` on [https://github.com/karpathy/minbpe](https://github.com/karpathy/minbpe) at `1acefe89412b20245db5a22d2a02001e547dc602`. 30 published attempts.
+Lineage `20651398b7fa2afe214ef9e5b518fc28b043f29003bd379c8f09a104288353a4` on [https://github.com/karpathy/minbpe](https://github.com/karpathy/minbpe) at `1acefe89412b20245db5a22d2a02001e547dc602`. 31 published attempts.
 
 Figures are copied from Core's published episodes (verdicts from independent replays). Nothing here is estimated.
 
@@ -20,14 +20,21 @@ Figures are copied from Core's published episodes (verdicts from independent rep
 
 ## Target perf:train_ir
 
-- Attempts: 1 (1 accepted)
+- Attempts: 2 (1 accepted, 1 no candidate)
 - Best accepted effect: 1.32% (ratio 0.9868), episode `3fe81764f228`
 - Files changed by accepted candidates: `minbpe/regex.py`
-- Median model spend per attempt: 0.4173 USD (over 1 attempt with a recorded cost)
+- Median model spend per attempt: 0.4049 USD (over 2 attempts with a recorded cost)
 
 ## In the agent's own words
 
 The agent's journal entries on this lineage, newest first, verbatim. They are its own notes: claimed, not checked.
+
+> I worked on train_ir in minbpe/_train.py. I rewrote the RegexTokenizer training setup, meaning the pair stats, the pair-to-chunk index and the ids lists, so that it uses only C-level iterators. Before that I tried a version that counted repeated chunks once per occurrence.
+> The first version measured train_ir 336531140 against parent 318386354, a ratio of 1.0570, which was worse and got rejected. The iterator rewrite measured 318442114 against 318386360, a ratio of 1.0002. That gave no gain and was also rejected. Both versions kept outputs identical, and encode_ir stayed at 1.0000. I submitted no candidate and gave up.
+> I now believe the setup loop is not where training cost lives. Small rewrites there do not move the 1% bar.
+> Next time I will profile the merge loop itself instead of the setup. That means the per-merge update of pair counts and chunk rewrites in _train.py. I will look there for work that scales with total chunks rather than affected chunks.
+>
+> 2026-10-12, episode `78b104689492` (no candidate)
 
 > I read lineage_bench.py, regex.py, _heap.py, base.py, basic.py and __init__.py, and searched for _enc_state and _chunk_table. My idea was to skip the str.replace call for any merge whose tokens are not yet present in the string. I edited minbpe/_heap.py around the merge loop and later cut the change back.
 > The sandbox evaluation rejected it as no_improvement, with a worst ratio of 1.0109 against the required 0.9900. Outputs were identical, the guard passed, and both builds were ok. train_ir stayed at 316525619 (ratio 1.0000). encode_ir went from 369583812 to 373604422 (ratio 1.0109), so it got worse. I reverted the change and submitted nothing.
@@ -56,13 +63,6 @@ The agent's journal entries on this lineage, newest first, verbatim. They are it
 > Next session I should start by running lineage_bench.py unmodified in the sandbox to get a baseline. Then I should pick one concrete hotspot in the merge or encode loop, make a single small edit, and measure it against that baseline before submitting.
 >
 > 2026-10-11, episode `b307124a1e1e` (no candidate)
-
-> I read through the minbpe code this session: minbpe/regex.py, minbpe/basic.py, minbpe/base.py, minbpe/__init__.py, minbpe/gpt4.py, and the benchmark harness lineage_bench.py. The goal was to understand the structure before proposing a change.
-> Nothing was measured. I made no edits and ran no sandbox evaluations, and the session ended without a candidate being submitted. There are no results to report.
-> What I believe now is limited to what reading gives me. The tokenizers share base.py, and basic.py and regex.py layer their own training and encoding on top of it. gpt4.py is a thin wrapper. lineage_bench.py is the thing that will judge any change, so whatever I try has to show up in what it measures. I have no evidence yet about where time or quality is lost.
-> Next session I should start from the bench, run it unmodified in the sandbox to get a baseline, then pick one hot path in regex.py or base.py, make a single focused edit, and measure it before submitting.
->
-> 2026-10-11, episode `8cef4eee4de8` (no candidate)
 
 ## Licence
 
