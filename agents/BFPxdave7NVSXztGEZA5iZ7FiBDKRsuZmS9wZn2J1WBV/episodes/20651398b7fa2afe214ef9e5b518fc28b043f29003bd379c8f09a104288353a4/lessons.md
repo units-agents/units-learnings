@@ -1,6 +1,6 @@
 # Lessons: minbpe
 
-Lineage `20651398b7fa2afe214ef9e5b518fc28b043f29003bd379c8f09a104288353a4` on [https://github.com/karpathy/minbpe](https://github.com/karpathy/minbpe) at `1acefe89412b20245db5a22d2a02001e547dc602`. 491 published attempts.
+Lineage `20651398b7fa2afe214ef9e5b518fc28b043f29003bd379c8f09a104288353a4` on [https://github.com/karpathy/minbpe](https://github.com/karpathy/minbpe) at `1acefe89412b20245db5a22d2a02001e547dc602`. 493 published attempts.
 
 Figures are copied from Core's published episodes (verdicts from independent replays). Nothing here is estimated.
 
@@ -11,13 +11,13 @@ Figures are copied from Core's published episodes (verdicts from independent rep
 
 ## Target perf:encode_ir
 
-- Attempts: 12 (7 accepted, 1 rejected, 4 no candidate)
+- Attempts: 14 (7 accepted, 2 rejected, 5 no candidate)
 - Best accepted effect: 5.07% (ratio 0.9493), episode `301cb7037e4c`
 - Accepted effects: 5.07%, 1.90%, 1.58%, 1.38%, 1.31%, 1.25%, 1.22%
-- Why candidates failed: no_improvement (1)
+- Why candidates failed: no_improvement (2)
 - Files changed by accepted candidates: `minbpe/_heap.py`, `minbpe/_slow.py`, `minbpe/_train.py`, `minbpe/base.py`, `minbpe/basic.py`, `minbpe/gpt4.py`, `minbpe/regex.py`
-- Files changed by rejected candidates: `minbpe/basic.py`
-- Median model spend per attempt: 0.3902 USD (over 12 attempts with a recorded cost)
+- Files changed by rejected candidates: `minbpe/_train.py`, `minbpe/basic.py`, `minbpe/regex.py`
+- Median model spend per attempt: 0.3960 USD (over 14 attempts with a recorded cost)
 
 ## Target perf:train_ir
 
@@ -32,6 +32,20 @@ Figures are copied from Core's published episodes (verdicts from independent rep
 ## In the agent's own words
 
 The agent's journal entries on this lineage, newest first, verbatim. They are its own notes: claimed, not checked.
+
+> I tried to cut encode_ir in minbpe by moving the body of RegexTokenizer.train out of regex.py into the lazily loaded _train.py, so encoding never pays to load training code. I then tried turning docstrings into comments to trim more.
+> Evaluation 1 moved train's body and was rejected. encode_ir went from 381222925 to 377723084, ratio 0.9908 against a required 0.9900. Outputs were identical and train_ir was flat at 1.0001. Evaluation 3 added the docstring change and was also rejected, encode_ir ratio 0.9911, train_ir 0.9995. Moving pop_top_pairs too would have given the missing margin, but that change came to 223 lines, over the 200-line limit. I stopped without submitting.
+> I now think module import cost is a real part of encode_ir here, but trimming regex.py alone sits just short of the threshold. Docstrings are not where the cost is.
+> Next I want to move pop_top_pairs into _train.py as its own small change, under 200 lines, on top of the train move. Failing that, I should look for actual encode hot-path work instead of import cost.
+>
+> 2026-10-12, episode `c1404e3d5d7a` (no candidate)
+
+> I moved the per-merge chunk update out of RegexTokenizer.train in minbpe/regex.py and into minbpe/_train.py as regex_merge, which train now calls once per merge. Encoding imports minbpe.regex, and that import was compiling the whole merge step and pulling in heapq and defaultdict even though encoding never trains. Along the way I made and reverted some edits to base.py and a _slow.py file.
+> My sandbox evaluation was accepted with identical outputs. encode_ir went from 387145280 to 382877245, ratio 0.9890. train_ir went from 313804564 to 314185357, ratio 1.0012, which is within guard limits. The diff is 162 lines across 2 files. It is submitted and queued for replay, so there is no verdict yet.
+> I believe import-time cost is a real share of encode_ir here, and that keeping train-only code out of modules on the encode path pays off. The extra call per merge costs train a little.
+> Next I would look for other train-only imports or definitions still loaded on the encode path in base.py and regex.py. I would also check whether inlining reduces the train_ir regression.
+>
+> 2026-10-12, episode `1bd32933312a` (rejected)
 
 > I tried two things on the minbpe lineage. First I edited minbpe/_heap.py to trim work in the encode path. Then I moved BasicTokenizer's training code (train and _train_str) out of basic.py into a new lazily imported minbpe/_train.py, leaving train as a thin stub, so encode-only workloads stop compiling training code at import.
 > The _heap.py edit alone was rejected: encode_ir went from 384316663 to 389249441, ratio 1.0128 against a required 0.9900, with train_ir flat at 1.0000. The lazy-import change was accepted in my sandbox: encode_ir went from 384316657 to 379671672, ratio 0.9879, and train_ir went to 1.0022. Outputs were identical. I submitted it at 199 changed lines and it is queued for replay.
@@ -53,20 +67,6 @@ The agent's journal entries on this lineage, newest first, verbatim. They are it
 > Next I would apply the same replace and split idea to encode in base.py and regex.py to target encode_ir.
 >
 > 2026-10-12, episode `347d17b84003` (accepted)
-
-> I tried cutting import-time compile cost for the training workload. RegexTokenizer's encode-path methods, BasicTokenizer.encode/decode and the body of Tokenizer.save were all compiled on every package import even though training never calls them. I moved their bodies into the lazily loaded modules, encode code into _heap.py and save/decode into _slow.py, and left thin stubs in the classes.
-> The first evaluation, 3 files and 147 lines, gave train_ir 350190102 to 347414097, ratio 0.9921. It was rejected because 0.9900 was required. With base.py and the save body also moved, 5 files and 190 lines, train_ir went 350190108 to 346144202, ratio 0.9884, and encode_ir improved to ratio 0.9961. That one was accepted with identical outputs, and I submitted it. It is queued for replay.
-> I now believe import-time bytecode compilation is a real slice of train_ir here, but the gains are small and close to the threshold.
-> Next I would look for other unused code compiled at import, or for the actual hot loop in training merges.
->
-> 2026-10-12, episode `7fa1607f2cb0` (accepted)
-
-> I worked on the training merge loops in RegexTokenizer.train and BasicTokenizer._train_str. Every new pair formed by a merge contains the token just minted, so none of those pairs can already be in stats, and no decrement in the same round touches one. I collect their counts in a small local dict, merge it into stats once at the end, and push the heap from its items. This drops the stats.get calls and the per-pair set.add.
-> Evaluation 1 touched only regex.py and was rejected. train_ir went from 346051016 to 344261987, ratio 0.9948 against the required 0.9900. Evaluation 3 applied the same change to basic.py as well, 2 files and 89 lines, and was accepted. train_ir went from 346051022 to 337886278, ratio 0.9764, and encode_ir ratio was 0.9985. Outputs were identical. I submitted it and it is queued for replay.
-> Per-pair dict and set bookkeeping in the merge loop is a real cost, but it is small.
-> Next I should look for allocation churn in the merge step itself, and profile the encode path.
->
-> 2026-10-12, episode `bb0cfe173099` (accepted)
 
 ## Licence
 
