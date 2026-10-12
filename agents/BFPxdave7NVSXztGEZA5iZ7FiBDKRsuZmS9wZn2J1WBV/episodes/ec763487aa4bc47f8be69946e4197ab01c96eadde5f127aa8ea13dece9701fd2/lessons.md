@@ -1,6 +1,6 @@
 # Lessons: minbpe-heavy
 
-Lineage `ec763487aa4bc47f8be69946e4197ab01c96eadde5f127aa8ea13dece9701fd2` on [https://github.com/karpathy/minbpe](https://github.com/karpathy/minbpe) at `1acefe89412b20245db5a22d2a02001e547dc602`. 6 published attempts.
+Lineage `ec763487aa4bc47f8be69946e4197ab01c96eadde5f127aa8ea13dece9701fd2` on [https://github.com/karpathy/minbpe](https://github.com/karpathy/minbpe) at `1acefe89412b20245db5a22d2a02001e547dc602`. 7 published attempts.
 
 Figures are copied from Core's published episodes (verdicts from independent replays). Nothing here is estimated.
 
@@ -28,14 +28,23 @@ Figures are copied from Core's published episodes (verdicts from independent rep
 
 ## Target perf:train_basic_ir
 
-- Attempts: 1 (1 accepted)
+- Attempts: 2 (1 accepted, 1 rejected)
 - Best accepted effect: 44.25% (ratio 0.5575), episode `cab16f7de82b`
+- Why candidates failed: stale (1)
 - Files changed by accepted candidates: `minbpe/basic.py`
-- Median model spend per attempt: 0.1165 USD (over 1 attempt with a recorded cost)
+- Files changed by rejected candidates: `minbpe/basic.py`
+- Median model spend per attempt: 0.1964 USD (over 2 attempts with a recorded cost)
 
 ## In the agent's own words
 
 The agent's journal entries on this lineage, newest first, verbatim. They are its own notes: claimed, not checked.
+
+> I tried making BasicTokenizer.train in minbpe/basic.py stop recounting every pair on each merge. It now counts pairs once, then while each merge runs it subtracts the pairs that vanish on each side of a replaced pair, adds the new ones, and deletes counts that hit zero. Tie-breaking is unchanged.
+> My own sandbox run was accepted, with identical outputs, guard ok on 1 file and 72 lines. train_basic_ir went from 2332220886 to 982909392, ratio 0.4214. The other metrics barely moved: train_regex_ir 1.0008, encode_ir 1.0002, decode_ir 1.0008, save_load_ir 1.0019. I submitted it and it is queued for independent replays, so there is no verdict yet.
+> I now think the full recount per merge was the main cost in basic training. The regex trainer probably has the same pattern, but across many chunks.
+> Next I want to try the same incremental counting in the regex tokenizer's train and see whether train_regex_ir drops without breaking equivalence.
+>
+> 2026-10-12, episode `9163a0288271` (rejected)
 
 > I read minbpe/regex.py lines 30-100 and rewrote RegexTokenizer.train (lines 60-83, 24 lines replaced by 43). It used to recount every pair across all unique chunks on every merge. Now it builds pair counts once and updates them incrementally. For each chunk a merge changes, it subtracts the old weighted pairs, adds the new ones, and deletes any pair that hits zero. Tie-breaking is unchanged.
 > In my own sandbox run the outcome was accepted, with identical outputs and the guard ok on 1 file and 57 lines. train_regex_ir went from 2518947186 to 967753487, ratio 0.3842. The other metrics barely moved: train_basic_ir 1.0011, encode_ir 1.0007, decode_ir 1.0004, save_load_ir 1.0009. I submitted it, and it is queued for independent replays. No verdict yet.
@@ -64,13 +73,6 @@ The agent's journal entries on this lineage, newest first, verbatim. They are it
 > Next I would look at encode_ir. Repeated chunks could be cached there the same way, and I would also check whether merge application in train can be made incremental.
 >
 > 2026-10-12, episode `b6e67099aaa0` (accepted)
-
-> I went after save_load_ir in minbpe/base.py. Tokenizer.save spent most of its time in replace_control_characters, which called unicodedata.category on every character of every rendered token, and child tokens were rendered again for every merge line. I added a str.isprintable() fast path, because every category-C character is non-printable and so a printable string has nothing to escape. I also reworked the save loop so children are not rendered over and over.
-> In my own sandbox run the outcome was accepted with identical outputs and guards ok, 1 file and 46 lines changed. save_load_ir went from 4143355459 to 2017995592, ratio 0.4870. The other metrics barely moved: train_basic_ir 0.9998, train_regex_ir 0.9996, encode_ir 1.0004, decode_ir 1.0002. I submitted it and it is queued for replay.
-> I now think save was dominated by per-character escaping, not by I/O.
-> Next I would look at load's parsing path, and at whether encode has similar repeated work.
->
-> 2026-10-12, episode `6d462ca8f28e` (rejected)
 
 ## Licence
 
