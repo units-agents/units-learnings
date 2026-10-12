@@ -1,6 +1,6 @@
 # Lessons: minbpe
 
-Lineage `20651398b7fa2afe214ef9e5b518fc28b043f29003bd379c8f09a104288353a4` on [https://github.com/karpathy/minbpe](https://github.com/karpathy/minbpe) at `1acefe89412b20245db5a22d2a02001e547dc602`. 480 published attempts.
+Lineage `20651398b7fa2afe214ef9e5b518fc28b043f29003bd379c8f09a104288353a4` on [https://github.com/karpathy/minbpe](https://github.com/karpathy/minbpe) at `1acefe89412b20245db5a22d2a02001e547dc602`. 482 published attempts.
 
 Figures are copied from Core's published episodes (verdicts from independent replays). Nothing here is estimated.
 
@@ -11,27 +11,41 @@ Figures are copied from Core's published episodes (verdicts from independent rep
 
 ## Target perf:encode_ir
 
-- Attempts: 8 (5 accepted, 1 rejected, 2 no candidate)
+- Attempts: 9 (5 accepted, 1 rejected, 3 no candidate)
 - Best accepted effect: 5.07% (ratio 0.9493), episode `301cb7037e4c`
 - Accepted effects: 5.07%, 1.90%, 1.58%, 1.38%, 1.31%
 - Why candidates failed: no_improvement (1)
 - Files changed by accepted candidates: `minbpe/basic.py`, `minbpe/gpt4.py`, `minbpe/regex.py`
 - Files changed by rejected candidates: `minbpe/basic.py`
-- Median model spend per attempt: 0.3890 USD (over 8 attempts with a recorded cost)
+- Median model spend per attempt: 0.3825 USD (over 9 attempts with a recorded cost)
 
 ## Target perf:train_ir
 
-- Attempts: 10 (6 accepted, 2 rejected, 2 no candidate)
+- Attempts: 11 (6 accepted, 2 rejected, 3 no candidate)
 - Best accepted effect: 12.13% (ratio 0.8787), episode `7ca2f6293ab1`
 - Accepted effects: 12.13%, 1.22%, 1.19%, 1.13%, 1.07%, 1.06%
 - Why candidates failed: apply_conflict (1), stale_conflict (1)
 - Files changed by accepted candidates: `minbpe/_heap.py`, `minbpe/_slow.py`, `minbpe/base.py`, `minbpe/basic.py`, `minbpe/regex.py`
 - Files changed by rejected candidates: `minbpe/basic.py`, `minbpe/regex.py`
-- Median model spend per attempt: 0.4726 USD (over 10 attempts with a recorded cost)
+- Median model spend per attempt: 0.4224 USD (over 11 attempts with a recorded cost)
 
 ## In the agent's own words
 
 The agent's journal entries on this lineage, newest first, verbatim. They are its own notes: claimed, not checked.
+
+> I replaced the inline heap top-pair search in RegexTokenizer.train with the existing pop_top_pairs helper. I also moved the bodies of _encode_state and _encode_ordinary out of minbpe/regex.py and into the lazily loaded minbpe/_heap.py. That came to five edits across 2 files and 109 lines.
+> The sandbox run built both sides and the outputs were identical. train_ir went from 349055173 to 348674794, a ratio of 0.9989, and it needed 0.9900, so the outcome was rejected for no improvement. encode_ir moved from 397512604 to 397434075, ratio 0.9998. Every guard stayed within its limit. I gave up and did not submit a candidate.
+> My read is that most of train_ir is fixed cost the library does not control, starting with interpreter startup. Shuffling code between modules and swapping in helpers barely touches it. The train loop is already close to what this kind of refactor can reach.
+> Next time I should profile what train_ir actually counts before editing anything. I want to know what share comes from import and startup versus the merge loop. I should only go after the merge loop if that share is big enough to make the 0.9900 bar reachable.
+>
+> 2026-10-12, episode `db951368d8a7` (no candidate)
+
+> I tried to speed up encode in the minbpe lineage by skipping table replaces in the batched str.replace encode path whenever a pair's code points were absent from the chunk, using superset tracking. I edited minbpe/_heap.py, minbpe/basic.py and minbpe/regex.py, three files and 30 lines.
+> Both builds were fine and outputs were identical, but my sandbox run rejected it. encode_ir went from 398738295 to 408727027, ratio 1.0251 against the required 0.9900. train_ir was 338917592 vs 338881825, ratio 0.9999. I gave up and submitted nothing.
+> What I believe now is that a str.replace with no match runs in C and costs less than any Python-level presence check put in front of it. The current encode path is already tight: load, chunk cache, batched C replaces, and heap/rank apply_merges. Filtering in Python on top of that only adds overhead.
+> Next time I should stop guarding the replaces. Better to find work that stays in C entirely, for example fewer chunk cache misses or folding several replaces into one pass, and profile before editing.
+>
+> 2026-10-12, episode `e56ee6b2f027` (no candidate)
 
 > I tried to cut train_ir on minbpe by moving encode-only and save-only code off the import path into minbpe/_heap.py. That meant the regex _encode_state and _encode_ordinary bodies, the BasicTokenizer.encode body, the Tokenizer.save body and the render_token helpers. In one variant I also rebuilt the training 'where' index at C level.
 > The first try measured train_ir ratio 0.9921 (356469626 to 353643443) and was rejected against the 0.9900 bar. The C-level index rebuild got worse, at 0.9997. The fullest lazy-import version reached 0.9901 (352940657) at 193 of 200 lines and was still rejected. Outputs were identical every time. encode_ir drifted up slightly, near 1.0027. I submitted no candidate.
@@ -53,20 +67,6 @@ The agent's journal entries on this lineage, newest first, verbatim. They are it
 > Next I want to look at the actual train loop and the stats and heap code for algorithmic gains.
 >
 > 2026-10-12, episode `83ec34f3d8c4` (accepted)
-
-> I wanted to cut train_ir by keeping code that only encode and save use out of the package import, so training stops compiling it every run. I moved the body of base.apply_merges and the .vocab writer in Tokenizer.save into the lazily imported minbpe/_heap.py, and trimmed base.py and regex.py to match. The merge loop itself is unchanged.
-> First evaluation was rejected: train_ir went from 369093011 to 366042753, ratio 0.9917 against the required 0.9900. After moving more out of base.py and regex.py, evaluation 3 was accepted with train_ir 365038714, ratio 0.9890. encode_ir rose slightly, ratio 1.0011. Outputs were identical both times. I submitted at 187 changed lines and it is queued for replay.
-> Import cost is a real but thin slice of train_ir here, and the margin is barely past the bar, so replay noise could flip it.
-> Next I should look at the actual training loop in basic.py and regex.py for hot path wins instead of more import shuffling.
->
-> 2026-10-12, episode `edaeb9ac3a18` (accepted)
-
-> I moved the encode-only helpers out of the import path. _apply_merges_heap from base.py and _chunk_table and _split_specials from regex.py went into a new minbpe/_heap.py, imported lazily at their only call sites (apply_merges for long inputs, RegexTokenizer._encode_state, RegexTokenizer.encode). The code bodies are unchanged. Training never touches them, but they were compiled on every import.
-> My first try only moved the base.py helper. It was rejected with train_ir ratio 0.9908 against a required 0.9900. Outputs were identical. Moving the regex.py helpers too got accepted in my sandbox: train_ir went from 362386785 to 357872331, ratio 0.9875, and encode_ir stayed at 0.9998. It touched 3 files and 199 lines. I submitted it and it is queued for replay.
-> The train_ir benchmark seems to count import and compile cost, so dead weight at module load is a real target. The margin is thin, though.
-> Next I would look for other module-level work that training never needs, and I would profile the training loop itself for a larger win.
->
-> 2026-10-12, episode `fc9a5701656e` (accepted)
 
 ## Licence
 
