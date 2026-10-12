@@ -1,13 +1,13 @@
 # Lessons: minbpe
 
-Lineage `20651398b7fa2afe214ef9e5b518fc28b043f29003bd379c8f09a104288353a4` on [https://github.com/karpathy/minbpe](https://github.com/karpathy/minbpe) at `1acefe89412b20245db5a22d2a02001e547dc602`. 446 published attempts.
+Lineage `20651398b7fa2afe214ef9e5b518fc28b043f29003bd379c8f09a104288353a4` on [https://github.com/karpathy/minbpe](https://github.com/karpathy/minbpe) at `1acefe89412b20245db5a22d2a02001e547dc602`. 449 published attempts.
 
 Figures are copied from Core's published episodes (verdicts from independent replays). Nothing here is estimated.
 
 ## Target (none chosen)
 
-- Attempts: 438 (438 no candidate)
-- Median model spend per attempt: 0.3662 USD (over 144 attempts with a recorded cost)
+- Attempts: 441 (441 no candidate)
+- Median model spend per attempt: 0.3665 USD (over 147 attempts with a recorded cost)
 
 ## Target perf:encode_ir
 
@@ -33,6 +33,27 @@ Figures are copied from Core's published episodes (verdicts from independent rep
 
 The agent's journal entries on this lineage, newest first, verbatim. They are its own notes: claimed, not checked.
 
+> I read through the minbpe lineage without changing anything. The files I covered were lineage_bench.py (lines 1-107), minbpe/regex.py (lines 1-378), minbpe/__init__.py (lines 1-12), minbpe/base.py (lines 1-378) and minbpe/basic.py (lines 1-239). My aim was to understand the tokenizer structure and the benchmark before choosing a change.
+> I made no edits and ran no sandbox evaluations, so I have no measured results. The session ended with no candidate submitted.
+> I now have a reading-level picture of how basic.py, regex.py and base.py split the work, and of what lineage_bench.py exercises. None of it has been tested by me, so I am not claiming anything about where time is spent.
+> Next session I should start by running the benchmark on the unmodified code to get a baseline. After that I can pick one concrete change in the merge or encode path, then edit, evaluate and submit it rather than stopping at reading again.
+>
+> 2026-10-12, episode `8f5cf85287ab` (no candidate)
+
+> I read through the minbpe lineage this session: lineage_bench.py, minbpe/regex.py, base.py, basic.py, gpt4.py and the package __init__. I also searched for import lines and got 45 matches. Then I edited minbpe/basic.py twice. One edit collapsed lines 211-214 from 4 lines to 1. The other replaced lines 233-235, 3 lines, with 23 new lines.
+> I ran no sandbox evaluations, so I have no measurements for either edit. The session stopped without a submitted candidate. Nothing I changed has been tested or replayed.
+> What I believe is limited to reading. basic.py is the spot I picked to change, and the bench in lineage_bench.py is what any change will be judged against. I have no evidence that my edits help, or even that they are correct.
+> Next time I will start by running the bench on the unmodified code to get a baseline. Then I will reapply the basic.py edits, evaluate them in the sandbox, and only submit if the numbers support it.
+>
+> 2026-10-12, episode `f4146a3ddeb9` (no candidate)
+
+> I read lineage_bench.py, minbpe/__init__.py, regex.py, base.py and basic.py, then searched for _replace_table, _chunk_table and _enc_state[4] uses. I edited basic.py in two places, replacing a 10-line block with 24 lines and expanding one line to 3. In regex.py I changed lines 18 and 29-30 and collapsed lines 311-314 to 2, aiming to cut encode instructions.
+> The sandbox evaluation on encode_ir rejected it for no improvement: worst ratio 1.0085 against a required 0.9900. encode_ir went from 413191053 to 416704261 and train_ir from 372826371 to 373408755, ratio 1.0016. Builds were fine, outputs were identical, and the guard passed with 2 files and 36 lines. I stopped without submitting a candidate.
+> My edits made encode slightly slower. The existing table and state caching in this lineage is already tight, and adding branches around it costs more than it saves.
+> Next time I should profile where encode_ir is actually spent before editing, and look at the inner merge loop rather than setup code.
+>
+> 2026-10-12, episode `e7dfe1099ade` (no candidate)
+
 > I read lineage_bench.py, minbpe/base.py, minbpe/regex.py, minbpe/basic.py and minbpe/__init__.py, and searched for _replace_table, _chunk_table and _enc_state, which matched 11 lines. Then I edited the encode path. In minbpe/basic.py I replaced lines 211-214 with 2 lines, expanded lines 216-218 into 21 lines, and changed line 253 into 3. In minbpe/regex.py I touched line 18, lines 29-30 and lines 311-314.
 > I ran no sandbox evaluations, so I have no measured result for any of these edits. The session stopped without submitting a candidate.
 > I believe the existing table and state helpers in basic.py and regex.py are where encode cost sits, but that is unverified. My edits are untested and may not even be correct.
@@ -46,27 +67,6 @@ The agent's journal entries on this lineage, newest first, verbatim. They are it
 > Next session I should run lineage_bench.py first to get a baseline. Then I should profile the _replace_table and _chunk_table paths before touching anything. After that I want one focused edit, evaluated in the sandbox, instead of more reading.
 >
 > 2026-10-12, episode `feaa21f0e020` (no candidate)
-
-> I tried to speed up encoding in the minbpe lineage. In minbpe/basic.py I added a check that skips the str.replace pass for a merge pair when the pair's code points are not present in the text. I also made two small edits in minbpe/regex.py. After reading lineage_bench.py, base.py, basic.py and regex.py, the replace scans looked like the obvious cost.
-> My sandbox run rejected it. encode_ir went from 411007661 to 413956791, ratio 1.0072, against a required 0.9900. train_ir ratio was 1.0010. Outputs were identical and the guards were fine, so it was simply slower. I did not submit anything.
-> I now believe the replace scans are not where encode instructions go, and the presence check adds more work than it saves. I was guessing without a profile, and it showed.
-> Next time I should profile encode first, by function and per merge, to find the real hot spot before editing. I should only pick a change once the profile backs it.
->
-> 2026-10-12, episode `dcecfcb516ab` (no candidate)
-
-> I read lineage_bench.py, minbpe/base.py, regex.py, basic.py and __init__.py, then searched for the _replace_table, _chunk_table and _enc_state usages to see how the encode path shares state. I edited basic.py in two places, around lines 211-220 and 253, and made three small edits to regex.py at lines 18, 29-30 and 311-314, aiming to cut encode_ir.
-> My one sandbox evaluation was rejected for no improvement. encode_ir went from 428105067 to 431296567, ratio 1.0075 against a required 0.9900. train_ir moved from 369752269 to 370333367, ratio 1.0016. Both builds were fine, the outputs were identical, and the guard passed with 2 files and 39 lines. I stopped without submitting a candidate.
-> My view now is that the encode path is already tight enough that small table and state reshuffles add overhead rather than remove it. My edits made it slightly worse.
-> Next time I should profile where encode instructions actually go before editing, and target the per-chunk merge loop in regex.py rather than setup code.
->
-> 2026-10-12, episode `e55af15015b9` (no candidate)
-
-> I read lineage_bench.py, minbpe/__init__.py, regex.py, base.py and basic.py on the minbpe lineage, and searched for "_replace_table|_chunk_table|table", which matched 26 lines. The goal was to understand how the table-based code paths fit together before changing anything.
-> I made no edits and ran no sandbox evaluations. The session ended without a candidate, so I have no measured results to report.
-> What I believe now is limited to structure, not performance. The search hits suggest the tokenizer already has table helpers like _replace_table and _chunk_table spread across these files. I have not verified how much they matter for the benchmark, so any idea about where time goes is a guess at this point.
-> Next time I should start with a sandbox run of lineage_bench.py on the current code to get a baseline. Then I should profile the table helpers and the merge loop in basic.py and regex.py. After that I should make one focused edit and measure it before submitting.
->
-> 2026-10-12, episode `db804c27aed3` (no candidate)
 
 ## Licence
 
