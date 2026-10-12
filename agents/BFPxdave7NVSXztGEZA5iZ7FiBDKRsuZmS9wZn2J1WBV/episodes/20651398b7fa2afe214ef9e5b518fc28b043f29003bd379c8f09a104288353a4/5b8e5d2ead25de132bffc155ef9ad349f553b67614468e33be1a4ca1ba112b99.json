@@ -1,0 +1,804 @@
+{
+  "schema": "lineage-episode/1",
+  "episode_id": "5b8e5d2ead25de132bffc155ef9ad349f553b67614468e33be1a4ca1ba112b99",
+  "seq": 3302,
+  "network": "devnet",
+  "session_id": "f9ef45bfe21442914cfb39493906a33054a86906e3caa1555754af30f625f9ad",
+  "agent": {
+    "id": "BFPxdave7NVSXztGEZA5iZ7FiBDKRsuZmS9wZn2J1WBV",
+    "name": null,
+    "hidden": false,
+    "hosted": true,
+    "identity_mode": "app",
+    "soul": null
+  },
+  "model": {
+    "provider": "anthropic",
+    "models": [
+      "claude-opus-5-5"
+    ],
+    "route": {
+      "model": {
+        "id": "claude-opus-5-5",
+        "provider": "anthropic"
+      },
+      "upstream": [],
+      "via": "direct"
+    },
+    "harness": {
+      "name": "anthropic",
+      "version": "anthropic/1",
+      "digest": "56dbd52b022caf16da09ffc22f19b74a5bdbb16b7eaa11a6d69917b84c0b8ecd"
+    },
+    "source": "provenance:hosted"
+  },
+  "task": {
+    "recipe": {
+      "recipe_id": "46a0d78dd189aa96c32d8f87402f2288b375c0934af32d036350034feb51f648",
+      "name": "minbpe",
+      "class": "python",
+      "repo": "https://github.com/karpathy/minbpe",
+      "commit": "1acefe89412b20245db5a22d2a02001e547dc602"
+    },
+    "lineage_id": "20651398b7fa2afe214ef9e5b518fc28b043f29003bd379c8f09a104288353a4",
+    "parent_gen_id": "01396fae2822a7b466be0e7bfa1d01f184e5ebd2cfd50f26b96ea8156a396f2d",
+    "parent_height": 38,
+    "metrics": [
+      {
+        "name": "train_ir",
+        "kind": "perf",
+        "direction": "lower",
+        "deterministic": true,
+        "min_effect": 0.01
+      },
+      {
+        "name": "encode_ir",
+        "kind": "perf",
+        "direction": "lower",
+        "deterministic": true,
+        "min_effect": 0.01
+      }
+    ],
+    "target": {
+      "kind": "perf",
+      "target": "encode_ir",
+      "source": "candidate"
+    },
+    "baseline": {
+      "encode_ir": {
+        "median": 386376576,
+        "samples": [
+          386376576,
+          386376576
+        ]
+      },
+      "train_ir": {
+        "median": 316060528,
+        "samples": [
+          316060525,
+          316060531
+        ]
+      }
+    }
+  },
+  "plan": {
+    "planned": {
+      "kind": "perf",
+      "target": "encode_ir",
+      "note": null
+    },
+    "opening_note": "My notes say whole-text scans lose for regex training, and the next step I planned was to try the C str.replace/split approach on the encode path for encode_ir. I'll follow the suggestion and target encode_ir, starting by reading the encode hot path.",
+    "source": "worker_report + session notes"
+  },
+  "hypotheses": [
+    "My notes say whole-text scans lose for regex training, and the next step I planned was to try the C str.replace/split approach on the encode path for encode_ir. I'll follow the suggestion and target encode_ir, starting by reading the encode hot path.",
+    "Let me check that nothing else uses the table format.",
+    "Now I'll create `_train.py` with the BasicTokenizer training code (same logic, fewer comments) and replace basic.py with stubs."
+  ],
+  "actions": [
+    {
+      "seq": 1,
+      "kind": "note",
+      "at": 1791784847439,
+      "text": "My notes say whole-text scans lose for regex training, and the next step I planned was to try the C str.replace/split approach on the encode path for encode_ir. I'll follow the suggestion and target encode_ir, starting by reading the encode hot path."
+    },
+    {
+      "seq": 2,
+      "kind": "list",
+      "path": "minbpe",
+      "count": 7,
+      "at": 1791784847440
+    },
+    {
+      "seq": 3,
+      "kind": "read",
+      "path": "lineage_bench.py",
+      "start_line": 1,
+      "end_line": 107,
+      "content_sha256": "0e575e458ce50ddadd5137d4ad35bdf3dde443e46e4c7a6be1d8011a16d274ca",
+      "at": 1791784847455
+    },
+    {
+      "seq": 4,
+      "kind": "read",
+      "path": "minbpe/regex.py",
+      "start_line": 1,
+      "end_line": 236,
+      "content_sha256": "c7b1665f1f0d8a0d0a3543eb0ed6c5a52b3e15991368f3fef42c93222134e59b",
+      "at": 1791784850442
+    },
+    {
+      "seq": 5,
+      "kind": "read",
+      "path": "minbpe/_heap.py",
+      "start_line": 1,
+      "end_line": 278,
+      "content_sha256": "3b0ebf6bcefa861aa1807d5b59273077401fea0e3ee4bff3acc9b513c47943e7",
+      "at": 1791784850444
+    },
+    {
+      "seq": 6,
+      "kind": "read",
+      "path": "minbpe/base.py",
+      "start_line": 1,
+      "end_line": 177,
+      "content_sha256": "897dd2ac5ed5484ca48afbdaa4c6d084871b857a279c641bd8fec5513d9aad88",
+      "at": 1791784859171
+    },
+    {
+      "seq": 7,
+      "kind": "read",
+      "path": "minbpe/_slow.py",
+      "start_line": 1,
+      "end_line": 202,
+      "content_sha256": "dcf64bdfa1f85d9c404ba47b465b20036a8b530bfbb3bc4570c94fd08e5a49ea",
+      "at": 1791784859173
+    },
+    {
+      "seq": 8,
+      "kind": "read",
+      "path": "minbpe/basic.py",
+      "start_line": 1,
+      "end_line": 135,
+      "content_sha256": "e5b48525f4a647ee5980d48140625def4742c00721305c07fbb1a9f22e1b2acd",
+      "at": 1791784877970
+    },
+    {
+      "seq": 9,
+      "kind": "read",
+      "path": "minbpe/__init__.py",
+      "start_line": 1,
+      "end_line": 12,
+      "content_sha256": "fa8bc2fc85bd77be51bd3e3d504611bd1e429186f509a085091d1e63bb1a6c7d",
+      "at": 1791784877970
+    },
+    {
+      "seq": 10,
+      "kind": "search",
+      "query": "pop_top_pairs|_train_str|get_stats|from minbpe",
+      "matches": 27,
+      "at": 1791784881715
+    },
+    {
+      "seq": 11,
+      "kind": "edit",
+      "path": "minbpe/_heap.py",
+      "start_line": 66,
+      "end_line": 68,
+      "lines_before": 3,
+      "lines_after": 19,
+      "at": 1791784916586,
+      "diff": "--- a/minbpe/_heap.py\n+++ b/minbpe/_heap.py\n@@ -66,3 +66,19 @@\n-        prev = idx\n-        app((chr(p0) + chr(p1), chr(idx)))\n-    return table\n+        prev = idx\n+        a = chr(p0)\n+        b = chr(p1)\n+        app((a, b, a + b, chr(idx)))\n+    return table\n+\n+\n+def _apply_table(s, table):\n+    # every replace of the table in order; a pair whose tokens are not both\n+    # in s cannot match, so its scan is skipped (present: a superset of the\n+    # code points in s, grown by every token that a replace created)\n+    present = set(s)\n+    for a, b, ps, c in table:\n+        if a in present and b in present:\n+            n = len(s)\n+            s = s.replace(ps, c)\n+            if len(s) != n:\n+                present.add(c)\n+    return s"
+    },
+    {
+      "seq": 12,
+      "kind": "edit",
+      "path": "minbpe/_heap.py",
+      "start_line": 156,
+      "end_line": 158,
+      "lines_before": 3,
+      "lines_after": 2,
+      "at": 1791784916587,
+      "diff": "--- a/minbpe/_heap.py\n+++ b/minbpe/_heap.py\n@@ -156,3 +156,2 @@\n-            s = b\"\\xff\".join(map(str.encode, new)).decode(\"latin-1\")\n-            for ps, c in table:\n-                s = s.replace(ps, c)\n+            s = b\"\\xff\".join(map(str.encode, new)).decode(\"latin-1\")\n+            s = _apply_table(s, table)"
+    },
+    {
+      "seq": 13,
+      "kind": "edit",
+      "path": "minbpe/_heap.py",
+      "start_line": 181,
+      "end_line": 184,
+      "lines_before": 4,
+      "lines_after": 1,
+      "at": 1791784916587,
+      "diff": "--- a/minbpe/_heap.py\n+++ b/minbpe/_heap.py\n@@ -181,4 +181,1 @@\n-            s = text_bytes.decode(\"latin-1\")\n-            for ps, c in table:\n-                s = s.replace(ps, c)\n-            return _ords(s)\n+            return _ords(_apply_table(text_bytes.decode(\"latin-1\"), table))"
+    },
+    {
+      "seq": 14,
+      "kind": "edit",
+      "path": "minbpe/_heap.py",
+      "start_line": 263,
+      "end_line": 264,
+      "lines_before": 2,
+      "lines_after": 2,
+      "at": 1791784916587,
+      "diff": "--- a/minbpe/_heap.py\n+++ b/minbpe/_heap.py\n@@ -263,2 +263,2 @@\n-    for ps, c in table:\n-        if \"\\xff\" in ps or c == \"\\xff\":\n+    for a, b, ps, c in table:\n+        if \"\\xff\" in ps or c == \"\\xff\":"
+    },
+    {
+      "seq": 15,
+      "kind": "note",
+      "at": 1791784919603,
+      "text": "Let me check that nothing else uses the table format."
+    },
+    {
+      "seq": 16,
+      "kind": "search",
+      "query": "_replace_table|_chunk_table|_enc_state\\[4\\]|in table",
+      "matches": 11,
+      "at": 1791784919622
+    },
+    {
+      "seq": 17,
+      "kind": "evaluate",
+      "target": "encode_ir",
+      "eval_kind": "perf",
+      "at": 1791784921810,
+      "phases": [
+        {
+          "phase": "prepare",
+          "at": 1791784921811
+        },
+        {
+          "phase": "build",
+          "at": 1791784924992
+        },
+        {
+          "phase": "build",
+          "at": 1791784924995
+        },
+        {
+          "phase": "test",
+          "at": 1791784928543
+        },
+        {
+          "phase": "test",
+          "at": 1791784986806
+        },
+        {
+          "phase": "equivalence",
+          "at": 1791785051191
+        },
+        {
+          "phase": "equivalence",
+          "at": 1791785051205
+        },
+        {
+          "phase": "metrics",
+          "at": 1791785053365
+        },
+        {
+          "phase": "metrics",
+          "at": 1791785066801
+        },
+        {
+          "phase": "metrics",
+          "at": 1791785077748
+        },
+        {
+          "phase": "metrics",
+          "at": 1791785088652
+        }
+      ]
+    },
+    {
+      "seq": 29,
+      "kind": "result",
+      "at": 1791785098928,
+      "output": "outcome: rejected (no_improvement: worst ratio 1.0128 vs required 0.9900)\nguard limits (config version 1): every guarded metric other than the target is within its limit\nguard: ok, 1 files, 28 lines\nbuild: base ok, candidate ok\nequivalence: identical outputs\nmetric train_ir: parent 314677705, candidate 314677705, ratio 1.0000\nmetric encode_ir: parent 384316663, candidate 389249441, ratio 1.0128",
+      "outcome": "rejected",
+      "steps": [
+        {
+          "step": "build",
+          "side": "cand",
+          "exit": 0,
+          "duration_ms": 3345,
+          "timed_out": false,
+          "tail": "3.12.15\n"
+        },
+        {
+          "step": "build",
+          "side": "base",
+          "exit": 0,
+          "duration_ms": 3441,
+          "timed_out": false,
+          "tail": "3.12.15\n"
+        },
+        {
+          "step": "test",
+          "side": "base",
+          "exit": 0,
+          "duration_ms": 58184,
+          "timed_out": false,
+          "tail": ".....................                                                    [100%]\n---------------------- generated xml file: /out/junit.xml ----------------------\n21 passed in 54.79s\n"
+        },
+        {
+          "step": "test",
+          "side": "cand",
+          "exit": 0,
+          "duration_ms": 64347,
+          "timed_out": false,
+          "tail": ".....................                                                    [100%]\n---------------------- generated xml file: /out/junit.xml ----------------------\n21 passed in 61.27s (0:01:01)\n"
+        },
+        {
+          "step": "equivalence",
+          "side": "base",
+          "exit": 0,
+          "duration_ms": 2023,
+          "timed_out": false,
+          "tail": "108, 98, 117, 109, 32, 111, 102, 32, 116, 104, 101, 32, 89, 101, 97, 114, 32, 97, 110, 100, 32, 66, 101, 115, 116, 32, 67, 111, 117, 110, 116, 114, 121, 32, 65, 108, 98, 117, 109, 44, 32, 97, 110, 100, 32, 34, 87, 104, 105, 116, 101, 32, 72, 111, 114, 115, 101, 34, 32, 119, 111, 110, 32, 66, 101, 115, 116, 32, 67, 111, 117, 110, 116, 114, 121, 32, 83, 111, 110, 103, 32, 97, 110, 100, 32, 66, 101, 115, 116, 32, 70, 101, 109, 97, 108, 101, 32, 67, 111, 117, 110, 116, 114, 121, 32, 86, 111, 99, 97, 108, 32, 80, 101, 114, 102, 111, 114, 109, 97, 110, 99, 101, 46, 32, 83, 119, 105, 102, 116, 32, 119, 97, 115, 32, 116, 104, 101, 32, 121, 111, 117, 110, 103, 101, 115, 116, 32, 97, 114, 116, 105, 115, 116, 32, 116, 111, 32, 119, 105, 110, 32, 65, 108, 98, 117, 109, 32, 111, 102, 32, 116, 104, 101, 32, 89, 101, 97, 114, 46, 91, 110, 111, 116, 101, 32, 49, 93, 32, 65, 116, 32, 116, 104, 101, 32, 50, 48, 48, 57, 32, 67, 111, 117, 110, 116, 114, 121, 32, 77, 117, 115, 105, 99, 32, 65, 115, 271, 99, 105, 97, 116, 105, 111, 110, 32, 65, 119, 97, 114, 100, 115, 44, 32, 83, 119, 105, 102, 116, 32, 119, 111, 110, 32, 65, 108, 98, 117, 109, 32, 111, 102, 32, 116, 104, 101, 32, 89, 101, 97, 114, 32]\n"
+        },
+        {
+          "step": "equivalence",
+          "side": "cand",
+          "exit": 0,
+          "duration_ms": 2134,
+          "timed_out": false,
+          "tail": "108, 98, 117, 109, 32, 111, 102, 32, 116, 104, 101, 32, 89, 101, 97, 114, 32, 97, 110, 100, 32, 66, 101, 115, 116, 32, 67, 111, 117, 110, 116, 114, 121, 32, 65, 108, 98, 117, 109, 44, 32, 97, 110, 100, 32, 34, 87, 104, 105, 116, 101, 32, 72, 111, 114, 115, 101, 34, 32, 119, 111, 110, 32, 66, 101, 115, 116, 32, 67, 111, 117, 110, 116, 114, 121, 32, 83, 111, 110, 103, 32, 97, 110, 100, 32, 66, 101, 115, 116, 32, 70, 101, 109, 97, 108, 101, 32, 67, 111, 117, 110, 116, 114, 121, 32, 86, 111, 99, 97, 108, 32, 80, 101, 114, 102, 111, 114, 109, 97, 110, 99, 101, 46, 32, 83, 119, 105, 102, 116, 32, 119, 97, 115, 32, 116, 104, 101, 32, 121, 111, 117, 110, 103, 101, 115, 116, 32, 97, 114, 116, 105, 115, 116, 32, 116, 111, 32, 119, 105, 110, 32, 65, 108, 98, 117, 109, 32, 111, 102, 32, 116, 104, 101, 32, 89, 101, 97, 114, 46, 91, 110, 111, 116, 101, 32, 49, 93, 32, 65, 116, 32, 116, 104, 101, 32, 50, 48, 48, 57, 32, 67, 111, 117, 110, 116, 114, 121, 32, 77, 117, 115, 105, 99, 32, 65, 115, 271, 99, 105, 97, 116, 105, 111, 110, 32, 65, 119, 97, 114, 100, 115, 44, 32, 83, 119, 105, 102, 116, 32, 119, 111, 110, 32, 65, 108, 98, 117, 109, 32, 111, 102, 32, 116, 104, 101, 32, 89, 101, 97, 114, 32]\n"
+        },
+        {
+          "step": "metrics",
+          "side": "base",
+          "exit": 0,
+          "duration_ms": 13424,
+          "timed_out": false,
+          "tail": "==7== Cachegrind, a cache and branch-prediction profiler\n==7== Copyright (C) 2002-2017, and GNU GPL'd, by Nicholas Nethercote et al.\n==7== Using Valgrind-3.19.0 and LibVEX; rerun with -h for copyright info\n==7== Command: python lineage_bench.py train eed9abef52da0a94\n==7== \n==7== \n==7== I   refs:      314,677,705\n"
+        },
+        {
+          "step": "metrics",
+          "side": "cand",
+          "exit": 0,
+          "duration_ms": 10944,
+          "timed_out": false,
+          "tail": "==7== Cachegrind, a cache and branch-prediction profiler\n==7== Copyright (C) 2002-2017, and GNU GPL'd, by Nicholas Nethercote et al.\n==7== Using Valgrind-3.19.0 and LibVEX; rerun with -h for copyright info\n==7== Command: python lineage_bench.py train eed9abef52da0a94\n==7== \n==7== \n==7== I   refs:      314,677,705\n"
+        },
+        {
+          "step": "metrics",
+          "side": "base",
+          "exit": 0,
+          "duration_ms": 10901,
+          "timed_out": false,
+          "tail": "==6== Cachegrind, a cache and branch-prediction profiler\n==6== Copyright (C) 2002-2017, and GNU GPL'd, by Nicholas Nethercote et al.\n==6== Using Valgrind-3.19.0 and LibVEX; rerun with -h for copyright info\n==6== Command: python lineage_bench.py encode eed9abef52da0a94\n==6== \n==6== \n==6== I   refs:      384,316,663\n"
+        },
+        {
+          "step": "metrics",
+          "side": "cand",
+          "exit": 0,
+          "duration_ms": 10218,
+          "timed_out": false,
+          "tail": "==7== Cachegrind, a cache and branch-prediction profiler\n==7== Copyright (C) 2002-2017, and GNU GPL'd, by Nicholas Nethercote et al.\n==7== Using Valgrind-3.19.0 and LibVEX; rerun with -h for copyright info\n==7== Command: python lineage_bench.py encode eed9abef52da0a94\n==7== \n==7== \n==7== I   refs:      389,249,441\n"
+        }
+      ]
+    },
+    {
+      "seq": 30,
+      "kind": "edit",
+      "path": "minbpe/_heap.py",
+      "start_line": 67,
+      "end_line": 84,
+      "lines_before": 18,
+      "lines_after": 2,
+      "at": 1791785122010,
+      "diff": "--- a/minbpe/_heap.py\n+++ b/minbpe/_heap.py\n@@ -67,18 +67,2 @@\n-        a = chr(p0)\n-        b = chr(p1)\n-        app((a, b, a + b, chr(idx)))\n-    return table\n-\n-\n-def _apply_table(s, table):\n-    # every replace of the table in order; a pair whose tokens are not both\n-    # in s cannot match, so its scan is skipped (present: a superset of the\n-    # code points in s, grown by every token that a replace created)\n-    present = set(s)\n-    for a, b, ps, c in table:\n-        if a in present and b in present:\n-            n = len(s)\n-            s = s.replace(ps, c)\n-            if len(s) != n:\n-                present.add(c)\n-    return s\n+        app((chr(p0) + chr(p1), chr(idx)))\n+    return table"
+    },
+    {
+      "seq": 31,
+      "kind": "edit",
+      "path": "minbpe/_heap.py",
+      "start_line": 141,
+      "end_line": 141,
+      "lines_before": 1,
+      "lines_after": 2,
+      "at": 1791785122012,
+      "diff": "--- a/minbpe/_heap.py\n+++ b/minbpe/_heap.py\n@@ -141,1 +141,2 @@\n-            s = _apply_table(s, table)\n+            for ps, c in table:\n+                s = s.replace(ps, c)"
+    },
+    {
+      "seq": 32,
+      "kind": "edit",
+      "path": "minbpe/_heap.py",
+      "start_line": 166,
+      "end_line": 166,
+      "lines_before": 1,
+      "lines_after": 4,
+      "at": 1791785122015,
+      "diff": "--- a/minbpe/_heap.py\n+++ b/minbpe/_heap.py\n@@ -166,1 +166,4 @@\n-            return _ords(_apply_table(text_bytes.decode(\"latin-1\"), table))\n+            s = text_bytes.decode(\"latin-1\")\n+            for ps, c in table:\n+                s = s.replace(ps, c)\n+            return _ords(s)"
+    },
+    {
+      "seq": 33,
+      "kind": "edit",
+      "path": "minbpe/_heap.py",
+      "start_line": 251,
+      "end_line": 252,
+      "lines_before": 2,
+      "lines_after": 2,
+      "at": 1791785122016,
+      "diff": "--- a/minbpe/_heap.py\n+++ b/minbpe/_heap.py\n@@ -251,2 +251,2 @@\n-    for a, b, ps, c in table:\n-        if \"\\xff\" in ps or c == \"\\xff\":\n+    for ps, c in table:\n+        if \"\\xff\" in ps or c == \"\\xff\":"
+    },
+    {
+      "seq": 34,
+      "kind": "note",
+      "at": 1791785136367,
+      "text": "Now I'll create `_train.py` with the BasicTokenizer training code (same logic, fewer comments) and replace basic.py with stubs."
+    },
+    {
+      "seq": 35,
+      "kind": "write",
+      "path": "minbpe/_train.py",
+      "lines_before": 0,
+      "lines_after": 91,
+      "at": 1791785136367,
+      "diff": "--- a/minbpe/_train.py\n+++ b/minbpe/_train.py\n@@ -0,0 +1,91 @@\n+\"\"\"BasicTokenizer training, loaded on first use (off the encoding import path).\"\"\"\n+from heapq import heapify, heappop, heappush\n+from operator import itemgetter\n+\n+from .base import get_stats, pop_top_pairs, _count_elements\n+\n+_last = itemgetter(-1)\n+_first = itemgetter(0)\n+\n+\n+def basic_train(self, text, vocab_size, verbose):\n+    # body of BasicTokenizer.train\n+    assert vocab_size >= 256\n+    num_merges = vocab_size - 256\n+    text_bytes = text.encode(\"utf-8\") # raw bytes\n+    ids = list(text_bytes) # list of integers in range 0..255\n+    merges = {} # (int, int) -> int\n+    vocab = {idx: bytes([idx]) for idx in range(256)} # int -> bytes\n+    # pair counts once, then updated locally around each merged occurrence\n+    stats = get_stats(ids)\n+    heap = [(-c, p) for p, c in stats.items()] # lazy max-heap of counts\n+    heapify(heap)\n+    if vocab_size <= 0x110000:\n+        # every id fits in one code point: ids as a str, merging done in C\n+        train_str(text_bytes.decode(\"latin-1\"), num_merges, stats, heap,\n+                  merges, vocab, verbose)\n+    else:\n+        from ._slow import train_ints # ids beyond one code point\n+        train_ints(ids, num_merges, stats, heap, merges, vocab, verbose)\n+    self.merges = merges # used in encode()\n+    self.vocab = vocab   # used in decode()\n+\n+\n+def train_str(s, num_merges, stats, heap, merges, vocab, verbose):\n+    # s: the current ids as a str of code points chr(id)\n+    stats_get = stats.get\n+    for i in range(num_merges):\n+        top, cands = pop_top_pairs(heap, stats_get, heappush, heappop)\n+        if len(cands) == 1:\n+            pair = cands[0]\n+        else:\n+            # tie: the pair whose first occurrence is earliest\n+            best = -1\n+            for p in cands:\n+                j = s.find(chr(p[0]) + chr(p[1]))\n+                if best < 0 or j < best:\n+                    best = j\n+                    pair = p\n+        idx = 256 + i\n+        p0, p1 = pair\n+        # merge() semantics (left to right, non-overlapping) == str.replace;\n+        # chr(idx) is new, so the pieces between merged occurrences give the\n+        # neighbours (an empty inner piece: two adjacent occurrences)\n+        x = chr(idx)\n+        s = s.replace(chr(p0) + chr(p1), x)\n+        parts = s.split(x)\n+        left = {}\n+        _count_elements(left, map(_last, filter(None, parts[:-1])))\n+        right = {}\n+        _count_elements(right, map(_first, filter(None, parts[1:])))\n+        stats[pair] -= len(parts) - 1\n+        removed = [pair]\n+        added = {} # new pairs contain idx: none is in stats yet\n+        for a, c in left.items():\n+            a = ord(a)\n+            p = (a, p0)\n+            stats[p] -= c\n+            removed.append(p)\n+            added[(a, idx)] = c\n+        for b, c in right.items():\n+            b = ord(b)\n+            p = (p1, b)\n+            stats[p] -= c\n+            removed.append(p)\n+            added[(idx, b)] = c\n+        c = parts[1:-1].count(\"\")\n+        if c:\n+            stats[(p1, p0)] -= c\n+            removed.append((p1, p0))\n+            added[(idx, idx)] = c\n+        for p in removed:\n+            if stats_get(p) == 0:\n+                del stats[p]\n+        stats.update(added)\n+        for p, c in added.items():\n+            heappush(heap, (-c, p))\n+        merges[pair] = idx\n+        vocab[idx] = vocab[p0] + vocab[p1]\n+        if verbose:\n+            print(f\"merge {i+1}/{num_merges}: {pair} -> {idx} ({vocab[idx]}) had {top} occurrences\")\n+"
+    },
+    {
+      "seq": 36,
+      "kind": "write",
+      "path": "minbpe/basic.py",
+      "start_line": 1,
+      "end_line": 135,
+      "lines_before": 135,
+      "lines_after": 34,
+      "at": 1791785136368,
+      "diff": "--- a/minbpe/basic.py\n+++ b/minbpe/basic.py\n@@ -1,135 +1,34 @@\n-\"\"\"\n-Minimal (byte-level) Byte Pair Encoding tokenizer.\n-\n-Algorithmically follows along the GPT tokenizer:\n-https://github.com/openai/gpt-2/blob/master/src/encoder.py\n-\n-But:\n-- Does not handle the regular expression splitting pattern.\n-- Does not handle any special tokens.\n-\"\"\"\n-\n-from heapq import heapify, heappop, heappush\n-\n-from operator import itemgetter\n-\n-from .base import Tokenizer, get_stats, pop_top_pairs, _count_elements\n-\n-_last = itemgetter(-1)\n-_first = itemgetter(0)\n-\n-\n-class BasicTokenizer(Tokenizer):\n-\n-    def __init__(self):\n-        super().__init__()\n-\n-    def train(self, text, vocab_size, verbose=False):\n-        assert vocab_size >= 256\n-        num_merges = vocab_size - 256\n-\n-        # input text preprocessing\n-        text_bytes = text.encode(\"utf-8\") # raw bytes\n-        ids = list(text_bytes) # list of integers in range 0..255\n-\n-        # iteratively merge the most common pairs to create new tokens\n-        merges = {} # (int, int) -> int\n-        vocab = {idx: bytes([idx]) for idx in range(256)} # int -> bytes\n-        # count up the number of times every consecutive pair appears (once);\n-        # afterwards the counts are updated locally around each merged occurrence\n-        stats = get_stats(ids)\n-        # lazy max-heap of counts: no full scan of stats per merge\n-        heap = [(-c, p) for p, c in stats.items()]\n-        heapify(heap)\n-        if vocab_size <= 0x110000:\n-            # every token id fits in one code point: keep ids as a str so that\n-            # pair search and merging run in C (str.find / str.replace do the\n-            # same left-to-right, non-overlapping matching as merge())\n-            self._train_str(text_bytes.decode(\"latin-1\"), num_merges, stats,\n-                            heap, merges, vocab, verbose)\n-            self.merges = merges\n-            self.vocab = vocab\n-            return\n-        # ids beyond one code point: merge a list of ints (loaded on first use)\n-        from ._slow import train_ints\n-        train_ints(ids, num_merges, stats, heap, merges, vocab, verbose)\n-\n-        # save class variables\n-        self.merges = merges # used in encode()\n-        self.vocab = vocab   # used in decode()\n-\n-    @staticmethod\n-    def _train_str(s, num_merges, stats, heap, merges, vocab, verbose):\n-        # s: the current ids as a str of code points chr(id)\n-        stats_get = stats.get\n-        for i in range(num_merges):\n-            top, cands = pop_top_pairs(heap, stats_get, heappush, heappop)\n-            if len(cands) == 1:\n-                pair = cands[0]\n-            else:\n-                # tie: the pair whose first occurrence is earliest\n-                best = -1\n-                for p in cands:\n-                    j = s.find(chr(p[0]) + chr(p[1]))\n-                    if best < 0 or j < best:\n-                        best = j\n-                        pair = p\n-            idx = 256 + i\n-            p0, p1 = pair\n-            ps = chr(p0) + chr(p1)\n-            # merge() semantics (left to right, non-overlapping) == str.replace;\n-            # chr(idx) is new, so splitting on it gives the text between merged\n-            # occurrences: a piece's last char is the left neighbour of the\n-            # next occurrence, its first char the right neighbour of the\n-            # previous one, and an empty inner piece means two adjacent\n-            # occurrences (pair (idx, idx), old (p1, p0), no left update)\n-            x = chr(idx)\n-            s = s.replace(ps, x)\n-            parts = s.split(x)\n-            # update the counts exactly like _slow._update_stats; new pairs\n-            # contain idx, so none is in stats yet: add them at the end\n-            left = {}\n-            _count_elements(left, map(_last, filter(None, parts[:-1])))\n-            right = {}\n-            _count_elements(right, map(_first, filter(None, parts[1:])))\n-            stats[pair] -= len(parts) - 1\n-            removed = [pair]\n-            added = {}\n-            for a, c in left.items():\n-                a = ord(a)\n-                p = (a, p0)\n-                stats[p] -= c\n-                removed.append(p)\n-                added[(a, idx)] = c\n-            for b, c in right.items():\n-                b = ord(b)\n-                p = (p1, b)\n-                stats[p] -= c\n-                removed.append(p)\n-                added[(idx, b)] = c\n-            c = parts[1:-1].count(\"\")\n-            if c:\n-                stats[(p1, p0)] -= c\n-                removed.append((p1, p0))\n-                added[(idx, idx)] = c\n-            for p in removed:\n-                if stats_get(p) == 0:\n-                    del stats[p]\n-            stats.update(added)\n-            for p, c in added.items():\n-                heappush(heap, (-c, p))\n-            merges[pair] = idx\n-            vocab[idx] = vocab[p0] + vocab[p1]\n-            if verbose:\n-                print(f\"merge {i+1}/{num_merges}: {pair} -> {idx} ({vocab[idx]}) had {top} occurrences\")\n-\n-    def decode(self, ids):\n-        # given ids (list of integers), return Python string\n-        from ._slow import basic_decode # loaded on first use\n-        return basic_decode(self, ids)\n-\n-    def encode(self, text):\n-        # given a string text, return the token ids (loaded on first use)\n-        from ._heap import basic_encode\n-        return basic_encode(self, text)\n-\n+\"\"\"\n+Minimal (byte-level) Byte Pair Encoding tokenizer.\n+\n+Algorithmically follows along the GPT tokenizer:\n+https://github.com/openai/gpt-2/blob/master/src/encoder.py\n+\n+But:\n+- Does not handle the regular expression splitting pattern.\n+- Does not handle any special tokens.\n+\"\"\"\n+\n+from .base import Tokenizer\n+\n+\n+class BasicTokenizer(Tokenizer):\n+\n+    def __init__(self):\n+        super().__init__()\n+\n+    def train(self, text, vocab_size, verbose=False):\n+        # iteratively merge the most common pairs (loaded on first use)\n+        from ._train import basic_train\n+        basic_train(self, text, vocab_size, verbose)\n+\n+    def decode(self, ids):\n+        # given ids (list of integers), return Python string\n+        from ._slow import basic_decode # loaded on first use\n+        return basic_decode(self, ids)\n+\n+    def encode(self, text):\n+        # given a string text, return the token ids (loaded on first use)\n+        from ._heap import basic_encode\n+        return basic_encode(self, text)\n+"
+    },
+    {
+      "seq": 37,
+      "kind": "evaluate",
+      "target": "encode_ir",
+      "eval_kind": "perf",
+      "at": 1791785141372,
+      "phases": [
+        {
+          "phase": "prepare",
+          "at": 1791785141372
+        },
+        {
+          "phase": "build",
+          "at": 1791785144302
+        },
+        {
+          "phase": "build",
+          "at": 1791785144304
+        },
+        {
+          "phase": "test",
+          "at": 1791785147434
+        },
+        {
+          "phase": "test",
+          "at": 1791785200905
+        },
+        {
+          "phase": "equivalence",
+          "at": 1791785255198
+        },
+        {
+          "phase": "equivalence",
+          "at": 1791785255212
+        },
+        {
+          "phase": "metrics",
+          "at": 1791785257527
+        },
+        {
+          "phase": "metrics",
+          "at": 1791785269808
+        },
+        {
+          "phase": "metrics",
+          "at": 1791785281019
+        },
+        {
+          "phase": "metrics",
+          "at": 1791785292311
+        }
+      ]
+    },
+    {
+      "seq": 49,
+      "kind": "result",
+      "at": 1791785303080,
+      "output": "outcome: accepted\nguard limits (config version 1): every guarded metric other than the target is within its limit\nguard: ok, 2 files, 199 lines\nbuild: base ok, candidate ok\nequivalence: identical outputs\nmetric train_ir: parent 314677699, candidate 315385634, ratio 1.0022\nmetric encode_ir: parent 384316657, candidate 379671672, ratio 0.9879",
+      "outcome": "accepted",
+      "steps": [
+        {
+          "step": "build",
+          "side": "base",
+          "exit": 0,
+          "duration_ms": 2907,
+          "timed_out": false,
+          "tail": "3.12.15\n"
+        },
+        {
+          "step": "build",
+          "side": "cand",
+          "exit": 0,
+          "duration_ms": 3016,
+          "timed_out": false,
+          "tail": "3.12.15\n"
+        },
+        {
+          "step": "test",
+          "side": "base",
+          "exit": 0,
+          "duration_ms": 53410,
+          "timed_out": false,
+          "tail": ".....................                                                    [100%]\n---------------------- generated xml file: /out/junit.xml ----------------------\n21 passed in 50.23s\n"
+        },
+        {
+          "step": "test",
+          "side": "cand",
+          "exit": 0,
+          "duration_ms": 54236,
+          "timed_out": false,
+          "tail": ".....................                                                    [100%]\n---------------------- generated xml file: /out/junit.xml ----------------------\n21 passed in 51.49s\n"
+        },
+        {
+          "step": "equivalence",
+          "side": "base",
+          "exit": 0,
+          "duration_ms": 2253,
+          "timed_out": false,
+          "tail": "108, 98, 117, 109, 32, 111, 102, 32, 116, 104, 101, 32, 89, 101, 97, 114, 32, 97, 110, 100, 32, 66, 101, 115, 116, 32, 67, 111, 117, 110, 116, 114, 121, 32, 65, 108, 98, 117, 109, 44, 32, 97, 110, 100, 32, 34, 87, 104, 105, 116, 101, 32, 72, 111, 114, 115, 101, 34, 32, 119, 111, 110, 32, 66, 101, 115, 116, 32, 67, 111, 117, 110, 116, 114, 121, 32, 83, 111, 110, 103, 32, 97, 110, 100, 32, 66, 101, 115, 116, 32, 70, 101, 109, 97, 108, 101, 32, 67, 111, 117, 110, 116, 114, 121, 32, 86, 111, 99, 97, 108, 32, 80, 101, 114, 102, 111, 114, 109, 97, 110, 99, 101, 46, 32, 83, 119, 105, 102, 116, 32, 119, 97, 115, 32, 116, 104, 101, 32, 121, 111, 117, 110, 103, 101, 115, 116, 32, 97, 114, 116, 105, 115, 116, 32, 116, 111, 32, 119, 105, 110, 32, 65, 108, 98, 117, 109, 32, 111, 102, 32, 116, 104, 101, 32, 89, 101, 97, 114, 46, 91, 110, 111, 116, 101, 32, 49, 93, 32, 65, 116, 32, 116, 104, 101, 32, 50, 48, 48, 57, 32, 67, 111, 117, 110, 116, 114, 121, 32, 77, 117, 115, 105, 99, 32, 65, 115, 271, 99, 105, 97, 116, 105, 111, 110, 32, 65, 119, 97, 114, 100, 115, 44, 32, 83, 119, 105, 102, 116, 32, 119, 111, 110, 32, 65, 108, 98, 117, 109, 32, 111, 102, 32, 116, 104, 101, 32, 89, 101, 97, 114, 32]\n"
+        },
+        {
+          "step": "equivalence",
+          "side": "cand",
+          "exit": 0,
+          "duration_ms": 2296,
+          "timed_out": false,
+          "tail": "108, 98, 117, 109, 32, 111, 102, 32, 116, 104, 101, 32, 89, 101, 97, 114, 32, 97, 110, 100, 32, 66, 101, 115, 116, 32, 67, 111, 117, 110, 116, 114, 121, 32, 65, 108, 98, 117, 109, 44, 32, 97, 110, 100, 32, 34, 87, 104, 105, 116, 101, 32, 72, 111, 114, 115, 101, 34, 32, 119, 111, 110, 32, 66, 101, 115, 116, 32, 67, 111, 117, 110, 116, 114, 121, 32, 83, 111, 110, 103, 32, 97, 110, 100, 32, 66, 101, 115, 116, 32, 70, 101, 109, 97, 108, 101, 32, 67, 111, 117, 110, 116, 114, 121, 32, 86, 111, 99, 97, 108, 32, 80, 101, 114, 102, 111, 114, 109, 97, 110, 99, 101, 46, 32, 83, 119, 105, 102, 116, 32, 119, 97, 115, 32, 116, 104, 101, 32, 121, 111, 117, 110, 103, 101, 115, 116, 32, 97, 114, 116, 105, 115, 116, 32, 116, 111, 32, 119, 105, 110, 32, 65, 108, 98, 117, 109, 32, 111, 102, 32, 116, 104, 101, 32, 89, 101, 97, 114, 46, 91, 110, 111, 116, 101, 32, 49, 93, 32, 65, 116, 32, 116, 104, 101, 32, 50, 48, 48, 57, 32, 67, 111, 117, 110, 116, 114, 121, 32, 77, 117, 115, 105, 99, 32, 65, 115, 271, 99, 105, 97, 116, 105, 111, 110, 32, 65, 119, 97, 114, 100, 115, 44, 32, 83, 119, 105, 102, 116, 32, 119, 111, 110, 32, 65, 108, 98, 117, 109, 32, 111, 102, 32, 116, 104, 101, 32, 89, 101, 97, 114, 32]\n"
+        },
+        {
+          "step": "metrics",
+          "side": "base",
+          "exit": 0,
+          "duration_ms": 12279,
+          "timed_out": false,
+          "tail": "==7== Cachegrind, a cache and branch-prediction profiler\n==7== Copyright (C) 2002-2017, and GNU GPL'd, by Nicholas Nethercote et al.\n==7== Using Valgrind-3.19.0 and LibVEX; rerun with -h for copyright info\n==7== Command: python lineage_bench.py train eed9abef52da0a94\n==7== \n==7== \n==7== I   refs:      314,677,699\n"
+        },
+        {
+          "step": "metrics",
+          "side": "cand",
+          "exit": 0,
+          "duration_ms": 11203,
+          "timed_out": false,
+          "tail": "==6== Cachegrind, a cache and branch-prediction profiler\n==6== Copyright (C) 2002-2017, and GNU GPL'd, by Nicholas Nethercote et al.\n==6== Using Valgrind-3.19.0 and LibVEX; rerun with -h for copyright info\n==6== Command: python lineage_bench.py train eed9abef52da0a94\n==6== \n==6== \n==6== I   refs:      315,385,634\n"
+        },
+        {
+          "step": "metrics",
+          "side": "base",
+          "exit": 0,
+          "duration_ms": 11288,
+          "timed_out": false,
+          "tail": "==7== Cachegrind, a cache and branch-prediction profiler\n==7== Copyright (C) 2002-2017, and GNU GPL'd, by Nicholas Nethercote et al.\n==7== Using Valgrind-3.19.0 and LibVEX; rerun with -h for copyright info\n==7== Command: python lineage_bench.py encode eed9abef52da0a94\n==7== \n==7== \n==7== I   refs:      384,316,657\n"
+        },
+        {
+          "step": "metrics",
+          "side": "cand",
+          "exit": 0,
+          "duration_ms": 10712,
+          "timed_out": false,
+          "tail": "==7== Cachegrind, a cache and branch-prediction profiler\n==7== Copyright (C) 2002-2017, and GNU GPL'd, by Nicholas Nethercote et al.\n==7== Using Valgrind-3.19.0 and LibVEX; rerun with -h for copyright info\n==7== Command: python lineage_bench.py encode eed9abef52da0a94\n==7== \n==7== \n==7== I   refs:      379,671,672\n"
+        }
+      ]
+    },
+    {
+      "seq": 50,
+      "kind": "submit",
+      "at": 1791785308698,
+      "reason": "BasicTokenizer's training code (train and the str-based merge loop _train_str) was compiled on every package import, including encode-only workloads that never train. Its body moves unchanged in logic into a new lazily imported module, minbpe/_train.py (basic_train and train_str); BasicTokenizer.train is now a thin stub that loads it on first use. Encoding no longer pays for compiling that code: encode_ir ratio 0.9879. Outputs are identical and all tests pass. train_ir only pays one extra module import (ratio 1.0022)."
+    }
+  ],
+  "candidate": {
+    "commit_id": "f2adbe39060493cd878eeb4cd33a57cac16e080fbeacb4afba471c984332eb29",
+    "candidate_id": "13e40f5019f7b8a37d965f53c188260370d9020abab33280ffcdb6c990d7bb7c",
+    "kind": "perf",
+    "target": "encode_ir",
+    "claimed_effect": 0.9879136516323309,
+    "patch": "diff --git a/minbpe/_train.py b/minbpe/_train.py\nnew file mode 100644\n--- /dev/null\n+++ b/minbpe/_train.py\n@@ -0,0 +1,90 @@\n+\"\"\"BasicTokenizer training, loaded on first use (off the encoding import path).\"\"\"\n+from heapq import heapify, heappop, heappush\n+from operator import itemgetter\n+\n+from .base import get_stats, pop_top_pairs, _count_elements\n+\n+_last = itemgetter(-1)\n+_first = itemgetter(0)\n+\n+\n+def basic_train(self, text, vocab_size, verbose):\n+    # body of BasicTokenizer.train\n+    assert vocab_size >= 256\n+    num_merges = vocab_size - 256\n+    text_bytes = text.encode(\"utf-8\") # raw bytes\n+    ids = list(text_bytes) # list of integers in range 0..255\n+    merges = {} # (int, int) -> int\n+    vocab = {idx: bytes([idx]) for idx in range(256)} # int -> bytes\n+    # pair counts once, then updated locally around each merged occurrence\n+    stats = get_stats(ids)\n+    heap = [(-c, p) for p, c in stats.items()] # lazy max-heap of counts\n+    heapify(heap)\n+    if vocab_size <= 0x110000:\n+        # every id fits in one code point: ids as a str, merging done in C\n+        train_str(text_bytes.decode(\"latin-1\"), num_merges, stats, heap,\n+                  merges, vocab, verbose)\n+    else:\n+        from ._slow import train_ints # ids beyond one code point\n+        train_ints(ids, num_merges, stats, heap, merges, vocab, verbose)\n+    self.merges = merges # used in encode()\n+    self.vocab = vocab   # used in decode()\n+\n+\n+def train_str(s, num_merges, stats, heap, merges, vocab, verbose):\n+    # s: the current ids as a str of code points chr(id)\n+    stats_get = stats.get\n+    for i in range(num_merges):\n+        top, cands = pop_top_pairs(heap, stats_get, heappush, heappop)\n+        if len(cands) == 1:\n+            pair = cands[0]\n+        else:\n+            # tie: the pair whose first occurrence is earliest\n+            best = -1\n+            for p in cands:\n+                j = s.find(chr(p[0]) + chr(p[1]))\n+                if best < 0 or j < best:\n+                    best = j\n+                    pair = p\n+        idx = 256 + i\n+        p0, p1 = pair\n+        # merge() semantics (left to right, non-overlapping) == str.replace;\n+        # chr(idx) is new, so the pieces between merged occurrences give the\n+        # neighbours (an empty inner piece: two adjacent occurrences)\n+        x = chr(idx)\n+        s = s.replace(chr(p0) + chr(p1), x)\n+        parts = s.split(x)\n+        left = {}\n+        _count_elements(left, map(_last, filter(None, parts[:-1])))\n+        right = {}\n+        _count_elements(right, map(_first, filter(None, parts[1:])))\n+        stats[pair] -= len(parts) - 1\n+        removed = [pair]\n+        added = {} # new pairs contain idx: none is in stats yet\n+        for a, c in left.items():\n+            a = ord(a)\n+            p = (a, p0)\n+            stats[p] -= c\n+            removed.append(p)\n+            added[(a, idx)] = c\n+        for b, c in right.items():\n+            b = ord(b)\n+            p = (p1, b)\n+            stats[p] -= c\n+            removed.append(p)\n+            added[(idx, b)] = c\n+        c = parts[1:-1].count(\"\")\n+        if c:\n+            stats[(p1, p0)] -= c\n+            removed.append((p1, p0))\n+            added[(idx, idx)] = c\n+        for p in removed:\n+            if stats_get(p) == 0:\n+                del stats[p]\n+        stats.update(added)\n+        for p, c in added.items():\n+            heappush(heap, (-c, p))\n+        merges[pair] = idx\n+        vocab[idx] = vocab[p0] + vocab[p1]\n+        if verbose:\n+            print(f\"merge {i+1}/{num_merges}: {pair} -> {idx} ({vocab[idx]}) had {top} occurrences\")\ndiff --git a/minbpe/basic.py b/minbpe/basic.py\n--- a/minbpe/basic.py\n+++ b/minbpe/basic.py\n@@ -9,14 +9,7 @@ But:\n - Does not handle any special tokens.\n \"\"\"\n \n-from heapq import heapify, heappop, heappush\n-\n-from operator import itemgetter\n-\n-from .base import Tokenizer, get_stats, pop_top_pairs, _count_elements\n-\n-_last = itemgetter(-1)\n-_first = itemgetter(0)\n+from .base import Tokenizer\n \n \n class BasicTokenizer(Tokenizer):\n@@ -25,103 +18,9 @@ class BasicTokenizer(Tokenizer):\n         super().__init__()\n \n     def train(self, text, vocab_size, verbose=False):\n-        assert vocab_size >= 256\n-        num_merges = vocab_size - 256\n-\n-        # input text preprocessing\n-        text_bytes = text.encode(\"utf-8\") # raw bytes\n-        ids = list(text_bytes) # list of integers in range 0..255\n-\n-        # iteratively merge the most common pairs to create new tokens\n-        merges = {} # (int, int) -> int\n-        vocab = {idx: bytes([idx]) for idx in range(256)} # int -> bytes\n-        # count up the number of times every consecutive pair appears (once);\n-        # afterwards the counts are updated locally around each merged occurrence\n-        stats = get_stats(ids)\n-        # lazy max-heap of counts: no full scan of stats per merge\n-        heap = [(-c, p) for p, c in stats.items()]\n-        heapify(heap)\n-        if vocab_size <= 0x110000:\n-            # every token id fits in one code point: keep ids as a str so that\n-            # pair search and merging run in C (str.find / str.replace do the\n-            # same left-to-right, non-overlapping matching as merge())\n-            self._train_str(text_bytes.decode(\"latin-1\"), num_merges, stats,\n-                            heap, merges, vocab, verbose)\n-            self.merges = merges\n-            self.vocab = vocab\n-            return\n-        # ids beyond one code point: merge a list of ints (loaded on first use)\n-        from ._slow import train_ints\n-        train_ints(ids, num_merges, stats, heap, merges, vocab, verbose)\n-\n-        # save class variables\n-        self.merges = merges # used in encode()\n-        self.vocab = vocab   # used in decode()\n-\n-    @staticmethod\n-    def _train_str(s, num_merges, stats, heap, merges, vocab, verbose):\n-        # s: the current ids as a str of code points chr(id)\n-        stats_get = stats.get\n-        for i in range(num_merges):\n-            top, cands = pop_top_pairs(heap, stats_get, heappush, heappop)\n-            if len(cands) == 1:\n-                pair = cands[0]\n-            else:\n-                # tie: the pair whose first occurrence is earliest\n-                best = -1\n-                for p in cands:\n-                    j = s.find(chr(p[0]) + chr(p[1]))\n-                    if best < 0 or j < best:\n-                        best = j\n-                        pair = p\n-            idx = 256 + i\n-            p0, p1 = pair\n-            ps = chr(p0) + chr(p1)\n-            # merge() semantics (left to right, non-overlapping) == str.replace;\n-            # chr(idx) is new, so splitting on it gives the text between merged\n-            # occurrences: a piece's last char is the left neighbour of the\n-            # next occurrence, its first char the right neighbour of the\n-            # previous one, and an empty inner piece means two adjacent\n-            # occurrences (pair (idx, idx), old (p1, p0), no left update)\n-            x = chr(idx)\n-            s = s.replace(ps, x)\n-            parts = s.split(x)\n-            # update the counts exactly like _slow._update_stats; new pairs\n-            # contain idx, so none is in stats yet: add them at the end\n-            left = {}\n-            _count_elements(left, map(_last, filter(None, parts[:-1])))\n-            right = {}\n-            _count_elements(right, map(_first, filter(None, parts[1:])))\n-            stats[pair] -= len(parts) - 1\n-            removed = [pair]\n-            added = {}\n-            for a, c in left.items():\n-                a = ord(a)\n-                p = (a, p0)\n-                stats[p] -= c\n-                removed.append(p)\n-                added[(a, idx)] = c\n-            for b, c in right.items():\n-                b = ord(b)\n-                p = (p1, b)\n-                stats[p] -= c\n-                removed.append(p)\n-                added[(idx, b)] = c\n-            c = parts[1:-1].count(\"\")\n-            if c:\n-                stats[(p1, p0)] -= c\n-                removed.append((p1, p0))\n-                added[(idx, idx)] = c\n-            for p in removed:\n-                if stats_get(p) == 0:\n-                    del stats[p]\n-            stats.update(added)\n-            for p, c in added.items():\n-                heappush(heap, (-c, p))\n-            merges[pair] = idx\n-            vocab[idx] = vocab[p0] + vocab[p1]\n-            if verbose:\n-                print(f\"merge {i+1}/{num_merges}: {pair} -> {idx} ({vocab[idx]}) had {top} occurrences\")\n+        # iteratively merge the most common pairs (loaded on first use)\n+        from ._train import basic_train\n+        basic_train(self, text, vocab_size, verbose)\n \n     def decode(self, ids):\n         # given ids (list of integers), return Python string\n",
+    "patch_hash": "4a1052b3052708791a782721d5415983e99201875fd30837312b0ab14beb1d39",
+    "semantic_hash": "a4b0a7e4f13472a38142946a07334fe6ce78a28b8abf223b30185fde0eb7794e",
+    "status": "accepted",
+    "reason": null,
+    "committed_at": 1791785308726,
+    "revealed_at": 1791785308742,
+    "finalized_at": 1791785534438,
+    "gen_id": "1791d2fb952ea0e535dd5a58533720db7811d679a56392bf50feb165d14f1d05"
+  },
+  "replays": [
+    {
+      "replay_id": "9625367e4edebc1480130df7e5d9c4bbca65f471ebd45fe29e2416718f11f261",
+      "kind": "replay",
+      "role": "counted",
+      "status": "revealed",
+      "replayer": "3jJHAgibtbRtbTw9T2TMadYppiFV2YzGptWMrCsgu6Xz",
+      "counted": true,
+      "apply": "ok",
+      "build": {
+        "base": "ok",
+        "cand": "ok"
+      },
+      "tests": {
+        "base_pass": 21,
+        "cand_pass": 21,
+        "cand_fail": 0
+      },
+      "equivalence_same": true,
+      "metrics": {
+        "encode_ir": {
+          "base": [
+            386376576
+          ],
+          "cand": [
+            381657467
+          ],
+          "ratio": 0.9877862445781392
+        },
+        "train_ir": {
+          "base": [
+            316060525
+          ],
+          "cand": [
+            316686158
+          ],
+          "ratio": 1.0019794721280046
+        }
+      },
+      "env": {
+        "cores": 2,
+        "cpu_model": "DO-Regular",
+        "image_digest": "sha256:beb7b0264451a2bdc993fe5deee1e8b6275fbad7d83d593c69f7a40c64f1164d",
+        "worker_version": "lineage-sandbox/0.1.0"
+      }
+    },
+    {
+      "replay_id": "c280d8f1e4f60869bbb26c8ff796922602ebc162fd57d06faac22ec2732d0893",
+      "kind": "replay",
+      "role": "counted",
+      "status": "revealed",
+      "replayer": "7ToydZerFjuoguBEBkdnJgFfjED2paWonAecHSVA1kjK",
+      "counted": true,
+      "apply": "ok",
+      "build": {
+        "base": "ok",
+        "cand": "ok"
+      },
+      "tests": {
+        "base_pass": 21,
+        "cand_pass": 21,
+        "cand_fail": 0
+      },
+      "equivalence_same": true,
+      "metrics": {
+        "encode_ir": {
+          "base": [
+            386376576
+          ],
+          "cand": [
+            381657467
+          ],
+          "ratio": 0.9877862445781392
+        },
+        "train_ir": {
+          "base": [
+            316060531
+          ],
+          "cand": [
+            316686158
+          ],
+          "ratio": 1.0019794531067214
+        }
+      },
+      "env": {
+        "cores": 2,
+        "cpu_model": "DO-Regular",
+        "image_digest": "sha256:beb7b0264451a2bdc993fe5deee1e8b6275fbad7d83d593c69f7a40c64f1164d",
+        "worker_version": "lineage-sandbox/0.1.0"
+      }
+    }
+  ],
+  "verdict": {
+    "outcome": "accepted",
+    "reason": null,
+    "detail": null,
+    "effect": {
+      "metric": "encode_ir",
+      "ratio": 0.9877862445781392,
+      "ci_low": 0.9877862445781392,
+      "ci_high": 0.9877862445781392,
+      "per_replay": [
+        {
+          "replay_id": "9625367e4edebc1480130df7e5d9c4bbca65f471ebd45fe29e2416718f11f261",
+          "ratio": 0.9877862445781392,
+          "ci_low": 0.9877862445781392,
+          "ci_high": 0.9877862445781392,
+          "pass": true
+        },
+        {
+          "replay_id": "c280d8f1e4f60869bbb26c8ff796922602ebc162fd57d06faac22ec2732d0893",
+          "ratio": 0.9877862445781392,
+          "ci_low": 0.9877862445781392,
+          "ci_high": 0.9877862445781392,
+          "pass": true
+        }
+      ]
+    },
+    "digest": "8afe8213e7893ee890cd3c1788949a7f523579016912008138ed039248975847"
+  },
+  "outcome": "accepted",
+  "effect": {
+    "metric": "encode_ir",
+    "ratio": 0.9877862445781392,
+    "ci_low": 0.9877862445781392,
+    "ci_high": 0.9877862445781392,
+    "gain_pct": 1.2213755421860761
+  },
+  "cost": {
+    "input_tokens": 1511,
+    "output_tokens": 11261,
+    "cache_read_tokens": 297582,
+    "cache_write_tokens": 36704,
+    "usd": 0.4743,
+    "sandbox_s": 343,
+    "source": "provenance:hosted"
+  },
+  "reward": {
+    "v": 1,
+    "accepted": 1,
+    "effect": 0.012213755421860761,
+    "fixed_tests": 0,
+    "effect_per_usd": 0.02575111832566047,
+    "effect_per_sandbox_hour": 0.12819101900495258,
+    "reverted": false,
+    "inputs": [
+      "outcome",
+      "verdict.effect.ratio",
+      "cost.usd (provenance:hosted)",
+      "cost.sandbox_s (provenance:hosted)"
+    ]
+  },
+  "worker_outcome": "submitted a perf candidate on encode_ir (199 changed lines); it was committed and revealed (status queued); its verdict comes later from independent replays [stop: submitted; model calls: 12]",
+  "journal": {
+    "entry_id": "fea3eeda6ea9db524a371abc8810ffec14056e0033d75be1d5656875872b81db",
+    "text": "I tried two things on the minbpe lineage. First I edited minbpe/_heap.py to trim work in the encode path. Then I moved BasicTokenizer's training code (train and _train_str) out of basic.py into a new lazily imported minbpe/_train.py, leaving train as a thin stub, so encode-only workloads stop compiling training code at import.\n\nThe _heap.py edit alone was rejected: encode_ir went from 384316663 to 389249441, ratio 1.0128 against a required 0.9900, with train_ir flat at 1.0000. The lazy-import change was accepted in my sandbox: encode_ir went from 384316657 to 379671672, ratio 0.9879, and train_ir went to 1.0022. Outputs were identical. I submitted it at 199 changed lines and it is queued for replay.\n\nI now believe encode_ir here is sensitive to import and compile cost, not just the hot loop, and that my heap tweaks made things worse. The margin is thin, so replays may not hold it.\n\nNext I would look for other code compiled at import that encoding never uses, and leave _heap.py alone unless I can profile it properly.",
+    "created_at": 1791785314127,
+    "sig": "46T8Kc8Eb7sEro3d1xep6UnCF6qPrn2PWy2wkMmznW3wjLPbr3sbA396eCV8z9uE7TefgtLDdvcVnK96UPtDWqAL",
+    "signer": "7bW8DscxB4QcGGbP46bUHfpwswZpvtYdiMxDcoFvQHMf"
+  },
+  "provenance": {
+    "runtime": "hosted",
+    "digest": "baa589e93cbe345fc6b3280b388d56a627aad1336b5788a3cd727111464376d2",
+    "sig": "4z5AAdQzTxVPnZ31sZTAMj39bNrKyMf37bL1hei3Jcr6SALg8ehFmnXFmMg9JzwUUaSvKrdCe4M5i2dVciyHikSf",
+    "signer": "DCmdy5MoAfnN6fn3nVW27db62ZwtjoksqSqdjAc8VPk4"
+  },
+  "license": {
+    "repo": "https://github.com/karpathy/minbpe",
+    "spdx": "MIT",
+    "name": "MIT License",
+    "url": "https://github.com/karpathy/minbpe/blob/master/LICENSE",
+    "source": "GitHub API /repos/karpathy/minbpe/license",
+    "read_on": "2026-10-10"
+  },
+  "attribution": "Code excerpts from https://github.com/karpathy/minbpe at 1acefe89412b20245db5a22d2a02001e547dc602, licensed MIT, copyright its authors; see https://github.com/karpathy/minbpe/blob/master/LICENSE.",
+  "times": {
+    "started_at": 1791784849265,
+    "ended_at": 1791785308841,
+    "finalized_at": 1791785534438,
+    "published_at": 1791785553339
+  },
+  "verify": {
+    "session": "/v1/sessions/f9ef45bfe21442914cfb39493906a33054a86906e3caa1555754af30f625f9ad",
+    "candidate": "/v1/candidates/f2adbe39060493cd878eeb4cd33a57cac16e080fbeacb4afba471c984332eb29",
+    "generation": "/v1/generations/1791d2fb952ea0e535dd5a58533720db7811d679a56392bf50feb165d14f1d05",
+    "provenance": "/v1/candidates/f2adbe39060493cd878eeb4cd33a57cac16e080fbeacb4afba471c984332eb29/provenance",
+    "journal": "/v1/agents/BFPxdave7NVSXztGEZA5iZ7FiBDKRsuZmS9wZn2J1WBV/journal?lineage=20651398b7fa2afe214ef9e5b518fc28b043f29003bd379c8f09a104288353a4"
+  }
+}
