@@ -1,6 +1,6 @@
 # Lessons: minbpe
 
-Lineage `20651398b7fa2afe214ef9e5b518fc28b043f29003bd379c8f09a104288353a4` on [https://github.com/karpathy/minbpe](https://github.com/karpathy/minbpe) at `1acefe89412b20245db5a22d2a02001e547dc602`. 494 published attempts.
+Lineage `20651398b7fa2afe214ef9e5b518fc28b043f29003bd379c8f09a104288353a4` on [https://github.com/karpathy/minbpe](https://github.com/karpathy/minbpe) at `1acefe89412b20245db5a22d2a02001e547dc602`. 495 published attempts.
 
 Figures are copied from Core's published episodes (verdicts from independent replays). Nothing here is estimated.
 
@@ -11,13 +11,13 @@ Figures are copied from Core's published episodes (verdicts from independent rep
 
 ## Target perf:encode_ir
 
-- Attempts: 14 (7 accepted, 2 rejected, 5 no candidate)
+- Attempts: 15 (7 accepted, 2 rejected, 6 no candidate)
 - Best accepted effect: 5.07% (ratio 0.9493), episode `301cb7037e4c`
 - Accepted effects: 5.07%, 1.90%, 1.58%, 1.38%, 1.31%, 1.25%, 1.22%
 - Why candidates failed: no_improvement (2)
 - Files changed by accepted candidates: `minbpe/_heap.py`, `minbpe/_slow.py`, `minbpe/_train.py`, `minbpe/base.py`, `minbpe/basic.py`, `minbpe/gpt4.py`, `minbpe/regex.py`
 - Files changed by rejected candidates: `minbpe/_train.py`, `minbpe/basic.py`, `minbpe/regex.py`
-- Median model spend per attempt: 0.3960 USD (over 14 attempts with a recorded cost)
+- Median model spend per attempt: 0.3966 USD (over 15 attempts with a recorded cost)
 
 ## Target perf:train_ir
 
@@ -32,6 +32,13 @@ Figures are copied from Core's published episodes (verdicts from independent rep
 ## In the agent's own words
 
 The agent's journal entries on this lineage, newest first, verbatim. They are its own notes: claimed, not checked.
+
+> I went after encode_ir in minbpe. I read regex.py, base.py, _train.py, _heap.py, _slow.py and basic.py, then spread edits across all of them. Mostly that meant trimming imports and helpers, rewriting base.py from 177 lines down to 80, and reshuffling code in _train.py and _heap.py.
+> Evaluation 1 came back with identical outputs. encode_ir went from 378448980 to 374769173, a ratio of 0.9903. That missed the required 0.9900 and was rejected as no_improvement. train_ir ratio was 1.0005. Evaluation 3, after more edits, was worse: encode_ir ratio 1.0004 and train_ir ratio 1.0002, also rejected. I stopped without submitting.
+> What I believe now is that import and module cleanup barely moves instruction counts here. The 0.9903 gain was close to noise, and my later edits threw it away. Encode cost has to live in the actual merge loop, not in the file structure.
+> Next time I would profile encode in regex.py and _heap.py and target the per-chunk merge application directly. I would also keep the evaluation 1 diff as a starting point instead of over-editing past it.
+>
+> 2026-10-12, episode `0500f8a67872` (no candidate)
 
 > I tried to cut train_ir in minbpe/regex.py by changing how pair counts are built during training. First I counted pairs in C over all chunk occurrences without deduplication. Then I derived each pair's count from where[p] as sum(map(weights.__getitem__, ks)). Finally I tried building `where` in a single flat pass on top of that.
 > Every candidate kept outputs identical and every one was rejected. The C counting without dedup went to 325797398 from parent 308507074, ratio 1.0560. The where-based sum reached 306767374, ratio 0.9944, my best but short of the 0.9900 bar. The two flat-pass variants landed at 1.0036 and 1.0030. encode_ir ratios were 0.9991, 0.9992, 0.9996 and 1.0003. I used all evaluations and submitted nothing.
@@ -60,13 +67,6 @@ The agent's journal entries on this lineage, newest first, verbatim. They are it
 > Next I would look for other code compiled at import that encoding never uses, and leave _heap.py alone unless I can profile it properly.
 >
 > 2026-10-12, episode `5b8e5d2ead25` (accepted)
-
-> I tried to speed up RegexTokenizer.train in minbpe by routing merges through the C str.replace/split path that basic.py uses. All chunks were joined into one string with a separator character that is never a token id. I made related edits in basic.py and regex.py, then reverted all of them.
-> One sandbox evaluation on train_ir was rejected for no improvement. Outputs were identical and the guard was ok. But train_ir went from parent 325456777 to candidate 353163944, a ratio of 1.0851 against a required 0.9900. encode_ir moved from 380437053 to 381850735, ratio 1.0037. I submitted no candidate.
-> My belief is that the existing regex train loop is already cheap, because it only visits deduplicated chunks that contain the pair. Joining everything forces each merge to scan the whole text twice in C, and that loses to the loop.
-> Next I would keep the per-chunk deduplication and look for cost inside that loop instead, such as incremental pair-count updates per merge. I would not go back to whole-text scans.
->
-> 2026-10-12, episode `ab5858890b47` (no candidate)
 
 ## Licence
 
