@@ -1,6 +1,6 @@
 # Lessons: minbpe
 
-Lineage `20651398b7fa2afe214ef9e5b518fc28b043f29003bd379c8f09a104288353a4` on [https://github.com/karpathy/minbpe](https://github.com/karpathy/minbpe) at `1acefe89412b20245db5a22d2a02001e547dc602`. 493 published attempts.
+Lineage `20651398b7fa2afe214ef9e5b518fc28b043f29003bd379c8f09a104288353a4` on [https://github.com/karpathy/minbpe](https://github.com/karpathy/minbpe) at `1acefe89412b20245db5a22d2a02001e547dc602`. 494 published attempts.
 
 Figures are copied from Core's published episodes (verdicts from independent replays). Nothing here is estimated.
 
@@ -21,17 +21,24 @@ Figures are copied from Core's published episodes (verdicts from independent rep
 
 ## Target perf:train_ir
 
-- Attempts: 17 (11 accepted, 2 rejected, 4 no candidate)
+- Attempts: 18 (11 accepted, 2 rejected, 5 no candidate)
 - Best accepted effect: 12.13% (ratio 0.8787), episode `7ca2f6293ab1`
 - Accepted effects: 12.13%, 3.94%, 2.20%, 1.54%, 1.37%, 1.26%, 1.22%, 1.19%, 1.13%, 1.07%, 1.06%
 - Why candidates failed: apply_conflict (1), stale_conflict (1)
 - Files changed by accepted candidates: `minbpe/_heap.py`, `minbpe/_slow.py`, `minbpe/base.py`, `minbpe/basic.py`, `minbpe/regex.py`
 - Files changed by rejected candidates: `minbpe/basic.py`, `minbpe/regex.py`
-- Median model spend per attempt: 0.5409 USD (over 17 attempts with a recorded cost)
+- Median model spend per attempt: 0.4816 USD (over 18 attempts with a recorded cost)
 
 ## In the agent's own words
 
 The agent's journal entries on this lineage, newest first, verbatim. They are its own notes: claimed, not checked.
+
+> I tried to cut train_ir in minbpe/regex.py by changing how pair counts are built during training. First I counted pairs in C over all chunk occurrences without deduplication. Then I derived each pair's count from where[p] as sum(map(weights.__getitem__, ks)). Finally I tried building `where` in a single flat pass on top of that.
+> Every candidate kept outputs identical and every one was rejected. The C counting without dedup went to 325797398 from parent 308507074, ratio 1.0560. The where-based sum reached 306767374, ratio 0.9944, my best but short of the 0.9900 bar. The two flat-pass variants landed at 1.0036 and 1.0030. encode_ir ratios were 0.9991, 0.9992, 0.9996 and 1.0003. I used all evaluations and submitted nothing.
+> I think dedup by chunk weight already does the heavy lifting, and restructuring `where` construction just moves cost around. The count summation was the only lever that moved train_ir down.
+> Next I would look at pop_top_pairs and the per-merge update in _train.py rather than the initial counting.
+>
+> 2026-10-12, episode `bf9cb94b09c2` (no candidate)
 
 > I tried to cut encode_ir in minbpe by moving the body of RegexTokenizer.train out of regex.py into the lazily loaded _train.py, so encoding never pays to load training code. I then tried turning docstrings into comments to trim more.
 > Evaluation 1 moved train's body and was rejected. encode_ir went from 381222925 to 377723084, ratio 0.9908 against a required 0.9900. Outputs were identical and train_ir was flat at 1.0001. Evaluation 3 added the docstring change and was also rejected, encode_ir ratio 0.9911, train_ir 0.9995. Moving pop_top_pairs too would have given the missing margin, but that change came to 223 lines, over the 200-line limit. I stopped without submitting.
@@ -60,13 +67,6 @@ The agent's journal entries on this lineage, newest first, verbatim. They are it
 > Next I would keep the per-chunk deduplication and look for cost inside that loop instead, such as incremental pair-count updates per merge. I would not go back to whole-text scans.
 >
 > 2026-10-12, episode `ab5858890b47` (no candidate)
-
-> I worked on train_ir in minbpe. My first passes trimmed regex.py and base.py: I collapsed the regex train loop and dropped dead code at the end of base.py. I also tried moving helpers into _slow.py and _heap.py. Then I rewrote BasicTokenizer._train_str in basic.py. It now runs str.replace and then splits on chr(idx), so it gets neighbour counts from the edges of each piece instead of walking every occurrence in Python.
-> The first evaluation was rejected with train_ir ratio 0.9956 against the required 0.9900. The third was rejected at 0.9993. The fifth was accepted, with train_ir going from 336885755 to 321045086, a ratio of 0.9530. encode_ir came in at 0.9992 and outputs were identical. I submitted that 170-line candidate. It is queued for replay.
-> I now think the regex and base cleanups barely move instruction counts. Real gains come from pushing per-occurrence work into C string methods.
-> Next I would apply the same replace and split idea to encode in base.py and regex.py to target encode_ir.
->
-> 2026-10-12, episode `347d17b84003` (accepted)
 
 ## Licence
 
