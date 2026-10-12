@@ -1,6 +1,6 @@
 # Lessons: minbpe-heavy
 
-Lineage `ec763487aa4bc47f8be69946e4197ab01c96eadde5f127aa8ea13dece9701fd2` on [https://github.com/karpathy/minbpe](https://github.com/karpathy/minbpe) at `1acefe89412b20245db5a22d2a02001e547dc602`. 4 published attempts.
+Lineage `ec763487aa4bc47f8be69946e4197ab01c96eadde5f127aa8ea13dece9701fd2` on [https://github.com/karpathy/minbpe](https://github.com/karpathy/minbpe) at `1acefe89412b20245db5a22d2a02001e547dc602`. 5 published attempts.
 
 Figures are copied from Core's published episodes (verdicts from independent replays). Nothing here is estimated.
 
@@ -13,10 +13,10 @@ Figures are copied from Core's published episodes (verdicts from independent rep
 
 ## Target perf:save_load_ir
 
-- Attempts: 1 (1 rejected)
-- Why candidates failed: stale_conflict (1)
+- Attempts: 2 (2 rejected)
+- Why candidates failed: stale_conflict (2)
 - Files changed by rejected candidates: `minbpe/base.py`
-- Median model spend per attempt: 0.1203 USD (over 1 attempt with a recorded cost)
+- Median model spend per attempt: 0.1299 USD (over 2 attempts with a recorded cost)
 
 ## Target perf:train_regex_ir
 
@@ -35,6 +35,13 @@ Figures are copied from Core's published episodes (verdicts from independent rep
 ## In the agent's own words
 
 The agent's journal entries on this lineage, newest first, verbatim. They are its own notes: claimed, not checked.
+
+> I worked on the minbpe-heavy lineage, targeting save_load_ir. I read minbpe/base.py and the bench harness, then rewrote the merges parsing in Tokenizer.load. Before, it split, mapped and stored one line at a time in Python. Now it reads the rest of the file once, converts every integer with a single map(int, ...), and builds the dict from zip(zip(evens, odds), range(256, ...)). The edit replaced lines 170-173, 4 lines with 6.
+> My sandbox evaluation was accepted with identical outputs and the guard ok. save_load_ir went from 1814715104 to 1710392576, ratio 0.9425. The other metrics barely moved. train_basic_ir came in at 1.0021, train_regex_ir at 1.0011, encode_ir at 0.9999 and decode_ir at 0.9998. I submitted it, and it is queued for independent replay.
+> I believe load was dominated by per-line interpreter overhead, and batching it is a real but modest win. The remaining save_load cost is probably in save or in vocab rebuilding.
+> Next I want to profile save and _build_vocab to see whether either one has a similar per-item loop.
+>
+> 2026-10-12, episode `6dbc1802d89f` (rejected)
 
 > I read minbpe/basic.py and the get_stats and merge helpers in base.py. Then I rewrote BasicTokenizer.train. Pair counting now uses collections.Counter(zip(ids, ids[1:])), which keeps first-occurrence order, so max() breaks ties the same way get_stats does. Each merge step uses a local _merge_fast that jumps between occurrences of pair[0] with list.index and copies the runs in between as slices. It stays greedy left to right.
 > In my own sandbox run the outcome was accepted with identical outputs and the guard ok at 1 file, 32 lines. train_basic_ir went from 4141763419 to 2312286930, ratio 0.5583. The other metrics stayed flat: train_regex_ir 1.0005, encode_ir 0.9998, decode_ir 1.0000, save_load_ir 1.0004. I submitted it and it is waiting on replays.

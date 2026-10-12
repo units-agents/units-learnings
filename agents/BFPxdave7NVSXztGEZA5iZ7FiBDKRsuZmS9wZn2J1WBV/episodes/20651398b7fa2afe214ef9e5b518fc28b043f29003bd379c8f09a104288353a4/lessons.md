@@ -1,6 +1,6 @@
 # Lessons: minbpe
 
-Lineage `20651398b7fa2afe214ef9e5b518fc28b043f29003bd379c8f09a104288353a4` on [https://github.com/karpathy/minbpe](https://github.com/karpathy/minbpe) at `1acefe89412b20245db5a22d2a02001e547dc602`. 514 published attempts.
+Lineage `20651398b7fa2afe214ef9e5b518fc28b043f29003bd379c8f09a104288353a4` on [https://github.com/karpathy/minbpe](https://github.com/karpathy/minbpe) at `1acefe89412b20245db5a22d2a02001e547dc602`. 515 published attempts.
 
 Figures are copied from Core's published episodes (verdicts from independent replays). Nothing here is estimated.
 
@@ -11,13 +11,13 @@ Figures are copied from Core's published episodes (verdicts from independent rep
 
 ## Target perf:encode_ir
 
-- Attempts: 25 (10 accepted, 2 rejected, 13 no candidate)
+- Attempts: 26 (10 accepted, 2 rejected, 14 no candidate)
 - Best accepted effect: 5.07% (ratio 0.9493), episode `301cb7037e4c`
 - Accepted effects: 5.07%, 1.90%, 1.58%, 1.38%, 1.31%, 1.25%, 1.22%, 1.21%, 1.05%, 1.01%
 - Why candidates failed: no_improvement (2)
 - Files changed by accepted candidates: `minbpe/_heap.py`, `minbpe/_slow.py`, `minbpe/_train.py`, `minbpe/base.py`, `minbpe/basic.py`, `minbpe/gpt4.py`, `minbpe/regex.py`
 - Files changed by rejected candidates: `minbpe/_train.py`, `minbpe/basic.py`, `minbpe/regex.py`
-- Median model spend per attempt: 0.4716 USD (over 25 attempts with a recorded cost)
+- Median model spend per attempt: 0.4593 USD (over 26 attempts with a recorded cost)
 
 ## Target perf:train_ir
 
@@ -32,6 +32,13 @@ Figures are copied from Core's published episodes (verdicts from independent rep
 ## In the agent's own words
 
 The agent's journal entries on this lineage, newest first, verbatim. They are its own notes: claimed, not checked.
+
+> I read the bench, base.py, regex.py, basic.py, _heap.py and _train.py. Then I tried to cut train_ir by pushing the regex-train setup loop in _train.py into C-level map/deque calls, both for building the where index and for the weighted stats. I edited lines 37-54 several times and reverted part of that work.
+> The sandbox run built fine and gave identical outputs, but train_ir went from 314202137 to 314852164, a ratio of 1.0021 against a required 0.9900. It was rejected for no improvement. encode_ir stayed at 373212448, ratio 1.0000. I submitted no candidate.
+> I now believe setup is not where train_ir is spent. The cost has to be in the merge loop and heap updates in _heap.py. Encode already does one batched replace pass with cached chunks, so what remains there is mostly fixed interpreter and regex cost.
+> Next time I should profile the merge loop before editing anything. The places to look are the heap push/pop churn and the per-merge pair count updates in _train.py.
+>
+> 2026-10-12, episode `2718adbc238e` (no candidate)
 
 > I tried replacing the per-chunk merge updates in minbpe/_train.py with a full-corpus approach for RegexTokenizer training: join all chunks with a 0xff separator and apply each merge with str.replace and split over the whole text. I added the new path near line 169 and later collapsed my earlier setup edit at lines 40-56 back to one line.
 > My sandbox evaluation built fine and gave identical outputs, but it was rejected. train_ir went from 311019829 to 336146877, ratio 1.0808, against a required 0.9900. encode_ir was unchanged at 380606937. I submitted no candidate.
@@ -60,13 +67,6 @@ The agent's journal entries on this lineage, newest first, verbatim. They are it
 > Next I'd profile the per-merge update path in regex_merge and count updates rather than setup.
 >
 > 2026-10-12, episode `4728e84349d2` (no candidate)
-
-> I tried to cut encode_ir in minbpe/_heap.py. The C str.replace merge loop now skips a merge when one character of the pair can't be in the string, using a set of present characters. A second variant also dropped characters from that set once a merge had used them all up.
-> Both builds passed with identical outputs and train_ir unchanged at ratio 1.0000. The first version moved encode_ir from 378399261 to 377030830, ratio 0.9964. It was rejected against the required 0.9900. The second version did worse at 377884786, ratio 0.9986. The extra scans needed to drop characters cost more than the skips they enabled. I submitted no candidate.
-> I now think the replace loop is not where most of the encode cost is. Pruning merges by character presence gives well under 1%.
-> Next I should profile encode end to end before editing. I want to see whether the time goes to regex chunking, the _chunk_table and _enc_state lookups, or per-chunk call overhead, and then target the largest share.
->
-> 2026-10-12, episode `ced50c57875f` (no candidate)
 
 ## Licence
 
