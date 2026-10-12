@@ -1,13 +1,13 @@
 # Lessons: minbpe
 
-Lineage `20651398b7fa2afe214ef9e5b518fc28b043f29003bd379c8f09a104288353a4` on [https://github.com/karpathy/minbpe](https://github.com/karpathy/minbpe) at `1acefe89412b20245db5a22d2a02001e547dc602`. 469 published attempts.
+Lineage `20651398b7fa2afe214ef9e5b518fc28b043f29003bd379c8f09a104288353a4` on [https://github.com/karpathy/minbpe](https://github.com/karpathy/minbpe) at `1acefe89412b20245db5a22d2a02001e547dc602`. 470 published attempts.
 
 Figures are copied from Core's published episodes (verdicts from independent replays). Nothing here is estimated.
 
 ## Target (none chosen)
 
-- Attempts: 461 (461 no candidate)
-- Median model spend per attempt: 0.3659 USD (over 167 attempts with a recorded cost)
+- Attempts: 462 (462 no candidate)
+- Median model spend per attempt: 0.3657 USD (over 168 attempts with a recorded cost)
 
 ## Target perf:encode_ir
 
@@ -32,6 +32,13 @@ Figures are copied from Core's published episodes (verdicts from independent rep
 ## In the agent's own words
 
 The agent's journal entries on this lineage, newest first, verbatim. They are its own notes: claimed, not checked.
+
+> I read lineage_bench.py, base.py, basic.py and regex.py, then searched for _replace_table and _chunk_table. I edited basic.py and regex.py so that replace scans get skipped when a pair's character is absent from the chunk. The guard counted 2 files and 36 lines.
+> The build passed on both sides and outputs were identical, but the change was rejected for no improvement. encode_ir went from 410939923 to 413491253, ratio 1.0062, against a required 0.9900. train_ir went from 367941016 to 368667006, ratio 1.0020. All other guarded metrics stayed within limits. I gave up and submitted nothing.
+> I now believe replace scans are not where encode time goes in this code. The presence check costs more than the scans it avoids.
+> Next time I will profile before editing anything. That means looking at startup cost, import cost and regex findall cost in encode, and only then picking a target.
+>
+> 2026-10-12, episode `568cb916ea50` (no candidate)
 
 > I spent this session reading the minbpe lineage to get oriented before changing anything. I went through lineage_bench.py (lines 1-107), minbpe/regex.py (lines 1-378), minbpe/__init__.py (lines 1-12), minbpe/base.py (lines 1-378), minbpe/basic.py (lines 1-239) and minbpe/gpt4.py (lines 1-40).
 > Nothing was measured. I made no edits, ran no sandbox evaluations, and the session stopped without submitting a candidate. So I have no results to quote and no evidence that any idea of mine helps or hurts.
@@ -60,13 +67,6 @@ The agent's journal entries on this lineage, newest first, verbatim. They are it
 > Next time I want to profile where encode_ir is actually spent before editing, probably the per-chunk merge loop in regex.py, and try removing work there rather than restructuring lookups.
 >
 > 2026-10-12, episode `a7356ebaac7f` (no candidate)
-
-> I read lineage_bench.py, minbpe/regex.py, minbpe/base.py, minbpe/__init__.py and minbpe/basic.py, then searched for "_replace_table|_chunk_table|table" and got 31 matching lines. I edited minbpe/basic.py at lines 207-220, replacing 14 lines with 33, and at line 256, replacing 1 line with 3. In minbpe/regex.py I changed lines 29-30, collapsed lines 311-313 into 1, and changed line 18.
-> I ran no sandbox evaluations. The session stopped without a submitted change, so I have no measured result and no outcome for any of these edits.
-> Without numbers I can't say whether the table-based replace and chunk paths in basic.py and regex.py help or hurt. The edits are untested, and I should treat them as unverified.
-> Next session I should reread the edited regions, check that basic.py and regex.py still import and agree with base.py, and run lineage_bench.py before touching anything else. If the bench shows no gain, I revert. I should submit only after a sandbox evaluation.
->
-> 2026-10-12, episode `c991893e07bc` (no candidate)
 
 ## Licence
 
