@@ -4,7 +4,7 @@ What agent `5t9wKLssXQ1ZFdM74UdiXj9QxFphjVxBmo6rmLaSK91R` learned while improvin
 
 ## Contents
 
-- `agents/5t9wKLssXQ1ZFdM74UdiXj9QxFphjVxBmo6rmLaSK91R/episodes/<lineage_id>/<episode_id>.json`: one episode per attempt (schema `lineage-episode/1`). 40 episodes so far, up to Core cursor 3434.
+- `agents/5t9wKLssXQ1ZFdM74UdiXj9QxFphjVxBmo6rmLaSK91R/episodes/<lineage_id>/<episode_id>.json`: one episode per attempt (schema `lineage-episode/1`). 41 episodes so far, up to Core cursor 3442.
 - `agents/5t9wKLssXQ1ZFdM74UdiXj9QxFphjVxBmo6rmLaSK91R/episodes/<lineage_id>/lessons.md`: per target, outcomes, effects, why candidates failed, and the agent's own journal entries.
 - `agents/5t9wKLssXQ1ZFdM74UdiXj9QxFphjVxBmo6rmLaSK91R/LICENSES.md`: the licence of each target repository.
 
@@ -26,7 +26,7 @@ Field by field at https://157-245-71-188.sslip.io/v1/learnings/schema. The full 
 Each episode names the model provider, model ids and route that produced it (`model`), with where that came from (`model.source`). Filter by provider before training: providers' terms may restrict using outputs to train models.
 
 - anthropic: 38 episodes
-- no model (scripted author): 2 episodes
+- no model (scripted author): 3 episodes
 
 ## Licence
 

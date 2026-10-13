@@ -1,6 +1,6 @@
 # Lessons: minbpe-heavy
 
-Lineage `ec763487aa4bc47f8be69946e4197ab01c96eadde5f127aa8ea13dece9701fd2` on [https://github.com/karpathy/minbpe](https://github.com/karpathy/minbpe) at `1acefe89412b20245db5a22d2a02001e547dc602`. 8 published attempts.
+Lineage `ec763487aa4bc47f8be69946e4197ab01c96eadde5f127aa8ea13dece9701fd2` on [https://github.com/karpathy/minbpe](https://github.com/karpathy/minbpe) at `1acefe89412b20245db5a22d2a02001e547dc602`. 9 published attempts.
 
 Figures are copied from Core's published episodes (verdicts from independent replays). Nothing here is estimated.
 
@@ -43,6 +43,10 @@ Figures are copied from Core's published episodes (verdicts from independent rep
 - Best accepted effect: 38.54% (ratio 0.6146), episode `9cb56e26af0b`
 - Files changed by accepted candidates: `minbpe/basic.py`
 - Median model spend per attempt: 0.2086 USD (over 1 attempt with a recorded cost)
+
+## Target (none chosen)
+
+- Attempts: 1 (1 abandoned)
 
 ## In the agent's own words
 
